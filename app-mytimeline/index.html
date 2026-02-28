@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyTimeline</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+
+  <body>
+    <!-- ===== Fixed Top Bar (ONLY: Birth, Events, Real-time input) ===== -->
+    <header id="topBar">
+      <!-- Left: Logo -->
+      <div id="logoWrap">
+        <div id="birthSummary" aria-label="Birth summary">
+          <div class="bsLine bsTitle">
+            <span id="bsName">—</span>
+          </div>
+
+          <div class="bsLine">
+            <span id="bsLocalDT">—</span>
+            <span class="bsSpacer"></span>
+            <span id="bsUTC">UTC: —</span>
+          </div>
+
+          <div class="bsLine">
+            <span id="bsPlace">—</span>
+            <span class="bsSpacer"></span>
+            <span id="bsHsys">—</span>
+          </div>
+
+          <div class="bsLine bsMeta">
+            <span id="bsLatLon">Lat/Lon: —</span>
+            <span class="bsSpacer"></span>
+            <span class="bsAttr">Location data © GeoNames.org</span>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Middle: Time controls -->
+      <div id="topCenter">
+        <div id="timeControls">
+          <!-- ONE ROW: toggles + speed + play -->
+          <div id="timeTopRow">
+            <div id="timeToggles" role="group" aria-label="Time scale">
+              <button class="tgl isOn" data-scale="year" type="button">Yr</button>
+              <button class="tgl" data-scale="month" type="button">Mo</button>
+              <button class="tgl" data-scale="week" type="button">Week</button>
+              <button class="tgl" data-scale="day" type="button">Day</button>
+              <button class="tgl" data-scale="hour" type="button">Hr</button>
+            </div>
+
+            <!-- NEW: bump arrows (do the jumping) -->
+            <div id="bumpWrap">
+              <div id="bumpPill">
+                <button class="bumpBtn" id="bumpBack" type="button" aria-label="Bump backward">◀</button>
+                <span class="bumpLabel">Bump</span>
+                <button class="bumpBtn" id="bumpFwd" type="button" aria-label="Bump forward">▶</button>
+              </div>
+            </div>
+
+
+            <div id="speedReadout" aria-label="Speed readout">
+              <span id="speedValue">0.00</span>
+              <span id="speedUnit">/sec</span>
+            </div>
+
+            <button id="playPause" type="button" aria-label="Play timeline">Play</button>
+          </div>
+
+          <!-- Slider directly underneath -->
+          <div id="sliderRow">
+            <div id="bipolarTrack" aria-label="Timeline speed slider" role="slider" tabindex="0">
+              <div id="deadZone"></div>
+              <div id="thumb"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Birth/Events + date/time + Go -->
+      <div id="topRightButtons">
+        <button id="openBirth" class="modalBtn btnBirth" type="button">Birth</button>
+        <button id="openEvents" class="modalBtn btnEvents" type="button">Events</button>
+
+        <div id="zDriver" aria-label="Real-time input">
+          <input id="zDate" type="date" />
+          <input id="zTime" type="time" step="60" />
+          <button id="zGo" type="button">Go</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== Birth Modal ===== -->
+    <div id="birthModal" class="modalOverlay" aria-hidden="true">
+      <div class="modalCard" role="dialog" aria-modal="true" aria-label="Birth">
+        <div class="modalHeader">
+          <h2>Birth</h2>
+          <button id="closeBirth" class="closeX" type="button" aria-label="Close">✕</button>
+        </div>
+
+        <form id="birthForm">
+          <div class="row">
+            <label>Name:
+              <input id="name" type="text" placeholder="e.g. test person" />
+            </label>
+          </div>
+
+          <div class="row">
+            <label>Date:
+              <input id="date" type="date" required />
+            </label>
+          </div>
+
+          <div class="row">
+            <label>Time (local):
+              <input id="time" type="time" step="60" required />
+            </label>
+          </div>
+
+          <div class="row">
+            <label>City:
+              <input id="city" type="text" placeholder="Kailua-Kona" required />
+            </label>
+          </div>
+
+          <div class="row">
+            <label>State (2 letters):
+              <input id="state" type="text" maxlength="2" placeholder="HI" required />
+            </label>
+          </div>
+
+                    <div class="row">
+            <label>House system:
+              <select id="hsys">
+                <option value="W" selected>Whole Sign (W)</option>
+                <option value="O">Porphyry (O)</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- Selection popouts (bodies / stars) -->
+          <div class="row controls birthSelectors">
+            <button id="openBodies" class="pillBtn" type="button">Bodies</button>
+            <button id="openStars" class="pillBtn" type="button">Stars</button>
+          </div>
+
+          <div class="row">
+            <div id="birthError" class="errorText" aria-live="polite"></div>
+          </div>
+
+          <div class="row controls birthActions">
+            <button id="run" class="pillBtn runPill" type="submit">Calculate</button>
+
+            <button id="saveBirth" class="pillBtn" type="button">Save / Update</button>
+            <button id="renameBirth" class="pillBtn" type="button">Rename</button>
+            <button id="newBirth" class="pillBtn" type="button">New</button>
+            <button id="deleteBirth" class="pillBtn" type="button">Delete</button>
+          </div>
+
+          <div class="row">
+            <label>Saved charts:</label>
+            <div class="rowRight">
+              <select id="savedList"></select>
+              <button id="loadBirth" class="pillBtn" type="button">Load</button>
+            </div>
+          </div>
+
+        <div class="row controls bottomActions">
+          <button id="toBand" class="pillBtn bandPill" type="button" disabled>Load to Band</button>
+          <div id="timelineStatus" class="pillBtn timelineStatusPill" role="status" aria-live="polite">Timeline</div>
+          <button id="exportBirth" class="pillBtn" type="button">Export</button>
+          <button id="importBirth" class="pillBtn" type="button">Import</button>
+
+          <input id="importFile" type="file" accept="application/json" style="display:none" />
+        </div>
+
+
+          <!-- wheel goes at the very bottom -->
+          <div class="row wheelRow">
+            <div class="wheelPreview">
+              <img id="wheelImg" alt="Astro wheel preview" />
+            </div>
+          </div>
+
+        </form>
+
+        <div class="modalFooter">
+          <button id="closeBirth2" class="closeBtn" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Bodies Selector (popout) ===== -->
+    <div id="bodiesModal" class="modalOverlay miniModal" aria-hidden="true">
+      <div class="modalCard" role="dialog" aria-modal="true" aria-label="Bodies">
+        <div class="modalHeader">
+          <h2>Bodies</h2>
+          <button id="closeBodies" class="closeX" type="button" aria-label="Close">✕</button>
+        </div>
+
+        <div class="modalBody">
+          <div class="selectorHelp">Pick which bodies show on the real-time band (and later the natal under-band).</div>
+
+          <div class="row controls">
+            <button id="bodiesAll" class="pillBtn" type="button">All</button>
+            <button id="bodiesNone" class="pillBtn" type="button">None</button>
+          </div>
+
+          <div id="bodiesGrid" class="pillGrid"></div>
+        </div>
+
+        <div class="modalFooter">
+          <button id="closeBodies2" class="closeBtn" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Stars Selector (popout) ===== -->
+    <div id="starsModal" class="modalOverlay miniModal" aria-hidden="true">
+      <div class="modalCard" role="dialog" aria-modal="true" aria-label="Stars">
+        <div class="modalHeader">
+          <h2>Stars</h2>
+          <button id="closeStars" class="closeX" type="button" aria-label="Close">✕</button>
+        </div>
+
+        <div class="modalBody">
+          <div class="selectorHelp">Pick which fixed stars show above the ecliptic on the real-time band.</div>
+
+          <div class="row controls">
+            <button id="starsAll" class="pillBtn" type="button">All</button>
+            <button id="starsNone" class="pillBtn" type="button">None</button>
+          </div>
+
+          <div id="starsGrid" class="pillGrid"></div>
+        </div>
+
+        <div class="modalFooter">
+          <button id="closeStars2" class="closeBtn" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Events Modal ===== -->
+    <div id="eventsModal" class="modalOverlay" aria-hidden="true">
+      <div class="modalCard" role="dialog" aria-modal="true" aria-label="Events">
+        <div class="modalHeader">
+          <h2>Events</h2>
+          <button id="closeEvents" class="closeX" type="button" aria-label="Close">✕</button>
+        </div>
+
+        <div class="row">
+          <label>Event title:
+            <input id="eventTitle" type="text" placeholder="e.g. Moved to NYC" />
+          </label>
+        </div>
+
+        <div class="row">
+          <label>Event date:
+            <input id="eventDate" type="date" />
+          </label>
+        </div>
+
+        <div class="row controls">
+          <button id="addEvent" type="button">Add event</button>
+          <button id="deleteEvent" type="button">Delete selected event</button>
+        </div>
+
+        <div class="row">
+          <label>Saved events:
+            <select id="eventList" size="6"></select>
+          </label>
+        </div>
+
+        <div class="modalFooter">
+          <button id="closeEvents2" class="closeBtn" type="button">Close</button>
+        </div>
+      </div>
+     </div>
+
+    <!-- ===== Zodiac Band Viewport ===== -->
+    <section id="zodiacViewport" aria-label="Zodiac band">
+      <div id="zodiacDateBox">0000-00-00 00:00</div>
+      <svg id="zodiacSVG" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <defs>
+          <clipPath id="zodiacClip" clipPathUnits="userSpaceOnUse">
+            <rect id="zodiacClipRect" x="0" y="0" width="100" height="100"></rect>
+          </clipPath>
+
+          <!-- NEW: clip so glow only shows ABOVE the ecliptic -->
+          <clipPath id="aboveEclipticClip" clipPathUnits="userSpaceOnUse">
+            <rect id="aboveEclipticRect" x="0" y="0" width="100" height="100"></rect>
+          </clipPath>
+
+          <!-- NEW: soft violet glow gradient -->
+          <radialGradient id="sunGlowGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#c7a0ff" stop-opacity="0.75"/>
+            <stop offset="55%" stop-color="#b57bff" stop-opacity="0.24"/>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+          </radialGradient>
+
+          <!-- NEW: blur to soften the edge -->
+          <filter id="sunGlowBlur" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="14"/>
+          </filter>
+
+                    <!-- NEW: eclipse glows -->
+          <radialGradient id="solarEclipseGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#b57bff" stop-opacity="0.00"/>
+            <stop offset="45%" stop-color="#b57bff" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0.00"/>
+          </radialGradient>
+
+          <radialGradient id="lunarEclipseGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#c7a0ff" stop-opacity="0.00"/>
+            <stop offset="45%" stop-color="#c7a0ff" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0.00"/>
+          </radialGradient>
+
+          <filter id="eclipseBlur" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="10"/>
+          </filter>
+        </defs>
+
+        <g id="underlayGroup" clip-path="url(#zodiacClip)">
+          <g id="trackGroup">
+            <g id="signBand"></g>
+            <g id="degreeTicks"></g>
+            <g id="conjunctionLayer"></g>
+            <g id="bodiesGroup"></g>
+            <line id="eclipticLine" x1="0" y1="0" x2="100" y2="0"
+                  stroke="rgba(255,255,255,0.55)" stroke-width="1"></line>
+          </g>
+        </g>
+
+        <!-- STATIC overlays (not translated with trackGroup) -->
+        <g id="staticOverlay" clip-path="url(#zodiacClip)">
+          <!-- Fixed stars (above ecliptic) -->
+          <g id="starsGroup"></g>
+
+          <!-- Natal under-ecliptic (static longitudes, but re-positioned when view pans) -->
+          <g id="natalGroup">
+            <g id="natalHouseLines"></g>
+
+            <!-- NEW: house numbers (1..12) -->
+            <g id="natalHouseLabels"></g>
+
+            <!-- NEW: ASC/MC/DSC/IC markers -->
+            <g id="natalAngles"></g>
+
+            <g id="natalDots"></g>
+            <g id="natalLeaders"></g>
+            <g id="natalGlyphs"></g>
+          </g>
+        </g>
+
+        <g id="sunGlowGroup" clip-path="url(#aboveEclipticClip)">
+          <circle id="sunGlow"
+                  r="180"
+                  fill="url(#sunGlowGrad)"
+                  filter="url(#sunGlowBlur)"
+                  opacity="0.95"></circle>
+
+                  <!-- NEW: eclipse overlays -->
+                <g id="eclipseOverlay">
+                  <circle id="solarEclipseGlow"
+                          r="80"
+                          fill="url(#solarEclipseGrad)"
+                          filter="url(#eclipseBlur)"
+                          display="none"></circle>
+
+                  <circle id="lunarEclipseGlow"
+                          r="80"
+                          fill="url(#lunarEclipseGrad)"
+                          filter="url(#eclipseBlur)"
+                          display="none"></circle>
+                </g>
+  
+          <!-- NEW: visibility boundaries (Mercury/Venus elongation cutoffs) -->
+        </g>
+
+        <text id="sunGlyph" text-anchor="middle" dominant-baseline="middle" fill="#ffd24d">☉</text>
+        <circle id="sunDot" r="3" fill="#ffd24d"></circle>
+
+        </svg>
+
+        </section>
+        </section>
+       <!-- ===== Personal Timeline (3 rails) ===== -->
+        <section id="personalTimeline" aria-label="Personal timeline">
+         
+          <!-- sun marker (moves by age, hits ticks on solar return) -->
+          <div id="ptSun" aria-hidden="true">☉</div>
+
+          <!-- Full overlay shown while timeline/cycles are calculating -->
+          <div id="ptLoadingOverlay" class="ptLoadingOverlay" aria-hidden="true">
+            <div class="ptLoadingCard" role="status" aria-live="polite">
+              <div class="ptSpinner" aria-hidden="true"></div>
+              <div class="ptLoadingText">Calculating…</div>
+            </div>
+          </div>
+
+          <div class="ptLane" data-lane="1"></div>
+          <div class="ptLane" data-lane="2"></div>
+          <div class="ptLane" data-lane="3"></div>
+
+        </section>
+
+
+        <script type="module" src="/src/zodiac-band.js"></script>
+        <script type="module" src="/src/main.js"></script>
+        <script type="module" src="/src/timeline.js"></script>
+      </body>
+    </html>
+
+

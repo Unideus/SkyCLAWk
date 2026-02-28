@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Zodi-Yuga Wheel</title>
+  <style>
+    :root{
+      --bg:#050505;
+      --panel: rgba(0,0,0,.82);
+      --border: rgba(255,255,255,.18);
+      --btnbg: rgba(255,255,255,.06);
+      --btnbg2: rgba(255,255,255,.10);
+      --txt: rgba(255,255,255,.92);
+    }
+    html,body{ height:100%; margin:0; background:var(--bg); color:var(--txt); font-family: system-ui, Segoe UI, Arial, sans-serif; }
+    .wrap{ height:100%; display:flex; flex-direction:column; }
+    .top{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 12px; gap:10px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+    }
+    .title{ font-size:14px; opacity:.9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .btnrow{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    button{
+      border:1px solid var(--border);
+      background: var(--btnbg);
+      color:var(--txt);
+      padding:7px 10px;
+      border-radius:12px;
+      cursor:pointer;
+      font-size:13px;
+    }
+    button:hover{ background: var(--btnbg2); }
+    .main{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      padding:12px;
+    }
+    #wheelImg{
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      user-select:none;
+      -webkit-user-drag:none;
+    }
+    .hint{ font-size:12px; opacity:.65; padding:8px 12px; border-top:1px solid var(--border); background:rgba(0,0,0,.55); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="title" id="dateText">Wheel</div>
+      <div class="btnrow">
+        <button id="innerBtn" type="button">Inner</button>
+        <button id="outerBtn" type="button">Outer</button>
+        <button id="natalBtn" type="button">Natal</button>
+        <button id="closeBtn" type="button">Close</button>
+      </div>
+    </div>
+
+    <div class="main">
+      <img id="wheelImg" alt="Astro Wheel" />
+    </div>
+
+    <div class="hint">This window is driven by the main timeline. Keep the main tab open.</div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const wheelImg = $("wheelImg");
+    const dateText = $("dateText");
+
+    function send(msg){
+      try {
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage(msg, "*");
+        }
+      } catch(e){}
+    }
+
+    // Request state on load
+    send({ type: "wheel:hello" });
+
+    window.addEventListener("message", (ev) => {
+      const m = ev.data;
+      if (!m || typeof m !== "object") return;
+
+      if (m.type === "wheel:update") {
+        if (typeof m.src === "string") wheelImg.src = m.src;
+        if (typeof m.dateText === "string") dateText.textContent = m.dateText;
+        document.title = (m.dateText ? m.dateText + " — Wheel" : "Wheel");
+      }
+
+      if (m.type === "wheel:state") {
+        $("innerBtn").classList.toggle("active", !!m.showInner);
+        $("outerBtn").classList.toggle("active", !!m.showOuter);
+        $("natalBtn").classList.toggle("active", !!m.showNatal);
+      }
+    });
+
+    $("innerBtn").addEventListener("click", () => send({ type:"wheel:toggle", what:"inner" }));
+    $("outerBtn").addEventListener("click", () => send({ type:"wheel:toggle", what:"outer" }));
+    $("natalBtn").addEventListener("click", () => send({ type:"wheel:toggle", what:"natal" }));
+    $("closeBtn").addEventListener("click", () => window.close());
+  </script>
+</body>
+</html>

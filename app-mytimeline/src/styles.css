@@ -1,0 +1,1538 @@
+:root{
+  --topbarH: 140px;
+  --pad: 20px;
+  --colGap: 20px;
+
+  --controlH: 44px;
+  --btnW: 110px;
+  --rtW1: 120px;
+  --rtW2: 120px;
+
+  --radius: 12px;
+
+  --centerMax: 980px;
+  --trackMax: 820px;
+
+  --bg: #0b0b0d;
+  --panel: rgba(6, 7, 10, 0.82);
+  --stroke: rgba(255,255,255,0.12);
+  --stroke2: rgba(255,255,255,0.18);
+  --glass: rgba(0,0,0,0.30);
+  --glass2: rgba(0,0,0,0.22);
+  --text: rgba(255,255,255,0.88);
+  --textDim: rgba(255,255,255,0.65);
+}
+
+*{ box-sizing: border-box; }
+
+html, body{
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, Arial, sans-serif;
+}
+
+body{
+  padding-top: var(--topbarH);
+}
+
+/* Global button reset (so browser defaults don't shift sizing) */
+button{
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* ===== TOP BAR (3 columns) ===== */
+#topBar{
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: var(--topbarH);
+  z-index: 2000;
+
+  display: grid;
+  grid-template-columns: 460px minmax(0, 1fr) max-content;
+  column-gap: var(--colGap);
+  align-items: start;
+
+  padding: var(--pad);
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ===== LEFT: LOGO ===== */
+#logoWrap{
+  justify-self: start;
+  align-self: start;
+  display: flex;
+  align-items: flex-start;
+  min-width: 0;
+  width: 460px;         /* fixed so center/right never shift */
+}
+
+/* ===== LEFT: BIRTH SUMMARY STRIP (replaces logo image) ===== */
+#birthSummary{
+  height: calc(var(--topbarH) - (var(--pad) * 2));
+  width: 100%;          /* fills the fixed 460px column */
+
+  padding: 10px 12px;
+  border-radius: var(--radius);
+
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.12);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+               "Liberation Mono", "Courier New", monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.bsLine{
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bsSpacer{ flex: 1 1 auto; }
+
+.bsTitle{
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.bsMeta{
+  font-size: 11px;
+  color: rgba(255,255,255,0.62);
+}
+
+.bsAttr{
+  color: rgba(255,255,255,0.52);
+}
+
+/* ===== CENTER: CONTROLS (2 rows) ===== */
+#topCenter{
+  justify-self: center;
+  align-self: start;
+  width: min(var(--centerMax), 100%);
+  min-width: 0;
+  height: calc(var(--topbarH) - (var(--pad) * 2));
+  display: flex;
+  align-items: flex-start;
+}
+
+/* Holds: top row (buttons), bottom row (slider) */
+#timeControls{
+  width: 100%;
+  min-height: calc(var(--topbarH) - (var(--pad) * 2));
+  display: grid;
+  grid-template-rows: auto auto;
+  row-gap: 12px;
+  align-content: start;
+
+  /* both rows share the same centered width */
+  justify-items: center;
+}
+
+/* TOP ROW: centered over the slider width */
+#timeTopRow{
+  width: min(var(--trackMax), 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Toggle group */
+#timeToggles{
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- Shared base button reset ---------- */
+#timeTopRow button{
+  font: inherit;
+  color: inherit;
+}
+
+/* ---------- Time scale toggles (pills) ---------- */
+.tgl{
+  height: var(--controlH);
+  min-width: 54px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.35);
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.tgl:hover{ background: rgba(255,255,255,.08); }
+
+.tgl.isOn{
+  background: rgba(25, 163, 74, 0.60);
+  border-color: rgba(25, 163, 74, 0.85);
+  color: #fff;
+}
+
+
+/* ---------- BUMP CONTROL (one pill with end-caps) ---------- */
+#bumpWrap{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Outer pill */
+#bumpPill{
+  height: var(--controlH);
+  display: inline-flex;
+  align-items: center;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.35);
+  overflow: hidden; /* makes end-caps look like they’re inside one pill */
+}
+
+/* End-cap buttons */
+#bumpPill .bumpBtn{
+  height: 100%;
+  width: var(--controlH);   /* square caps */
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  user-select: none;
+}
+
+/* Middle label */
+#bumpPill .bumpLabel{
+  height: 100%;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 300;
+  letter-spacing: .2px;
+  white-space: nowrap;
+  user-select: none;
+
+  /* separators between caps and label */
+  border-left: 1px solid rgba(255,255,255,.18);
+  border-right: 1px solid rgba(255,255,255,.18);
+}
+
+#bumpPill .bumpBtn:hover{
+  background: rgba(255,255,255,.08);
+}
+
+#bumpPill .bumpBtn:disabled{
+  opacity: .35;
+  cursor: default;
+}
+
+/* ---------- Speed readout (one line, no wrap) ---------- */
+#speedReadout{
+  height: var(--controlH);
+  min-width: 110px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap; /* keeps "0.00 /sec" on one line */
+  line-height: 1;
+  color: #fff;
+}
+
+#speedValue{
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+#speedUnit{
+  font-size: 12px;
+  opacity: .9;
+}
+
+/* ---------- Play/Pause (text button, wider) ---------- */
+#playPause{
+  height: var(--controlH);
+  min-width: 86px;  /* wide enough for "Pause" */
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.35);
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* PLAY state (green) */
+#playPause.isPlay{
+  background: rgba(25, 163, 74, 0.60); /* same green as unit toggle */
+  border-color: rgba(25, 163, 74, 0.85);
+  color: #fff;
+}
+
+/* PAUSE state (red) */
+#playPause.isPause{
+  background: rgba(190, 40, 40, 0.60); /* muted red */
+  border-color: rgba(190, 40, 40, 0.85);
+  color: #fff;
+}
+
+/* Only apply hover tint when NOT in play/pause colored states */
+#playPause:not(.isPlay):not(.isPause):hover{
+  background: rgba(255,255,255,.08);
+}
+
+
+
+
+/* Units/sec readout: same height, ONE LINE */
+#speedReadout{
+  height: var(--controlH);
+  min-width: 110px;            /* enough for "0.00 /sec" */
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;         /* prevents wrapping */
+  line-height: 1;
+  color: #fff;
+}
+
+#speedValue{
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+#speedUnit{
+  font-size: 12px;
+  opacity: .9;
+}
+
+/* ===== Slider row ===== */
+#sliderRow{
+  width: min(var(--trackMax), 100%);
+  display: flex;
+  justify-content: center;
+}
+
+#bipolarTrack{
+  width: 100%;
+  height: var(--controlH);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.12);
+
+  /* your red-at-edges gradient */
+  background: linear-gradient(90deg,
+    rgba(190, 40, 40, 0.55) 0%,
+    rgba(0, 0, 0, 0.15) 45%,
+    rgba(0, 0, 0, 0.15) 55%,
+    rgba(190, 40, 40, 0.55) 100%
+  );
+
+  position: relative;
+  overflow: hidden;
+
+  /* ✅ stop browser gestures / drag-drop weirdness */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+
+  cursor: grab;
+}
+#bipolarTrack:active{
+  cursor: grabbing;
+}
+
+#thumb{
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+#deadZone{
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 20px;
+  height: 100%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.55); /* black center */
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+/* Thumb: bright analog fader-style knob (vertical ridged rectangle) */
+#thumb{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 20px;                 /* slightly thicker */
+  height: 36px;
+  border-radius: 5px;
+
+  /* IMPORTANT: one background stack (don’t mix background + background-image) */
+  background:
+    /* bright center stripe */
+    linear-gradient(to right,
+      rgba(0,0,0,.30) 0%,
+      rgba(255,255,255,.95) 35%,
+      rgba(255,255,255,1.00) 50%,
+      rgba(255,255,255,.95) 65%,
+      rgba(0,0,0,.30) 100%
+    ),
+    /* ridges */
+    repeating-linear-gradient(to bottom,
+      rgba(0,0,0,.22) 0px,
+      rgba(0,0,0,.22) 1px,
+      rgba(255,255,255,.35) 2px,
+      rgba(255,255,255,.35) 4px
+    ),
+    /* base body */
+    linear-gradient(to bottom,
+      rgba(255,255,255,1.00),
+      rgba(235,235,235,1.00)
+    );
+
+  border: 1px solid rgba(0,0,0,.45);
+
+  /* make it pop */
+  box-shadow:
+    0 10px 18px rgba(0,0,0,.45),
+    0 0 10px rgba(255,255,255,.20),
+    inset 0 2px 0 rgba(255,255,255,.70),
+    inset 0 -3px 0 rgba(0,0,0,.22);
+}
+
+#thumb::after{
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 2px;
+  border-radius: 2px;
+
+  /* brighter “index mark” */
+  background: rgba(0,0,0,.35);
+  box-shadow: 0 1px 0 rgba(255,255,255,.35);
+}
+
+
+/* You said remove the date/time readout (hide it even if still in HTML) */
+#timeReadout{ display: none !important; }
+
+/* ===== RIGHT: BIRTH/EVENTS + DATE/TIME (pinned top-right) ===== */
+#topRightButtons{
+  justify-self: end;
+  align-self: start;
+
+  display: grid;
+  grid-template-columns: var(--btnW) auto;
+  grid-template-rows: auto auto;
+  gap: 10px 12px;
+  min-width: 0;
+}
+
+#openBirth{ grid-column: 1; grid-row: 1; }
+#openEvents{ grid-column: 1; grid-row: 2; }
+
+#zDriver{
+  grid-column: 2;
+  grid-row: 1 / span 2;
+
+  display: grid;
+  grid-template-columns: var(--rtW1) var(--rtW2);
+  grid-auto-rows: var(--controlH);
+  gap: 8px;
+  align-content: start;
+}
+
+/* Birth/Events buttons — match Play button weight + opacity behavior */
+/* Birth/Events buttons — same height as slider/toggles */
+.modalBtn{
+  width: var(--btnW);
+  height: var(--controlH);
+  padding: 0 14px;
+  border-radius: 12px;
+
+  border: 1px solid rgba(255,255,255,.18);
+  cursor: pointer;
+
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: .2px;
+  line-height: 1;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+
+/* Same opacity feel as Play (0.60) */
+.btnBirth{
+  background: rgba(25, 163, 74, 0.60);
+  border-color: rgba(25, 163, 74, 0.85);
+  color: #fff;
+}
+
+.btnEvents{
+  background: rgba(242, 201, 76, 0.60);
+  border-color: rgba(242, 201, 76, 0.85);
+  color: #111;                 /* keep readable */
+}
+
+/* Hover: keep the “dark/black-ish hover” vibe WITHOUT changing Events text to white */
+.btnBirth:hover{
+  background: rgba(25, 163, 74, 0.70);
+}
+
+.btnEvents:hover{
+  background: rgba(242, 201, 76, 0.70);
+  color: #111;                 /* <- undo the white-on-hover change */
+}
+
+
+
+#zDriver input,
+#zDriver button{
+  height: var(--controlH);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.35);
+  color: rgba(255,255,255,0.85);
+  padding: 0 10px;
+}
+
+#zGo{
+  grid-column: 1 / -1;
+  background: rgba(255,255,255,0.08);
+  cursor: pointer;
+}
+
+/* ===== MODALS ===== */
+.modalOverlay{
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 2500;
+  padding: 2vh 0;   /* tighter */
+}
+
+.modalOverlay.isOpen{ display: block; }
+
+/* Bodies/Stars selector grids */
+.selectGrid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  padding-top:10px;
+}
+
+.selectPill{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+
+  min-height:54px;
+  padding:10px 14px;
+
+  border-radius:999px;
+
+  /* OFF state = neutral */
+  border:1px solid rgba(255,255,255,0.18);
+  background:rgba(0,0,0,0.35);
+  color:rgba(255,255,255,0.92);
+
+  cursor:pointer;
+  user-select:none;
+
+  white-space:normal;
+  line-height:1.1;
+  text-align:center;
+
+  transition:transform .08s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+.selectPill:hover{
+  background: rgba(255,255,255,0.06);
+}
+
+.selectPill.isOn{
+  /* ON state = green */
+  border-color: rgba(0,255,140,0.70);
+  background: rgba(0,255,140,0.12);
+  box-shadow: 0 0 0 2px rgba(0,255,140,0.16) inset;
+}
+
+.selectPill .glyph{
+  font-size:18px;
+  line-height:1;
+}
+
+.selectPill .label{
+  font-size:12px;
+  line-height:1.15;
+  opacity:0.95;
+}
+
+.selectPill .glyph{
+  font-size:18px;
+  line-height:1;
+  margin:0;                      /* ✅ no sideways spacing when stacked */
+}
+
+/* Star pills (glyph + name stacked) */
+.selectPill.hasLabel{
+  flex-direction: column;
+  gap: 4px;
+  height: auto;
+  padding: 10px 12px;
+  min-width: 92px;
+}
+
+.selectPill.hasLabel .glyph{
+  font-size: 18px;
+  line-height: 1;
+}
+
+.selectPill.hasLabel .label{
+  font-size: 12px;
+  line-height: 1.15;
+  text-align: center;
+  white-space: normal;
+  word-break: break-word;
+  max-width: 110px;
+}
+
+.modalCard{
+  width: min(520px, 94vw);  /* tighter, less side gap */
+  margin: 0 auto;
+  border-radius: 14px;
+  padding: 10px 10px 8px;   /* tighter */
+  box-shadow: 0 20px 80px rgba(0,0,0,.4);
+
+  background: rgba(10, 12, 18, 0.92);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.modalHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap: 12px;
+}
+.modalHeader h2{ margin: 0; }
+
+.closeX{
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.9);
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor:pointer;
+}
+
+.modalFooter{
+  display:flex;
+  justify-content:flex-end;
+  gap: 8px;
+  border-top: 1px solid rgba(255,255,255,0.10);
+  padding-top:10px;
+  margin-top:10px;
+}
+
+.closeBtn{
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.9);
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor:pointer;
+}
+
+.row{ margin: 6px 0; }  /* tighter vertical rhythm */
+
+/* Controls rows: right-justified pills */
+.row.controls{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.row.controls.birthActions{
+  justify-content: flex-start; /* ✅ Calculate on the left inline with the rest */
+}
+
+.controls button{ margin-right: 0; }
+
+/* Label + input: label text on left, field on right */
+.modalCard label{
+  margin: 4px 0;
+  display: grid;
+  grid-template-columns: 120px 1fr; /* tighter label column */
+  align-items: center;
+  column-gap: 8px;                  /* tighter gap */
+}
+
+
+.modalCard label > input,
+.modalCard label > select{
+  margin-left: auto;           /* ✅ right-justify */
+}
+
+.modalCard input,
+.modalCard select{
+  height: var(--controlH);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.70);   /* ✅ stays black */
+  color: rgba(255,255,255,0.92);  /* ✅ white text */
+  padding: 0 8px;  /* slightly tighter */
+  width: 100%;
+  max-width: none;   /* ✅ field uses available width (no awkward spacing) */
+}
+
+/* ===== Birth modal pills ===== */
+.pillBtn{
+  height: var(--controlH);
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.35);
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  line-height: 1;
+}
+.pillBtn:hover{ background: rgba(255,255,255,.08); }
+
+/* Calculate: red until ready, then green */
+.runPill{
+  background: rgba(190, 40, 40, 0.60);
+  border-color: rgba(190, 40, 40, 0.85);
+}
+.runPill.isReady{
+  background: rgba(25, 163, 74, 0.60);
+  border-color: rgba(25, 163, 74, 0.85);
+}
+
+/* ===== Selector popouts (Bodies / Stars) ===== */
+.birthSelectors{
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modalOverlay.miniModal .modalCard{
+  max-width: 540px;
+}
+
+.selectorHelp{
+  color: rgba(255,255,255,.70);
+  font-size: 13px;
+  margin: 6px 0 10px;
+}
+
+.pillGrid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  padding: 6px 2px 2px;
+}
+
+.togglePill{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.85);
+  cursor: pointer;
+  user-select: none;
+}
+
+.togglePill .g{
+  font-size: 18px;
+  line-height: 1;
+}
+
+.togglePill.isOn{
+  border-color: rgba(255,255,255,.32);
+  background: rgba(25, 163, 74, 0.25);
+}
+
+.togglePill.isOff{
+  opacity: .65;
+}
+
+/* Wheel preview box */
+.wheelRow{ margin-top: 6px; }
+
+.wheelPreview{
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.45);
+  padding: 10px;
+}
+
+#wheelImg{
+  width: 100%;
+  height: 340px;      /* bigger wheel */
+  object-fit: contain;
+  display: block;
+  opacity: 1;
+}
+
+/* Bottom action row */
+.row.controls.bottomActions{
+  justify-content: flex-end;
+}
+
+/* Load to Band pill: red until calculated, then green */
+.bandPill{
+  background: rgba(190, 40, 40, 0.60);
+  border-color: rgba(190, 40, 40, 0.85);
+  opacity: 0.95;
+}
+.bandPill.isReady{
+  background: rgba(25, 163, 74, 0.60);
+  border-color: rgba(25, 163, 74, 0.85);
+}
+.bandPill:disabled{
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Timeline status pill (left of Load to Band)
+   default: black ("Timeline")
+   calculating: red ("Calculating...")
+   finished: green ("Finished")
+*/
+
+.timelineStatusPill{
+  background: rgba(0, 0, 0, 0.70);
+  border-color: rgba(255,255,255,0.22);
+  color: rgba(255,255,255,0.90);
+  opacity: 0.95;
+
+  /* display-only (no “finger”, no focus, no click) */
+  cursor: default;
+  pointer-events: none;
+  user-select: none;
+
+  /* lock size so row never shifts */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  min-width: 140px;   /* enough for "Calculating..." */
+  height: 42px;       /* match your pill button height */
+  line-height: 42px;  /* prevent vertical jitter */
+  padding: 0 16px;    /* keep pill look, but stable */
+}
+
+.timelineStatusPill.isCalc{
+  background: rgba(190, 40, 40, 0.70);
+  border-color: rgba(190, 40, 40, 0.85);
+}
+
+.timelineStatusPill.isDone{
+  background: rgba(25, 163, 74, 0.70);
+  border-color: rgba(25, 163, 74, 0.85);
+}
+
+/* Saved charts row: right-side cluster */
+.rowRight{
+  margin-left: auto;
+  display: flex;              /* ✅ allow the select to grow */
+  align-items: center;
+  gap: 10px;
+  width: 100%;                /* ✅ span the remaining row width */
+}
+
+#savedList{
+  flex: 1 1 auto;             /* ✅ fill the row */
+  min-width: 0;               /* ✅ prevents overflow */
+}
+
+/* Reserve space for future “Ship to band” button */
+.ghostSlot{
+  display: inline-block;
+  width: 120px;               /* 👈 room for the future button */
+  height: var(--controlH);
+}
+
+/* ✅ kill the browser autofill “light box” */
+.modalCard input:-webkit-autofill,
+.modalCard input:-webkit-autofill:hover,
+.modalCard input:-webkit-autofill:focus,
+.modalCard select:-webkit-autofill,
+.modalCard select:-webkit-autofill:hover,
+.modalCard select:-webkit-autofill:focus{
+  -webkit-text-fill-color: rgba(255,255,255,0.92);
+  box-shadow: 0 0 0px 1000px rgba(0,0,0,0.70) inset;
+  transition: background-color 999999s ease-out 0s;
+  caret-color: rgba(255,255,255,0.92);
+}
+
+.errorText{
+  color: rgba(255, 80, 80, 0.95);
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.modalCard small{ color: rgba(255,255,255,0.55); }
+
+/* ===== SMALL SCREENS ===== */
+@media (max-width: 900px){
+  :root{ --topbarH: 120px; }
+  #topCenter{ display:none; }
+}
+
+/* =========================
+   Zodiac Band Viewport
+========================= */
+#zodiacViewport{
+  position: relative;
+  height: 250px;
+  margin: 0 var(--pad);
+  background: #000;
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+#zodiacCanvas{
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#zodiacDateBox{
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 260px;               /* fixed width so it doesn't jump */
+  text-align: center;
+  padding: 8px 0;
+  font-size: 14px;
+  color: rgba(255,255,255,0.92);
+  background: rgba(0,0,0,0.55);
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+
+  white-space: nowrap;        /* ✅ never wrap */
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+               "Liberation Mono", "Courier New", monospace;  /* ✅ steady */
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* =========================
+   Personal Timeline (3 rails under band)
+========================= */
+#personalTimeline{
+  /* fill the space below the band (topbar is body padding-top already) */
+  height: calc(100vh - var(--topbarH) - 250px - 24px);
+  margin: 12px var(--pad) 0;
+
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.35);
+
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Full-screen timeline overlay (shown while cycles compute) */
+.ptLoadingOverlay{
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+  z-index: 200;
+}
+
+#personalTimeline.isLoading .ptLoadingOverlay{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ptLoadingCard{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.60);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+}
+
+.ptSpinner{
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.25);
+  border-top-color: rgba(255,255,255,0.85);
+  animation: ptSpin 0.9s linear infinite;
+}
+
+.ptLoadingText{
+  font-size: 14px;
+  color: rgba(255,255,255,0.92);
+  letter-spacing: 0.2px;
+}
+
+@keyframes ptSpin{
+  to { transform: rotate(360deg); }
+}
+
+/* Each lane is 1/3 of the available height */
+.ptLane{
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0; /* important so flex children can shrink evenly */
+}
+
+/* divider between thirds (optional, helps visualize lanes) */
+.ptLane + .ptLane{
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Houses track inside each lane */
+/* ===== Personal Timeline ticks (33 years per lane) ===== */
+.ptTicks{
+  position: absolute;
+  inset: 0;
+  padding: 0 14px;
+  display: grid;
+  grid-template-columns: repeat(1, 1fr); /* JS sets actual columns */
+  align-items: stretch;
+}
+
+.ptTick{
+  position: relative;
+}
+
+/* vertical tick line */
+.ptTick::before{
+  content:"";
+  position:absolute;
+  left: 0;              /* boundary tick */
+  top: 50%;
+  width: 1px;
+  height: 20px;         /* 10px above + 10px below center */
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.14);
+}
+
+/* colored segment between ticks, touching the center line and rising 15px */
+/* opacity knobs */
+#personalTimeline{
+  --ptSignOpacity: 0.50;   /* background color strength */
+  --ptGlyphOpacity: 0.95;  /* glyph strength */
+}
+
+.ptSeg{
+  position:absolute;
+  left: 0;
+  right: 0;
+  bottom: 50%;          /* touches the center line */
+  height: 15px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;        /* ✅ prevents spill into next sign */
+  white-space: nowrap;     /* ✅ keep glyph/house on one line */
+
+  color: rgba(255,255,255,var(--ptGlyphOpacity));
+  font-size: 12px;
+  line-height: 1;
+  user-select: none;
+
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset;
+  opacity: var(--ptSignOpacity);
+}
+
+/* inside the colored segment: house # on left, glyph scooted right */
+.ptSeg{
+  justify-content: flex-start; /* was center */
+  padding: 0 7px;
+  gap: 10px;
+}
+
+.ptSegHouse{
+  font-size: 10px;
+  color: rgba(255,255,255,0.90);
+  line-height: 1;
+}
+
+.ptSegGlyph{
+  font-size: 12px;
+  color: rgba(255,255,255,var(--ptGlyphOpacity));
+  line-height: 1;
+}
+
+/* age under the tick (anchored to the tick line at left:0) */
+.ptTick .ptAge{
+  position:absolute;
+  left: 0;                 /* sit on the tick */
+  top: calc(50% + 12px);   /* just below the 20px tick */
+  transform: translateX(2px);
+  font-size: 11px;
+  color: rgba(255,255,255,0.60);
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* mini sign tile (like the band): 15px tall, white glyph */
+.ptMiniSign{
+  position:absolute;
+  left: 50%;
+  top: calc(50% - 22px); /* sits above the 20px tick */
+  transform: translateX(-50%);
+  height: 15px;
+  min-width: 18px;
+  padding: 0 4px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.10) inset;
+
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* keep the center line visible above the track */
+.ptLane::before{ z-index: 2; }
+.ptTrack{ z-index: 1; }
+
+/* the horizontal line centered inside each third */
+.ptLane::before{
+  content:"";
+  position:absolute;
+  left: 14px;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.18);
+}
+
+/* Dim until a natal is loaded */
+#personalTimeline{ opacity: 0.55; }
+#personalTimeline.isActive{
+  opacity: 1;
+  border-color: rgba(25,163,74,0.35);
+}
+
+/* =========================
+   Cycle strips + Cycle modal
+   SINGLE SOURCE OF TRUTH:
+   - CSS owns vertical TOP (lane rows)
+   - JS sets ONLY: left / width
+========================= */
+
+/* Lane is the containing block for absolute strips */
+.ptLane{
+  position: relative;
+  overflow: hidden;
+
+  /* ===== Cycle vertical layout (single source of truth) =====
+     Goal: evenly divide the space ABOVE the timeline (top half of lane)
+     into 5 planet rows: Jupiter, Saturn, Uranus, Neptune, Pluto.
+  */
+  --ptCycleTop: 8px;                                 /* padding from lane top */
+  --ptCycleRowH: calc((50% - var(--ptCycleTop)) * 0.2); /* 1/5 of the top-half */
+  --ptCycleSubH: 10px;                               /* return vs aspect offset inside each planet row */
+}
+
+/* Shared strip base (NEVER set top/left/width here) */
+.ptCycleStrip,
+.ptAspectStrip{
+  position: absolute;
+  left: 0;      /* JS will override */
+  width: 0;     /* JS will override */
+  pointer-events: none;
+  overflow: hidden;
+
+  height: 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+
+  display: flex;
+  align-items: center;
+
+  -webkit-mask-image: linear-gradient(to right,
+    transparent 0,
+    black 10px,
+    black calc(100% - 10px),
+    transparent 100%);
+  mask-image: linear-gradient(to right,
+    transparent 0,
+    black 10px,
+    black calc(100% - 10px),
+    transparent 100%);
+}
+
+/* Saturn row = 0 (above Jupiter) */
+.ptCycleStrip[data-planet="saturn"]{
+  top: calc(var(--ptCycleTop) + 0 * var(--ptCycleRowH) + 0 * var(--ptCycleSubH));
+  z-index: 60;
+}
+.ptAspectStrip[data-planet="saturn"]{
+  top: calc(var(--ptCycleTop) + 0 * var(--ptCycleRowH) + 0 * var(--ptCycleSubH));
+  z-index: 59;
+}
+
+/* Jupiter row = 1 (closest to the timeline band) */
+.ptCycleStrip[data-planet="jupiter"]{
+  top: calc(var(--ptCycleTop) + 1 * var(--ptCycleRowH) + 1 * var(--ptCycleSubH));
+  z-index: 57;
+}
+.ptAspectStrip[data-planet="jupiter"]{
+  top: calc(var(--ptCycleTop) + 1 * var(--ptCycleRowH) + 1 * var(--ptCycleSubH));
+  z-index: 56;
+}
+
+/* Edge blocks + center label */
+.ptCycleEdge{
+  height: 100%;
+  flex: 0 0 18%;
+  opacity: 0.80;
+}
+.ptCycleCenter{
+  flex: 1;
+  text-align: center;
+  color: rgba(255,255,255,0.95);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* Planet marker glyph (used for ♄ and ♃) */
+.ptSaturnNow{
+  position: absolute;
+  top: 50%;
+  left: 0; /* JS moves this within the strip */
+  transform: translate(-50%, -50%);
+  height: 18px;
+  width: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  opacity: 0;
+  transition: opacity 120ms linear;
+  z-index: 65;
+
+  color: rgba(255,255,255,0.95);
+  text-shadow: 0 0 10px rgba(0,0,0,0.75);
+  pointer-events: none;
+}
+
+/* =========================
+   Cycles button (LEFT)
+========================= */
+.cycleBtn{
+  position: absolute !important;
+  left: 12px !important;
+  top: 10px !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 2000;
+
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.55);
+  color: rgba(255,255,255,0.85);
+  white-space: nowrap;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================
+   Cycle modal (ONLY ONE)
+========================= */
+.modal{
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2500;
+  background: rgba(0,0,0,0.55);
+}
+.modal.isOpen{ display: flex; }
+
+.modalCard{
+  width: min(520px, calc(100% - 28px));
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(10,10,10,0.92);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.55);
+  overflow: hidden;
+}
+.modalHead{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+.modalTitle{ color: rgba(255,255,255,0.90); font-weight: 600; }
+.modalClose{
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.25);
+  color: rgba(255,255,255,0.85);
+  border-radius: 10px;
+  padding: 6px 10px;
+}
+.modalBody{ padding: 12px 14px; }
+.modalRow{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  color: rgba(255,255,255,0.85);
+}
+.modalHint{
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.60);
+}
+
+/* =========================
+   Legacy cleanup / hard kills
+   (prevents old return-strip CSS from interfering)
+========================= */
+.ptSaturnStrip{ display: none !important; }
+
+
+/* =========================
+   Sun marker (unchanged)
+========================= */
+#ptSun{
+  position: fixed;
+  z-index: 60;
+  width: auto;
+  height: auto;
+  display: block;
+
+  border: none;
+  background: transparent;
+  border-radius: 0;
+
+  color: rgba(255,208,64,0.95);
+  font-size: 18px;
+  line-height: 1;
+
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* =========================
+   Saturn return overlay (unchanged)
+========================= */
+.ptReturnBand{
+  position:absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% - 34px);
+  height: 14px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.10);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset;
+  pointer-events:none;
+  z-index: 10;
+  opacity: 0.95;
+}
+.ptReturnBand .ptReturnFill{
+  position:absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.26);
+}
+.ptReturnBand .ptReturnLabel{
+  position:absolute;
+  left: 8px;
+  top: -16px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.70);
+  white-space: nowrap;
+}
+
+
+/* =========================
+   Stars on the Band
+========================= */
+
+/* Stars: hide name unless hovered */
+#starsGroup g[data-star] .starLabel {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms linear;
+}
+
+#starsGroup g[data-star]:hover .starLabel {
+  opacity: 1;
+}
+
+/* ===== Selector popouts (Bodies / Stars) ===== */
+.miniModal .modalCard {
+  max-width: 520px;
+}
+
+.selectorHelp {
+  opacity: 0.8;
+  font-size: 0.9rem;
+  margin: 0 0 10px 0;
+}
+
+/* Stars/Bodies modal pill grid: prevent overlap, allow wrapping */
+.pillGrid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); /* wider cells */
+  gap: 10px;
+  margin-top: 10px;
+  align-items: stretch;
+}
+
+/* Make each pill fit its grid cell (no spillover/overlap) */
+.pillGrid .selectPill{
+  width: 100%;
+  min-width: 0;
+  border-radius: 999px;     /* keep pill shape */
+  padding: 10px 12px;
+  white-space: normal;       /* allow wrapping */
+  overflow-wrap: anywhere;   /* long names won't overflow */
+}
+
+
+.pillBtn {
+  border-radius: 999px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  cursor: pointer;
+}
+
+.pillBtn.isOn {
+  border-color: rgba(255,255,255,0.35);
+  background: rgba(0, 140, 70, 0.35);
+}
+
+/* ===== Fixed Stars (band) hover labels ===== */
+
+/* Hide the always-visible star name text (we’ll show it only on hover) */
+.zyStarName {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Make sure each star group can receive hover */
+.zyStar {
+  pointer-events: auto;
+}
+
+/* The hover label above the star */
+.zyStarHover {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+/* Show label on hover */
+.zyStar:hover .zyStarHover {
+  opacity: 1;
+}
+
+/* Let mouse hover "pass through" glow layers so star hover labels work */
+#sunGlow,
+#solarEclipseGlow,
+#lunarEclipseGlow {
+  pointer-events: none;
+}
+
+

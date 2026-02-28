@@ -1,0 +1,123 @@
+Here’s a concrete roadmap that matches what you just decided: **app stays free + community-friendly; Wix is the paid “Hour 2” content layer; no Patreon.**
+
+## Roadmap
+
+### Phase 0 — Lock the rules (so you don’t step in licensing mud later)
+
+1. **Choose Swiss license mode for the app**
+
+   * **AGPL route (community/forkable):** Swiss requires that if you choose AGPL, you must place your **whole software project** under AGPL/compatible, and you must decide **before** public service is activated. ([Astro.com][1])
+   * **Professional route (proprietary):** one-time **700 CHF** license if you ever decide you want to keep code closed. ([Astro.com][2])
+
+**If you want “forkable + community-driven,” the default is AGPL.** (You can still monetize content on Wix either way.)
+
+2. **Project governance (keep direction)**
+
+   * Add 4 small docs to the repo: `README`, `ROADMAP`, `CONTRIBUTING`, `GOVERNANCE` (Founder-led; you approve PRs; roadmap is yours).
+   * This is how you stay in control while still welcoming community.
+
+---
+
+### Phase 1 — Make the engine a single source of truth (Swiss everywhere)
+
+Goal: **one ephemeris pipeline**, no “two engines, two truths.”
+
+1. Decide data strategy:
+
+   * **Moshier-only** = simplest deploy (no huge files), good for most timeline use.
+   * **Full Swiss ephemeris files** (`.se1`) = best accuracy across wider ranges (but deployment size matters).
+
+2. If you host ephemeris files on Cloudflare Pages:
+
+   * **Per-file limit is 25 MiB**; larger files should go to **R2**. ([Cloudflare Docs][3])
+
+---
+
+### Phase 2 — Replace the astro-wheel cleanly (no masking hacks)
+
+Goal: Timeline uses the **popout wheel** as the standard UI.
+
+1. Replace old docked wheel + rectangle/circle “hide text behind it” system
+2. Standardize on the popout wheel component:
+
+   * single open/close behavior
+   * consistent HUD/toggles
+3. Remove the old mask/veil code paths once wheel popout is stable (less brittleness).
+
+---
+
+### Phase 3 — Build the 3 zoom levels as one continuum
+
+Goal: user can smoothly go:
+
+* generational scale → personal scale → aspect/return breakdown
+  …without the app “switching apps.”
+
+1. Generational timeline: world events, archetype scroll box
+2. Personal marker: your “dot on each axis + line that grows with age” (minimal data)
+3. Pro-level views (still free in Path B): jump-to-aspect, Saturn-return segmentation, etc.
+
+---
+
+### Phase 4 — Private testing, then public launch
+
+You said you’ll occasionally test on Cloudflare Pages privately.
+
+Important detail: deleting DNS records just unhooks your custom domain; it doesn’t automatically make a Pages deployment private. To restrict access, you typically use **Cloudflare Access policies** (deny-by-default unless allowed). ([Cloudflare Docs][4])
+
+So your testing options:
+
+* **Local only** until ready (simplest)
+* **Cloudflare Pages + Access policy** for private previews ([Cloudflare Docs][4])
+
+When you go public under AGPL:
+
+* publish repo + add an in-app **“Source Code”** link (this is the normal AGPL web-app expectation). ([Astro.com][1])
+
+---
+
+### Phase 5 — “Hour 2” on Wix (your main monetization)
+
+This stays separate from the app.
+
+1. Create a Wix “Hour 2” hub:
+
+   * **Wix Pricing Plans** for memberships (one-time or recurring; you decide). ([Wix Support Center][5])
+   * Use **members-only pages** for the lesson library. ([Wix Support Center][6])
+   * If video is central, Wix Video supports **buy/rent/subscribe** models. ([Wix Support Center][7])
+
+2. In the app, your primary CTA is:
+
+* **“Join Hour 2 (Lessons)” → Wix**
+  And keep the app ungated (avoid early login walls; they annoy users and reduce engagement). ([Nielsen Norman Group][8])
+
+---
+
+### Phase 6 — Optional: GitHub Sponsors (support the tool, not access)
+
+Secondary CTA: “Support development.”
+
+* GitHub takes **no fees** from personal-account sponsorships (100% goes to you). ([GitHub Docs][9])
+* You can use tier welcome messages to point sponsors to your public roadmap / dev logs. ([GitHub Docs][10])
+
+---
+
+## The one decision point to settle before we code more
+
+Do you want the app to be **AGPL (forkable/community)** from launch, or do you want the option to go **Professional/proprietary** later?
+
+* If **AGPL**: we wire the repo + app UI for compliance from day one. ([Astro.com][1])
+* If **Professional later**: we avoid accepting outside code contributions early (relicensing later gets messy once many contributors exist).
+
+If you say “AGPL from day one,” I’ll convert this into a *dev task list* tied to your actual folders (app-timeline) and we’ll resume the wheel + Swiss integration with less thrash.
+
+[1]: https://www.astro.com/swisseph/swephinfo_e.htm?utm_source=chatgpt.com "Swiss Ephemeris - for 8000 years and more"
+[2]: https://www.astro.com/swisseph/swephprice_g.htm?utm_source=chatgpt.com "Swiss Ephemeris price list and order"
+[3]: https://developers.cloudflare.com/pages/platform/limits/?utm_source=chatgpt.com "Limits · Cloudflare Pages docs"
+[4]: https://developers.cloudflare.com/cloudflare-one/access-controls/policies/?utm_source=chatgpt.com "Access policies · Cloudflare One docs"
+[5]: https://support.wix.com/en/article/sell-subscriptions-with-the-wix-pricing-plans-app-6942302?utm_source=chatgpt.com "Sell Subscriptions with the Wix Pricing Plans App"
+[6]: https://support.wix.com/en/article/pricing-plans-making-site-pages-members-only?utm_source=chatgpt.com "Pricing Plans: Making Site Pages Members-Only"
+[7]: https://support.wix.com/en/article/wix-video-selling-and-renting-videos?utm_source=chatgpt.com "Wix Video: Selling and Renting Videos | Help Center"
+[8]: https://www.nngroup.com/articles/login-walls/?utm_source=chatgpt.com "Login Walls Stop Users in Their Tracks"
+[9]: https://docs.github.com/en/sponsors/getting-started-with-github-sponsors/about-github-sponsors?utm_source=chatgpt.com "About GitHub Sponsors"
+[10]: https://docs.github.com/en/sponsors/receiving-sponsorships-through-github-sponsors/setting-up-github-sponsors-for-your-organization?utm_source=chatgpt.com "Setting up GitHub Sponsors for your organization"

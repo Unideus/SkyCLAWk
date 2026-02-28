@@ -1,0 +1,18 @@
+{
+  "name": "mytimeline-web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "build:geonames": "node tools/build-geonames.mjs"
+  },
+  "devDependencies": {
+    "vite": "^7.2.4"
+  },
+  "dependencies": {
+    "@fusionstrings/swiss-eph": "npm:@jsr/fusionstrings__swiss-eph@^0.2.1"
+  }
+}

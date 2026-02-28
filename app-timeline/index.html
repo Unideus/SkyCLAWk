@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8"/>
+
+<title>Grand Conjunction – Generational Timeline (Page 2)</title>
+
+	<!-- =========================================================
+		 CATHEDRAL LAYOUT PHILOSOPHY
+		 ---------------------------------------------------------
+		 • This file is written to be READ as much as RUN
+		 • Sections are large and obvious
+		 • Time flows from ONE master variable
+		 • All future systems attach to known anchors
+		 ========================================================= -->
+
+
+	<link href="css/timeline.css" rel="stylesheet"/>
+	<link rel="icon" href="timelinetitle.webp" type="image/webp">
+	
+	</head>
+
+		<body>
+
+			<div id="topMenu">
+
+			  <!-- Title block -->
+				<div id="menuTitle">
+					<img
+						alt="The Grand Conjunction"
+						src="timelinetitle.webp"
+						class="menuLogo"
+						draggable="false"
+					/>
+
+					<div id="menuRightStack">
+						<button id="cycleFab" class="uiPill cycleFabMenu" type="button"
+							aria-haspopup="dialog"
+							aria-controls="cycleModal"
+							aria-label="Select conjunction cycle">♄ ☌ ♃</button>
+
+						<!-- Timeline scale selector (Yuga / Generational / Personal) -->
+						<div id="scaleSelector" class="uiPill scaleSelector" role="radiogroup" aria-label="Timeline scale" data-scale="generational">
+							<span class="scaleKnob" aria-hidden="true"></span>
+							<button class="scaleOpt" type="button" role="radio" aria-checked="false" data-scale="yuga" tabindex="-1">Yuga</button>
+							<button class="scaleOpt" type="button" role="radio" aria-checked="true"  data-scale="generational" tabindex="0">Gen</button>
+							<button class="scaleOpt" type="button" role="radio" aria-checked="false" data-scale="personal" tabindex="-1">Personal</button>
+						</div>
+
+						<button id="wheelFab" class="uiPill wheelFabMenu" type="button"
+							aria-haspopup="dialog"
+							aria-controls="wheelModal"
+							aria-label="Open astro wheel">Zodiac</button>
+					</div>
+				</div>
+				
+				<div id="wheelModal" class="zyModal" role="dialog" aria-modal="true" aria-hidden="true">
+				<div class="zyModalBackdrop" data-close="wheel"></div>
+
+				<div class="zyModalCard" role="document">
+					<button id="wheelClose" class="zyModalClose" type="button" aria-label="Close astro wheel">×</button>
+
+					<div class="wheelStage">
+					<img id="wheelImg" alt="Astro wheel" draggable="false" />
+					</div>
+
+					<div id="astroHUD" class="zyHudBottom">
+					<div id="astroDateText">Loading…</div>
+
+					<div id="astroPlanetToggles">
+						<button class="toggleBtn" id="innerPlanetToggle" type="button">Inner Planets</button>
+						<button class="toggleBtn" id="outerPlanetToggle" type="button">Outer Planets</button>
+					</div>
+
+					<div id="astroNatalToggle">
+						<button class="toggleBtn" id="natalToggle" type="button">Natal -- --- ----</button>
+					</div>
+					</div>
+
+					<div class="zyResizeHandle" id="wheelResizeHandle" title="Resize"></div>
+				</div>
+
+				<div id="cycleModal" class="zyModal" role="dialog" aria-modal="true" aria-hidden="true">
+					<div class="zyModalBackdrop" data-close="cycle"></div>
+
+					<div class="zyModalCard cycleModalCard" role="document">
+						<button id="cycleClose" class="zyModalClose" type="button" aria-label="Close conjunction selector">×</button>
+
+						<div class="cycleModalTitle">Conjunction Cycle</div>
+
+						<div class="cycleForm">
+							<label class="cycleLabel">
+								<span>Planet 1</span>
+								<select id="cyclePlanet1" class="cycleSelect"></select>
+							</label>
+
+							<label class="cycleLabel">
+								<span>Planet 2</span>
+								<select id="cyclePlanet2" class="cycleSelect"></select>
+							</label>
+						</div>
+
+						<div class="cycleActions">
+							<button id="cycleApply" class="uiPill" type="button">Apply</button>
+						</div>
+					</div>
+				</div>
+				</div>
+
+			  <!-- Slider and Controls -->
+			  <div id="menuSlider">
+
+				<!-- Header row (centered status group only) -->
+				<div id="sliderHeaderRow">
+				  <div id="topSliderRow">
+
+					<div class="topLeftGroup">
+						<button id="unitKnob" class="uiPill unitKnob" type="button" aria-label="Speed units">
+						<span class="unitKnobTrack" id="unitKnobTrack" aria-hidden="true">
+							<span class="unitKnobStops" aria-hidden="true"></span>
+
+							<span class="unitKnobTicks" aria-hidden="true">
+							<span class="unitTick" data-unit="yrs">y</span>
+							<span class="unitTick" data-unit="months">m</span>
+							<span class="unitTick" data-unit="weeks">w</span>
+							<span class="unitTick" data-unit="days">d</span>
+							<span class="unitTick" data-unit="hours">h</span>
+							</span>
+
+							<span class="unitKnobThumb" id="unitKnobThumb" title="Drag"></span>
+						</span>
+						</button>
+
+						<div id="speedInfo" class="uiPill">0.00 yrs/sec</div>
+					</div>
+
+					<div class="topCenterGroup">
+					<div id="dateBoxText" class="uiPill">Loading...</div>
+
+					<div id="resetGroup">
+						<button id="resetBtn" class="uiPill">Reset to 2020</button>
+						<button id="resetNowBtn" class="uiPill">Reset to now</button>
+					</div>
+					</div>
+
+					</div>
+				</div>
+
+				<div class="sliderRail">
+				  <input id="speedSlider" max="100" min="-100" step="0.01" type="range" value="0"/>
+				  <div class="sliderZeroMark"></div>
+				</div>
+
+				<!-- Controls -->
+								<div id="controlRow">
+					<button class="controlBtn uiPill" id="prevElementBtn">← Element</button>
+
+					<button class="controlBtn uiPill" id="prevCrisisBtn">
+						← <span class="crisisText">Crisis</span>
+					</button>
+
+					<!-- NEW: Dedicated Saturn/Jupiter Conjunction nav (always Sat–Jup) -->
+					<button class="controlBtn uiPill" id="prevSatJupConjBtn">← ♄ ☌ ♃</button>
+
+					<button class="controlBtn uiPill bumpBtn" id="bumpRevBtn" type="button" title="Bump back (paused only)" disabled>◀</button>
+
+					<!-- Pause wrapper: keeps main row intact; positions cycle conj buttons under Pause -->
+					<span class="pauseWrap">
+						<button class="controlBtn uiPill" id="pauseBtn">Pause</button>
+
+						<span class="cycleConjBelow">
+							<button class="controlBtn uiPill" id="prevConjBtn">← Conj</button>
+							<button class="controlBtn uiPill" id="nextConjBtn">Conj →</button>
+						</span>
+					</span>
+
+					<button class="controlBtn uiPill bumpBtn" id="bumpFwdBtn" type="button" title="Bump forward (paused only)" disabled>▶</button>
+
+					<!-- NEW: Dedicated Saturn/Jupiter Conjunction nav (always Sat–Jup) -->
+					<button class="controlBtn uiPill" id="nextSatJupConjBtn">♄ ☌ ♃ →</button>
+
+					<button class="controlBtn uiPill" id="nextCrisisBtn">
+						<span class="crisisText">Crisis</span> →
+					</button>
+
+					<button class="controlBtn uiPill" id="nextElementBtn">Element →</button>
+				</div>
+
+
+			  </div>
+
+			  <!-- Date panel (uniform stack: date / time / location / go) -->
+			  <div id="menuDate">
+				<div id="dateBoxOuter">
+					<input id="dateBoxInput" type="text" placeholder="21 Jan 2026" />
+					<input id="timeBoxInput" type="time" value="12:00" step="60" disabled />
+					<input id="locationBoxInput" type="text" placeholder="Location (coming soon)" disabled />
+					<button type="button" class="dateGoBtn" id="dateBoxGoBtn">GO</button>
+				</div>
+			  </div>
+
+			</div> <!-- ✅ END topMenu -->
+
+			<!-- =========================================================
+				 TIME SPINE (GLOBAL AXIS — NOT OWNED BY MENU)
+				 ========================================================= -->
+			<div id="timeMarker"></div>
+			<div id="nowLabelAge">NOW</div>
+
+			<!-- =========================================================
+				 SECTION 04B — TIMELINE NAVE
+				 ========================================================= -->
+			<div id="timelineWrap">
+
+			  <!-- =========================================================
+					 RIVER OF LIFE — 3D LAYER (PHASE 1)
+					 ---------------------------------------------------------
+					 • Lives BEHIND the screw SVG
+					 • Driven by the same master time state
+					 • Non-interactive (pointer-events: none)
+					 ========================================================= -->
+			  <div id="river3dContainer" aria-hidden="true"></div>
+
+			  <!-- STATIC 20-YEAR TICKS -->
+			  <div id="phaseTicks">
+				<div></div><div></div><div></div><div></div>
+			  </div>
+
+			  <!-- SCREW TIMELINE (SCROLLING SPACE) -->
+			  <svg id="screwSVG" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+				<g id="scrollGroup">
+				  <g id="overlayCycle"></g>
+				  <g id="elementalCycle"></g>
+				  <g id="bands"></g>
+
+				  <g id="diags"></g>
+				  <g id="saeculumWave">
+					<g id="saeculumLight"></g>
+					<g id="saeculumLine"></g>
+					<g id="diagLabels"></g>
+					<g id="ticks"></g>
+					<g id="grid"></g>
+					<g id="bottomYears"></g>
+				  </g>
+				</g>
+			  </svg>
+
+
+			
+
+				<!-- ARCHETYPE LABELS -->
+			  <svg height="180" id="labelSVG" width="200">
+
+				<rect fill="black" height="100%" width="100%"></rect>
+				<g id="labelStructure"></g>
+				<g id="diagonalIndex"></g>
+				<g id="labelBG"></g>
+				<g font-size="28" font-weight="bold" id="labelText"></g>
+				<g id="lifeCycleOverlay"></g>
+			  </svg>
+
+			</div> <!-- ✅ END timelineWrap -->
+
+		<div id="historyPanel" class="uiPill">
+			<div class="panelHeader">HISTORICAL CONTEXT</div>
+			<div id="historyContent">Scroll to begin scanning history...</div>
+		</div>
+	<!-- =========================================================
+			 MOVED TO 
+			 
+			 SECTION 05B — ASTRO SANCTUARY (PLANETARY CONTEXT)
+			 ---------------------------------------------------------
+			 • Exists outside linear time
+			 • Never scrolls with the screw
+			 • Sole owner of the astroWheel canvas
+			 ========================================================= -->
+
+	<!-- =========================================================
+			 ARCHIVE — LEGACY HEADER & CONTROLS (REFERENCE ONLY)
+			 ---------------------------------------------------------
+			 This block documents the original pre-menu layout.
+			 It is preserved for historical and educational purposes.
+			 It MUST remain commented out.
+			 ========================================================= -->
+	<!--
+		<h2>Grand Conjunction Saeculum Timeline — Generational Layer</h2>
+
+		<div id="controls">
+			<input type="range" min="-100" max="100" value="0" id="speedSlider">
+			<div class="sliderCenterMark"></div>
+			<span id="speedInfo">0.00 yrs/sec</span>
+		</div>
+
+		-->
+	<a href="../" onmouseout="this.style.background='rgba(0,0,0,0.7)'; this.style.borderColor='#555'; this.style.transform='scale(1)'" onmouseover="this.style.background='rgba(30,30,30,0.9)'; this.style.borderColor='#fff'; this.style.transform='scale(1.05)'" style="
+			position: fixed;
+			bottom: 30px;
+			left: 30px;
+			z-index: 1000;
+			display: inline-block;
+			padding: 12px 24px;
+			background: rgba(0,0,0,0.7);
+			color: white;
+			font-size: 18px;
+			font-family: Arial, sans-serif;
+			text-decoration: none;
+			border: 2px solid #555;
+			border-radius: 8px;
+			backdrop-filter: blur(4px);
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+		">
+			← Back to Sky Clock
+		</a>
+
+	<a href="mytimeline/" onmouseout="this.style.background='rgba(0,0,0,0.7)'; this.style.borderColor='#555'; this.style.transform='scale(1)'" onmouseover="this.style.background='rgba(30,30,30,0.9)'; this.style.borderColor='#fff'; this.style.transform='scale(1.05)'" style="
+			position: fixed;
+			bottom: 30px;
+			right: 30px;
+			z-index: 1000;
+			display: inline-block;
+			padding: 12px 20px;
+			background: rgba(0,0,0,0.7);
+			color: white;
+			font-size: 16px;
+			font-family: Arial, sans-serif;
+			text-decoration: none;
+			border: 2px solid #555;
+			border-radius: 8px;
+			backdrop-filter: blur(4px);
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+		">
+			mytimeline →
+		</a>
+
+
+
+		<script type="module" src="js/swe-init.js"></script>
+		<script src="js/vendor/astronomy.browser.min.js"></script>
+		<script src="js/constants.js"></script>
+
+		<!-- Elemental baseline (keep if elemental band still uses it) -->
+		<script src="js/_conjunction_data_saturn_jupiter.js"></script>
+
+		<!-- Outer-cycle datasets (overlay band options) -->
+		<script src="js/_conjunction_data_saturn_uranus.js"></script>
+		<script src="js/_conjunction_data_saturn_neptune.js"></script>
+		<script src="js/_conjunction_data_saturn_pluto.js"></script>
+		<script src="js/_conjunction_data_uranus_neptune.js"></script>
+		<script src="js/_conjunction_data_uranus_pluto.js"></script>
+		<script src="js/_conjunction_data_neptune_pluto.js"></script>
+
+		<script src="js/time-engine.js"></script>
+		<script src="js/generation-model.js"></script>
+		<script src="js/astronomy-adapter.js"></script>
+
+		<!-- Era markers must load BEFORE screw-renderer builds the SVG -->
+		<script src="js/_era_markers.js"></script>
+
+		<script src="js/screw-renderer.js"></script>
+		<script src="js/astro-wheel.js"></script>
+		<script src="js/conjunction-selector.js"></script>
+
+		<!-- 3D (Phase 1) — Three.js global build + simple renderer wrapper -->
+		<script src="https://unpkg.com/three@0.149.0/build/three.min.js"></script>
+		<script src="js/render-river-3d.js"></script>
+
+		<script src="js/ui-controller.js"></script>
+
+
+	</body>
+	
+</html>
