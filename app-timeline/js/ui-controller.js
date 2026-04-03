@@ -195,10 +195,10 @@
 		}
 
 		// CATHEDRAL: time spine begins at the TOP of the diagonal/body field (not the menu)
-		const markerTop = Math.round(sr.top + CANON.SCREW_TOP_PAD + EXTRA_SCREW_TOP_PAD);
+		const markerTop = Math.round(sr.top + CANON.SCREW_TOP_PAD + EXTRA_SCREW_TOP_PAD - 10);
 		document.documentElement.style.setProperty("--time-marker-top", `${markerTop}px`);
 
-		const nowY = Math.round(sr.top + CANON.SCREW_TOP_PAD + EXTRA_SCREW_TOP_PAD);
+		const nowY = Math.round(sr.top + CANON.SCREW_TOP_PAD + EXTRA_SCREW_TOP_PAD - 10);
 		document.documentElement.style.setProperty("--now-label-age-top", `${nowY}px`);
 		}
 		
@@ -677,6 +677,11 @@
 
 				// jump to real current time (UTC)
 				AstroEngine.setDateUTC(new Date());
+
+				// Enable live mode in astro wheel
+				if (typeof window.setAstroWheelLiveMode === "function") {
+					window.setAstroWheelLiveMode(true);
+				}
 			});
 		}
 		
@@ -1450,6 +1455,10 @@ if (nextElementBtn) {
 			// If user touches the slider, cancel any button-driven navigation
 			if (Math.abs(v) > 0.0001) {
 			timeState.navTargetDateUTC = null;
+				// Disable live mode in astro wheel when user takes manual control
+				if (typeof window.setAstroWheelLiveMode === "function") {
+					window.setAstroWheelLiveMode(false);
+				}
 			}
 
 			// --- BUTTON NAVIGATION (SMOOTH / LOG-STYLE EASE) ---

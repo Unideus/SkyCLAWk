@@ -31,6 +31,40 @@
     }
   };
 
+  // =========================================================
+  // ENABLED PLANETS STATE (for Bodies modal toggles)
+  // =========================================================
+  window.enabledPlanets = window.enabledPlanets || {
+    sun: true,
+    moon: true,
+    mercury: true,
+    venus: true,
+    mars: true,
+    jupiter: true,
+    saturn: true,
+    uranus: true,
+    neptune: true,
+    pluto: true,
+    chiron: false,
+    ceres: false,
+    pallas: false,
+    juno: false,
+    vesta: false,
+    northNode: true,
+    southNode: true
+  };
+
+  // Function to update which planets are shown
+  window.setPlanetEnabled = function(planetId, enabled) {
+    if (window.enabledPlanets.hasOwnProperty(planetId)) {
+      window.enabledPlanets[planetId] = enabled;
+      // Redraw the wheel if it's open
+      if (wheelModal.getAttribute("aria-hidden") === "false") {
+        drawAstroWheel();
+      }
+    }
+  };
+
     const wheelCardEl = wheelModal.querySelector(".zyModalCard");
     const wheelBackdropEl = wheelModal.querySelector(".zyModalBackdrop");
 
@@ -631,11 +665,13 @@ for (const k of show) {
   function drawAstroWheel() {
     if (!wheelImg) return;
 
-    const t =
-      (typeof timeState !== "undefined" && timeState && timeState.dateUTC instanceof Date) ? timeState.dateUTC :
-      (window.AstroEngine && window.AstroEngine.dateUTC instanceof Date) ? window.AstroEngine.dateUTC :
-      (window.AstroEngine && window.AstroEngine.dateUTC) ? new Date(window.AstroEngine.dateUTC) :
-      new Date();
+    // Use current time when in live mode, otherwise use timeState/AstroEngine
+    const t = isLiveMode 
+      ? new Date()
+      : (typeof timeState !== "undefined" && timeState && timeState.dateUTC instanceof Date) ? timeState.dateUTC :
+        (window.AstroEngine && window.AstroEngine.dateUTC instanceof Date) ? window.AstroEngine.dateUTC :
+        (window.AstroEngine && window.AstroEngine.dateUTC) ? new Date(window.AstroEngine.dateUTC) :
+        new Date();
 
     const lons = (typeof window.getPlanetLongitudes === "function")
       ? window.getPlanetLongitudes(t)
@@ -643,25 +679,33 @@ for (const k of show) {
 
     if (!lons) return;
 
-    // Show all planets by default (toggles can still hide them)
-    const showInner = (typeof showInnerPlanets === "undefined") ? true : !!showInnerPlanets;
-    const showOuter = (typeof showOuterPlanets === "undefined") ? true : !!showOuterPlanets;
+    // Build list of enabled planets from toggle state
+    const keys = [];
+    const enabled = window.enabledPlanets || {};
+    
+    // Core planets (always check these)
+    if (enabled.sun !== false) keys.push("sun");
+    if (enabled.moon !== false) keys.push("moon");
+    if (enabled.mercury !== false) keys.push("mercury");
+    if (enabled.venus !== false) keys.push("venus");
+    if (enabled.mars !== false) keys.push("mars");
+    if (enabled.jupiter !== false) keys.push("jupiter");
+    if (enabled.saturn !== false) keys.push("saturn");
+    if (enabled.uranus !== false) keys.push("uranus");
+    if (enabled.neptune !== false) keys.push("neptune");
+    if (enabled.pluto !== false) keys.push("pluto");
+    
+    // Nodes
+    if (enabled.northNode !== false && Number.isFinite(Number(lons.northNode))) keys.push("northNode");
+    if (enabled.southNode !== false && Number.isFinite(Number(lons.southNode))) keys.push("southNode");
+    
+    // Asteroids (only if explicitly enabled)
+    if (enabled.chiron && Number.isFinite(Number(lons.chiron))) keys.push("chiron");
+    if (enabled.ceres && Number.isFinite(Number(lons.ceres))) keys.push("ceres");
+    if (enabled.pallas && Number.isFinite(Number(lons.pallas))) keys.push("pallas");
+    if (enabled.juno && Number.isFinite(Number(lons.juno))) keys.push("juno");
+    if (enabled.vesta && Number.isFinite(Number(lons.vesta))) keys.push("vesta");
 
-    const keys = ["sun", "saturn", "jupiter"];
-
-    if (showInner) {
-      keys.push("moon", "mercury", "venus");
-    }
-
-    if (showOuter) {
-      keys.push("mars", "uranus", "neptune", "pluto");
-    }
-
-    // Nodes only when Inner Planets is enabled
-    if (showInner) {
-      if (Number.isFinite(Number(lons.northNode))) keys.push("northNode");
-      if (Number.isFinite(Number(lons.southNode))) keys.push("southNode");
-    }
     const natalLons = (window.NatalChart && window.NatalChart.enabled && window.NatalChart.longitudes) ? window.NatalChart.longitudes : null;
     const url = renderWheelSVG(lons, { baseLon: 0, showKeys: keys, natalLons, dateUTC: t })
     wheelImg.src = url + `#t=${t.getTime()}`;
@@ -672,20 +716,18 @@ for (const k of show) {
       const weekdays = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
       const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
       
-      const weekday = weekdays[t.getUTCDay()];
-      const day = t.getUTCDate();
-      const month = months[t.getUTCMonth()];
-      const year = t.getUTCFullYear();
+      const weekday = weekdays[t.getDay()];
+      const day = t.getDate();
+      const month = months[t.getMonth()];
+      const year = t.getFullYear();
       
-      let hours = t.getUTCHours();
-      const minutes = String(t.getUTCMinutes()).padStart(2, "0");
+      let hours = t.getHours();
+      const minutes = String(t.getMinutes()).padStart(2, "0");
       const ampm = hours >= 12 ? "PM" : "AM";
       hours = hours % 12;
       hours = hours ? hours : 12;
       
-      const tz = t.toLocaleTimeString("en-US", { timeZoneName: "short" }).split(" ").pop().toUpperCase();
-      
-      wheelDateValue.textContent = `${weekday}, ${day} ${month} ${year}, ${hours}:${minutes} ${ampm} ${tz}`;
+      wheelDateValue.textContent = `${weekday}, ${day} ${month} ${year}, ${hours}:${minutes} ${ampm}`;
     }
 
     // Calculate and populate aspects grid overlay
@@ -765,6 +807,9 @@ for (const k of show) {
 
     // Populate transits grid
     populateTransitsGrid(transitLons, natalLons);
+
+    // Populate HUD positions grid with element-colored sign glyphs
+    populateHUDPositionsGrid(transitLons, natalLons);
   }
 
   // Show current transit positions in a grid
@@ -913,8 +958,217 @@ for (const k of show) {
     });
 
     grid.innerHTML = html;
+  }
+
+  // Populate HUD Positions grid with element-colored sign glyphs
+  function populateHUDPositionsGrid(transitLons, natalLons) {
+    const grid = document.getElementById("hudPositionsGrid");
+    console.log('[AstroWheel] populateHUDPositionsGrid called, grid:', grid, 'transitLons:', transitLons);
+    if (!grid || !transitLons) return;
+
+    const planetGlyphs = {
+      sun: "☉", moon: "☽", mercury: "☿", venus: "♀", mars: "♂",
+      jupiter: "♃", saturn: "♄", uranus: "♅", neptune: "♆", pluto: "♇"
+    };
+
+    const signGlyphs = ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓"];
+    const signElements = ["fire", "earth", "air", "water", "fire", "earth", "air", "water", "fire", "earth", "air", "water"];
+
+    const planets = ["sun", "moon", "mercury", "venus", "mars",
+                     "jupiter", "saturn", "uranus", "neptune", "pluto"];
+
+    let html = '';
+
+    for (const p of planets) {
+      const transitLon = transitLons[p];
+      if (!Number.isFinite(transitLon)) continue;
+
+      const transitSignIndex = Math.floor(transitLon / 30);
+      const transitSign = signGlyphs[transitSignIndex];
+      const transitElem = signElements[transitSignIndex];
+      const transitDeg = Math.floor(transitLon % 30);
+      const transitMin = Math.floor((transitLon % 30 - transitDeg) * 60);
+
+      // Build position display with element-colored sign glyph
+      let positionHTML = `<span class="pos-sign pos-${transitElem}">${transitSign}</span> ${transitDeg}°${transitMin.toString().padStart(2, '0')}`;
+
+      // Add natal position if available
+      if (natalLons && natalLons[p] !== undefined) {
+        const natalLon = natalLons[p];
+        if (Number.isFinite(natalLon)) {
+          const natalSignIndex = Math.floor(natalLon / 30);
+          const natalSign = signGlyphs[natalSignIndex];
+          const natalElem = signElements[natalSignIndex];
+          const natalDeg = Math.floor(natalLon % 30);
+          const natalMin = Math.floor((natalLon % 30 - natalDeg) * 60);
+          positionHTML += ` <span class="pos-natal">/ <span class="pos-sign pos-${natalElem}">${natalSign}</span> ${natalDeg}°${natalMin.toString().padStart(2, '0')}</span>`;
+        }
+      }
+
+      html += `
+        <div class="pos-row">
+          <span class="pos-planet">${planetGlyphs[p]}</span>
+          <span class="pos-position">${positionHTML}</span>
+        </div>
+      `;
+    }
 
     grid.innerHTML = html;
+  }
+
+  // Real-time update mechanism for live clock display
+  let liveUpdateInterval = null;
+  let isLiveMode = false;
+
+  function startLiveUpdate() {
+    if (liveUpdateInterval) return;
+    isLiveMode = true;
+    liveUpdateInterval = setInterval(() => {
+      if (wheelModal.getAttribute("aria-hidden") !== "false") return;
+      drawAstroWheel();
+    }, 1000); // Update every second
+  }
+
+  function stopLiveUpdate() {
+    if (liveUpdateInterval) {
+      clearInterval(liveUpdateInterval);
+      liveUpdateInterval = null;
+    }
+    isLiveMode = false;
+  }
+
+  // Toggle live mode - can be called from ui-controller when "Reset to Now" is clicked
+  window.setAstroWheelLiveMode = function(enabled) {
+    if (enabled) {
+      startLiveUpdate();
+    } else {
+      stopLiveUpdate();
+    }
+  };
+
+  // Start live update when wheel opens
+  wheelModal.addEventListener("transitionend", () => {
+    if (wheelModal.getAttribute("aria-hidden") === "false" && isLiveMode) {
+      startLiveUpdate();
+    }
+  });
+
+  // Stop live update when wheel closes
+  const originalCloseWheel = closeWheel;
+  closeWheel = function() {
+    stopLiveUpdate();
+    originalCloseWheel();
+  };
+
+  // Start live mode by default on page load
+  startLiveUpdate();
+
+  // =========================================================
+  // BODIES MODAL
+  // =========================================================
+  const bodiesBtn = document.getElementById("bodiesBtn");
+  const bodiesModal = document.getElementById("bodiesModal");
+  const bodiesClose = document.getElementById("bodiesClose");
+
+  function openBodiesModal() {
+    if (!bodiesModal) return;
+    bodiesModal.setAttribute("aria-hidden", "false");
+    populateBodiesGrid();
+  }
+
+  function closeBodiesModal() {
+    if (!bodiesModal) return;
+    bodiesModal.setAttribute("aria-hidden", "true");
+  }
+
+  if (bodiesBtn) {
+    bodiesBtn.addEventListener("click", openBodiesModal);
+  }
+
+  if (bodiesClose) {
+    bodiesClose.addEventListener("click", closeBodiesModal);
+  }
+
+  if (bodiesModal) {
+    bodiesModal.addEventListener("click", (ev) => {
+      const t = ev.target;
+      if (t && t.getAttribute && t.getAttribute("data-close") === "bodies") {
+        closeBodiesModal();
+      }
+    });
+  }
+
+  // Populate the bodies grid with planet toggles
+  function populateBodiesGrid() {
+    const grid = document.getElementById("bodiesGrid");
+    if (!grid) return;
+
+    const planets = [
+      { id: "sun", glyph: "☉", name: "Sun" },
+      { id: "moon", glyph: "☽", name: "Moon" },
+      { id: "mercury", glyph: "☿", name: "Mercury" },
+      { id: "venus", glyph: "♀", name: "Venus" },
+      { id: "mars", glyph: "♂", name: "Mars" },
+      { id: "jupiter", glyph: "♃", name: "Jupiter" },
+      { id: "saturn", glyph: "♄", name: "Saturn" },
+      { id: "uranus", glyph: "♅", name: "Uranus" },
+      { id: "neptune", glyph: "♆", name: "Neptune" },
+      { id: "pluto", glyph: "♇", name: "Pluto" }
+    ];
+
+    const asteroids = [
+      { id: "chiron", glyph: "⚷", name: "Chiron" },
+      { id: "ceres", glyph: "⚳", name: "Ceres" },
+      { id: "pallas", glyph: "⚴", name: "Pallas" },
+      { id: "juno", glyph: "⚵", name: "Juno" },
+      { id: "vesta", glyph: "⚶", name: "Vesta" }
+    ];
+
+    const enabled = window.enabledPlanets || {};
+    let html = "";
+    
+    // Planets
+    for (const p of planets) {
+      const isOn = enabled[p.id] !== false;
+      const btnClass = isOn ? "" : "off";
+      html += `
+        <button class="body-toggle-btn ${btnClass}" data-planet="${p.id}" type="button">
+          <span class="planet-glyph">${p.glyph}</span>
+          <span class="planet-name">${p.name}</span>
+        </button>
+      `;
+    }
+    
+    // Separator (spans full width)
+    html += `<div class="bodies-separator"></div>`;
+    
+    // Asteroids
+    for (const a of asteroids) {
+      const isOn = enabled[a.id] === true;
+      const btnClass = isOn ? "" : "off";
+      html += `
+        <button class="body-toggle-btn ${btnClass}" data-planet="${a.id}" type="button">
+          <span class="planet-glyph">${a.glyph}</span>
+          <span class="planet-name">${a.name}</span>
+        </button>
+      `;
+    }
+    
+    grid.innerHTML = html;
+
+    // Add click handlers for toggling
+    grid.querySelectorAll(".body-toggle-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const planetId = btn.dataset.planet;
+        const isCurrentlyOn = !btn.classList.contains("off");
+        btn.classList.toggle("off");
+        
+        // Update the enabled state and redraw wheel
+        if (typeof window.setPlanetEnabled === "function") {
+          window.setPlanetEnabled(planetId, !isCurrentlyOn);
+        }
+      });
+    });
   }
 
   window.drawAstroWheel = drawAstroWheel;

@@ -171,6 +171,13 @@
 		neptune: swissLon(pid("SE_NEPTUNE")),
 		pluto:   swissLon(pid("SE_PLUTO")),
 
+		// Asteroids (Chiron, Ceres, Pallas, Juno, Vesta)
+		chiron:  swissLon(pid("SE_CHIRON")),
+		ceres:   swissLon(pid("SE_CERES")),
+		pallas:  swissLon(pid("SE_AST_OFFSET") + 2),  // 10002
+		juno:    swissLon(pid("SE_AST_OFFSET") + 3),  // 10003
+		vesta:   swissLon(pid("SE_AST_OFFSET") + 7),  // 10007
+
 		// nodes default (smooth mean regression)
 		northNode: nodeA,
 		southNode: nodeD

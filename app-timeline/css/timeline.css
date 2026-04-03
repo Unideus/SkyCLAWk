@@ -1168,7 +1168,7 @@ height: 650px;     /* ⬅ MUST exceed screwSVG height */
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    z-index: 1000;
+    z-index: 5;
     font-family: 'Courier New', Courier, monospace;
 }
 
@@ -1597,7 +1597,7 @@ height: 650px;     /* ⬅ MUST exceed screwSVG height */
   position: fixed;
   inset: 0;
   display: none;
-  z-index: 700;
+  z-index: 10000 !important;
 
   /* allow clicks inside modal (so close works) */
   pointer-events: auto;
@@ -1635,6 +1635,7 @@ height: 650px;     /* ⬅ MUST exceed screwSVG height */
   background: rgba(0,0,0,.98);
   backdrop-filter: blur(10px);
   box-shadow: 0 20px 60px rgba(0,0,0,.55);
+  z-index: 10001 !important;
   /* resizable sizing (defaults) */
   width:  var(--wheelW, min(920px, calc(100vw - 44px)));
   height: var(--wheelH, min(920px, calc(100vh - var(--top-menu-bottom, 140px) - 60px)));

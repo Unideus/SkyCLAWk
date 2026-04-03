@@ -1003,6 +1003,32 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 						Jupiter: "♃", Saturn: "♄", Uranus: "♅", Neptune: "♆", Pluto: "♇",
 						Sun: "☉", Moon: "☽", Mercury: "☿", Venus: "♀", Mars: "♂"
 					};
+
+					// Approximate cycle durations in years
+					const CYCLE_DURATION = {
+						"Saturn|Jupiter": "~20",
+						"Jupiter|Saturn": "~20",
+						"Saturn|Uranus": "~45",
+						"Uranus|Saturn": "~45",
+						"Saturn|Neptune": "~36",
+						"Neptune|Saturn": "~36",
+						"Saturn|Pluto": "~33",
+						"Pluto|Saturn": "~33",
+						"Uranus|Neptune": "~172",
+						"Neptune|Uranus": "~172",
+						"Uranus|Pluto": "~127",
+						"Pluto|Uranus": "~127",
+						"Neptune|Pluto": "~492",
+						"Pluto|Neptune": "~492",
+						"Jupiter|Uranus": "~14",
+						"Uranus|Jupiter": "~14",
+						"Jupiter|Neptune": "~13",
+						"Neptune|Jupiter": "~13",
+						"Jupiter|Pluto": "~12",
+						"Pluto|Jupiter": "~12",
+						"default": ""
+					};
+
 					const g1 = GLYPH[p1Label] || p1Label;
 					const g2 = GLYPH[p2Label] || p2Label;
 
@@ -1039,7 +1065,17 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 
 					const g1t = String(g1).includes("\uFE0E") ? String(g1) : (String(g1) + "\uFE0E");
 					const g2t = String(g2).includes("\uFE0E") ? String(g2) : (String(g2) + "\uFE0E");
-					el.textContent = `${g1t} ☌ ${g2t}`;
+					
+					// Get cycle duration
+					const cycleKey = `${p1Label}|${p2Label}`;
+					const duration = CYCLE_DURATION[cycleKey] || CYCLE_DURATION["default"];
+					
+					// Build content with smaller, dimmer duration text
+					if (duration) {
+						el.innerHTML = `${g1t} ☌ ${g2t}<span style="font-size: 80%; opacity: 0.85; margin-left: 4px;">${duration} yrs</span>`;
+					} else {
+						el.textContent = `${g1t} ☌ ${g2t}`;
+					}
 				}
 
 				// -----------------------------
@@ -1493,6 +1529,7 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 
 	function initScrewRenderer() {
 		buildScrew();
+		buildPresidentThumbnails();
 		buildConjunctionCycleBand();
 		buildSaeculumWave();
 		buildSaeculumLighting(0.3);
@@ -1514,3 +1551,50 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 			catch (e) { console.warn("[cycle] buildConjunctionCycleBand failed", e); }
 		});
 	}
+
+	// =========================================================
+	// PRESIDENT THUMBNAILS
+	// =========================================================
+	function yearToScrewX(year) {
+		return SCREW_EPOCH_X + (year - 2020) * PX_PER_YEAR;
+	}
+
+	function buildPresidentThumbnails() {
+		const presidentsGroup = document.getElementById("presidents");
+		if (!presidentsGroup) return;
+		presidentsGroup.innerHTML = "";
+
+		// Trump - 2025 to 2029
+		const trumpX = yearToScrewX(2025);
+		
+		// Create SVG image element (simpler than foreignObject)
+		const trumpImage = document.createElementNS("http://www.w3.org/2000/svg", "image");
+		trumpImage.setAttribute("x", trumpX - 15);
+		trumpImage.setAttribute("y", CANON.SCREW_TOTAL_HEIGHT - 50); // Bottom of page
+		trumpImage.setAttribute("width", 30);
+		trumpImage.setAttribute("height", 36);
+		trumpImage.setAttribute("href", "trump-thumb.svg");
+		trumpImage.setAttribute("class", "president-thumb");
+		trumpImage.setAttribute("data-president", "Trump");
+		trumpImage.setAttribute("data-term", "2025-2029");
+		trumpImage.style.cursor = "pointer";
+		
+		// Hover effects
+		trumpImage.addEventListener("mouseenter", () => {
+			trumpImage.setAttribute("width", 60);
+			trumpImage.setAttribute("height", 72);
+			trumpImage.setAttribute("x", trumpX - 30);
+			trumpImage.setAttribute("y", CANON.SCREW_TOTAL_HEIGHT - 86);
+		});
+		trumpImage.addEventListener("mouseleave", () => {
+			trumpImage.setAttribute("width", 30);
+			trumpImage.setAttribute("height", 36);
+			trumpImage.setAttribute("x", trumpX - 15);
+			trumpImage.setAttribute("y", CANON.SCREW_TOTAL_HEIGHT - 50);
+		});
+		
+		presidentsGroup.appendChild(trumpImage);
+	}
+
+	// Expose to window
+	window.buildPresidentThumbnails = buildPresidentThumbnails;
