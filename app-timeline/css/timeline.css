@@ -309,9 +309,9 @@ button.uiPill:active{
 }
 
 /* knob positions */
-#menuDate #scaleSelector[data-scale="yuga"] .scaleKnob{ top: 4px; }
+#menuDate #scaleSelector[data-scale="yuga"] .scaleKnob{ top: 24px; }
 #menuDate #scaleSelector[data-scale="generational"] .scaleKnob{ top: calc(50% - 15px); }
-#menuDate #scaleSelector[data-scale="personal"] .scaleKnob{ top: calc(100% - 30px - 4px); }
+#menuDate #scaleSelector[data-scale="personal"] .scaleKnob{ bottom: 24px; top: auto; }
 
 /* options */
 #menuDate #scaleSelector .scaleOpt{
@@ -320,7 +320,7 @@ button.uiPill:active{
   border: 0;
   background: transparent;
   color: rgba(255,255,255,.90);
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: .1px;
 
   display: inline-flex;
@@ -331,6 +331,9 @@ button.uiPill:active{
   z-index: 2;
   cursor: pointer;
 }
+
+#menuDate #scaleSelector .scaleOpt[data-scale="yuga"]{ margin-top: 20px; }
+#menuDate #scaleSelector .scaleOpt[data-scale="personal"]{ margin-bottom: 20px; }
 
 #menuDate #scaleSelector .scaleOpt[aria-checked="true"]{ font-weight: 800; }
 #menuDate #scaleSelector .scaleOpt:focus-visible{ outline: 2px solid rgba(255,255,255,.35); outline-offset: 2px; }

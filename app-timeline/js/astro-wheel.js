@@ -316,10 +316,10 @@ let cardStartLeft = 0, cardStartTop = 0;
 
       const mid = ang(i * 30 + 15);
       const [tx, ty] = pt((rOuter + rSignInner) / 2, mid);
-      signText += `<text x="${tx}" y="${ty}" font-size="42" text-anchor="middle" dominant-baseline="middle"
+      signText += `<text x="${tx}" y="${ty}" font-size="26" text-anchor="middle" dominant-baseline="middle"
         font-family="Segoe UI Symbol, Noto Sans Symbols2, DejaVu Sans, Arial Unicode MS, sans-serif"
         font-weight="400"
-        fill="white" opacity="0.95">${signMeta[i].glyph}</text>`;
+        fill="white" opacity="0.7">${signMeta[i].glyph}</text>`;
     }
 
     // ---------------------------------------------------------
@@ -417,7 +417,7 @@ let cardStartLeft = 0, cardStartTop = 0;
 const __glyphAngOffset = (renderWheelSVG.__glyphAngOffset ||= new Map());
 
 // px-based separation => converted to degrees using rGlyph
-const GLYPH_FONT_PX = 30;         // your planet glyph font-size
+const GLYPH_FONT_PX = 21;         // your planet glyph font-size (reduced 30%)
 const GLYPH_MIN_GAP_PX = 18;      // tweak: bigger = separates sooner
 const MIN_SEP_DEG = Math.max(
   0.8,
