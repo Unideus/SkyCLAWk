@@ -66,6 +66,6 @@
 	   • Controls NON-Saturn/Jupiter planets only
 	   • Jupiter/Saturn always render with Astro Wheel
 	   ========================================================= */
-	let showInnerPlanets = false; // Moon, Mercury, Venus
-	let showOuterPlanets = false; // Mars, Uranus, Neptune, Pluto
+	let showInnerPlanets = true; // Moon, Mercury, Venus
+	let showOuterPlanets = true; // Mars, Uranus, Neptune, Pluto
 

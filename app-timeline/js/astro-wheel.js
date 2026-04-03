@@ -643,27 +643,278 @@ for (const k of show) {
 
     if (!lons) return;
 
-    // Keep the legacy toggles behavior:
-    // - Always show Saturn + Jupiter
-    // - Add inner/outer groups based on ui-controller toggles
+    // Show all planets by default (toggles can still hide them)
+    const showInner = (typeof showInnerPlanets === "undefined") ? true : !!showInnerPlanets;
+    const showOuter = (typeof showOuterPlanets === "undefined") ? true : !!showOuterPlanets;
+
     const keys = ["sun", "saturn", "jupiter"];
 
-    if (typeof showInnerPlanets !== "undefined" && showInnerPlanets) {
+    if (showInner) {
       keys.push("moon", "mercury", "venus");
     }
 
-    if (typeof showOuterPlanets !== "undefined" && showOuterPlanets) {
+    if (showOuter) {
       keys.push("mars", "uranus", "neptune", "pluto");
     }
 
     // Nodes only when Inner Planets is enabled
-    if (showInnerPlanets) {
+    if (showInner) {
       if (Number.isFinite(Number(lons.northNode))) keys.push("northNode");
       if (Number.isFinite(Number(lons.southNode))) keys.push("southNode");
     }
     const natalLons = (window.NatalChart && window.NatalChart.enabled && window.NatalChart.longitudes) ? window.NatalChart.longitudes : null;
     const url = renderWheelSVG(lons, { baseLon: 0, showKeys: keys, natalLons, dateUTC: t })
     wheelImg.src = url + `#t=${t.getTime()}`;
+
+    // Update date/time overlay at top of wheel
+    const wheelDateValue = document.getElementById("wheelDateValue");
+    if (wheelDateValue) {
+      const weekdays = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+      const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+      
+      const weekday = weekdays[t.getUTCDay()];
+      const day = t.getUTCDate();
+      const month = months[t.getUTCMonth()];
+      const year = t.getUTCFullYear();
+      
+      let hours = t.getUTCHours();
+      const minutes = String(t.getUTCMinutes()).padStart(2, "0");
+      const ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      
+      const tz = t.toLocaleTimeString("en-US", { timeZoneName: "short" }).split(" ").pop().toUpperCase();
+      
+      wheelDateValue.textContent = `${weekday}, ${day} ${month} ${year}, ${hours}:${minutes} ${ampm} ${tz}`;
+    }
+
+    // Calculate and populate aspects grid overlay
+    populateAspectsOverlay(lons, natalLons);
+  }
+
+  // Calculate aspects and populate wheel overlay (bottom left)
+  function populateAspectsOverlay(transitLons, natalLons) {
+    const aspectsGrid = document.getElementById("wheelAspectsGrid");
+    if (!aspectsGrid) return;
+
+    const planets = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "pluto"];
+    const glyphs = ["☉", "☽", "☿", "♀", "♂", "♃", "♄", "♅", "♇"];
+
+    const aspectDefs = [
+      { symbol: "☌", angle: 0, orb: 6, name: "conj" },
+      { symbol: "☍", angle: 180, orb: 6, name: "oppo" },
+      { symbol: "△", angle: 120, orb: 5, name: "trine" },
+      { symbol: "□", angle: 90, orb: 5, name: "square" },
+      { symbol: "⚹", angle: 60, orb: 4, name: "sextile" }
+    ];
+
+    function angleDiff(a, b) {
+      let d = Math.abs(a - b) % 360;
+      if (d > 180) d = 360 - d;
+      return d;
+    }
+
+    function findAspect(lon1, lon2) {
+      if (!Number.isFinite(lon1) || !Number.isFinite(lon2)) return null;
+      const diff = angleDiff(lon1, lon2);
+      for (const asp of aspectDefs) {
+        if (Math.abs(diff - asp.angle) <= asp.orb) {
+          return asp;
+        }
+      }
+      return null;
+    }
+
+    // Build stepped triangle with glyphs on right side
+    let html = '';
+    
+    // Build from top (Sun) to bottom (Pluto)
+    // Row 0: just glyph (Sun)
+    html += '<div class="aspect-step-row">';
+    html += `<div class="aspect-step-glyph">${glyphs[0]}</div>`;
+    html += '</div>';
+    
+    // Rows 1-8: aspect cells + glyph at end
+    for (let row = 1; row < planets.length; row++) {
+      html += '<div class="aspect-step-row">';
+      
+      // Aspect cells (comparing to all planets above)
+      for (let col = 0; col < row; col++) {
+        const rowPlanet = planets[row];
+        const colPlanet = planets[col];
+        const rowLon = transitLons[rowPlanet];
+        const colLon = transitLons[colPlanet];
+        
+        const asp = findAspect(rowLon, colLon);
+        if (asp) {
+          html += `<div class="aspect-step-cell ${asp.name}" title="${glyphs[row]} ${asp.symbol} ${glyphs[col]}">${asp.symbol}</div>`;
+        } else {
+          html += '<div class="aspect-step-cell empty"></div>';
+        }
+      }
+      
+      // Glyph on the right
+      html += `<div class="aspect-step-glyph">${glyphs[row]}</div>`;
+      html += '</div>';
+    }
+    
+    aspectsGrid.innerHTML = html;
+
+    // Populate elemental box with current transit positions
+    populateElementalBox(transitLons);
+
+    // Populate transits grid
+    populateTransitsGrid(transitLons, natalLons);
+  }
+
+  // Show current transit positions in a grid
+  function populateTransitsGrid(transitLons, natalLons) {
+    const grid = document.getElementById("wheelTransitsGrid");
+    if (!grid || !transitLons) return;
+
+    const planetGlyphs = {
+      sun: "☉", moon: "☽", mercury: "☿", venus: "♀", mars: "♂",
+      jupiter: "♃", saturn: "♄", uranus: "♅", neptune: "♆", pluto: "♇"
+    };
+
+    const signGlyphs = ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓"];
+    const signElements = ["fire", "earth", "air", "water", "fire", "earth", "air", "water", "fire", "earth", "air", "water"];
+    const elementColors = {
+      fire: '#ff6b35',
+      earth: '#4ecdc4',
+      air: '#ffe66d',
+      water: '#6a82fb'
+    };
+
+    const planets = ["sun", "moon", "mercury", "venus", "mars",
+                     "jupiter", "saturn", "uranus", "neptune", "pluto"];
+
+    let html = '';
+
+    for (const p of planets) {
+      const lon = transitLons[p];
+      if (!Number.isFinite(lon)) continue;
+
+      const signIndex = Math.floor(lon / 30);
+      const sign = signGlyphs[signIndex];
+      const elem = signElements[signIndex];
+      const deg = Math.floor(lon % 30);
+      const min = Math.floor((lon % 30 - deg) * 60);
+
+      // DEBUG: Log what we're assigning
+      console.log(`[AstroWheel] ${p}: lon=${lon.toFixed(2)}, signIndex=${signIndex}, sign=${sign}, elem=${elem}`);
+
+      const elemColor = elementColors[elem] || '#fff';
+
+      html += `
+        <div class="transit-row">
+          <span class="transit-planet">${planetGlyphs[p]}</span>
+          <span class="transit-sign transit-${elem}">${sign}</span>
+          <span class="transit-degree">${deg}°${min.toString().padStart(2, '0')}</span>
+        </div>
+      `;
+    }
+
+    grid.innerHTML = html;
+    console.log('[AstroWheel] Transits HTML:', html.substring(0, 200));
+  }
+
+  // Show where planets are currently located (transit positions)
+  function populateElementalBox(transitLons) {
+    const grid = document.getElementById("wheelElementalGrid");
+    if (!grid || !transitLons) return;
+
+    // Planet glyphs
+    const planetGlyphs = {
+      sun: "☉", moon: "☽", mercury: "☿", venus: "♀", mars: "♂",
+      jupiter: "♃", saturn: "♄", uranus: "♅", neptune: "♆", pluto: "♇"
+    };
+
+    // Sign -> Element + Quality
+    const signQualities = {
+      "Aries": { elem: "Fire", qual: "Cardinal" },
+      "Taurus": { elem: "Earth", qual: "Fixed" },
+      "Gemini": { elem: "Air", qual: "Mutable" },
+      "Cancer": { elem: "Water", qual: "Cardinal" },
+      "Leo": { elem: "Fire", qual: "Fixed" },
+      "Virgo": { elem: "Earth", qual: "Mutable" },
+      "Libra": { elem: "Air", qual: "Cardinal" },
+      "Scorpio": { elem: "Water", qual: "Fixed" },
+      "Sagittarius": { elem: "Fire", qual: "Mutable" },
+      "Capricorn": { elem: "Earth", qual: "Cardinal" },
+      "Aquarius": { elem: "Air", qual: "Fixed" },
+      "Pisces": { elem: "Water", qual: "Mutable" }
+    };
+
+    // Get sign from longitude
+    function getSign(lon) {
+      const signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
+                       "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
+      return signs[Math.floor(lon / 30)];
+    }
+
+    // Group planets by element/quality
+    const gridData = {};
+    const elements = ["Fire", "Earth", "Air", "Water"];
+    const qualities = ["Cardinal", "Fixed", "Mutable"];
+    
+    elements.forEach(e => {
+      qualities.forEach(q => {
+        gridData[`${e}-${q}`] = [];
+      });
+    });
+
+    // Place each planet in correct cell
+    for (const [planet, lon] of Object.entries(transitLons)) {
+      if (!planetGlyphs[planet] || !Number.isFinite(lon)) continue;
+      
+      const sign = getSign(lon);
+      const eq = signQualities[sign];
+      if (eq) {
+        gridData[`${eq.elem}-${eq.qual}`].push(planetGlyphs[planet]);
+      }
+    }
+
+    // Element symbols (alchemical)
+    const elemSymbols = {
+      "Fire": "🜂",
+      "Earth": "🜃", 
+      "Air": "🜁",
+      "Water": "🜄"
+    };
+
+    // Build HTML
+    let html = '';
+
+    // Header row
+    html += '<div class="elem-header-row">';
+    html += '<div class="elem-corner"></div>';
+    qualities.forEach(q => {
+      html += `<div class="elem-col-header">${q.substring(0, 1)}</div>`;
+    });
+    html += '</div>';
+
+    // Data rows
+    elements.forEach(elem => {
+      html += '<div class="elem-row">';
+      html += `<div class="elem-row-header ${elem.toLowerCase()}">${elemSymbols[elem]}</div>`;
+
+      qualities.forEach(qual => {
+        const planets = gridData[`${elem}-${qual}`];
+        const elemClass = elem.toLowerCase();
+        html += `<div class="elem-cell ${elemClass}">`;
+        planets.forEach(p => {
+          html += `<span class="planet-glyph">${p}</span>`;
+        });
+        html += '</div>';
+      });
+
+      html += '</div>';
+    });
+
+    grid.innerHTML = html;
+
+    grid.innerHTML = html;
   }
 
   window.drawAstroWheel = drawAstroWheel;

@@ -198,7 +198,7 @@
 		const markerTop = Math.round(sr.top + CANON.SCREW_TOP_PAD + EXTRA_SCREW_TOP_PAD);
 		document.documentElement.style.setProperty("--time-marker-top", `${markerTop}px`);
 
-		const nowY = Math.round(sr.top + ((CANON.SCREW_TOP_PAD + EXTRA_SCREW_TOP_PAD) / 2));
+		const nowY = Math.round(sr.top + CANON.SCREW_TOP_PAD + EXTRA_SCREW_TOP_PAD);
 		document.documentElement.style.setProperty("--now-label-age-top", `${nowY}px`);
 		}
 		

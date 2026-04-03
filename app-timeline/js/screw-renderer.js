@@ -913,7 +913,7 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 					hud.style.width = "0";
 					hud.style.height = "0";
 					hud.style.pointerEvents = "none";
-					hud.style.zIndex = "99999";
+					hud.style.zIndex = "5"; // above elemental bands (z=3), below astro-wheel (z=10)
 					document.body.appendChild(hud);
 				}
 				// mark existing as unused, we’ll keep only the ones we touch this pass

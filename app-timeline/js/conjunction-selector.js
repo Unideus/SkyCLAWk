@@ -85,7 +85,12 @@
     };
 
     const pair = `${getGlyph(p1)} ☌ ${getGlyph(p2)}`;
-    cycleFab.textContent = pair;
+    const textSpan = cycleFab.querySelector('.cycleFabText');
+    if (textSpan) {
+      // Keep the static text, glyphs are already in HTML
+    } else {
+      cycleFab.textContent = pair;
+    }
 
     // Keep the conj nav buttons consistent with the chosen pair
     const prevConjBtn = document.getElementById("prevConjBtn");
