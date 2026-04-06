@@ -231,7 +231,7 @@ let cardStartLeft = 0, cardStartTop = 0;
   // ---------------------------------------------------------
   let HEAVEN_DATA_URL = "";
 
-  fetch("/heaven_constellations.svg")
+  fetch("heaven_constellations.svg")
     .then(r => r.ok ? r.text() : Promise.reject(new Error(`HTTP ${r.status}`)))
     .then(txt => {
       HEAVEN_DATA_URL = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(txt);
