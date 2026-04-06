@@ -39,7 +39,6 @@
 					/>
 
 					<div id="menuRightStack">
-						<a href="skyclock/" class="uiPill" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px;">SkyClock</a>
 
 						<button id="wheelFab" class="uiPill wheelFabMenu" type="button"
 							aria-haspopup="dialog"
@@ -78,7 +77,7 @@
 					</div>
 
 					<div class="wheelStage">
-					<img id="wheelImg" alt="Astro wheel" draggable="false" />
+					<img id="wheelImg" alt="Astro wheel" draggable="false" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='none' stroke='%23333' stroke-width='2'/%3E%3C/svg%3E" />
 					</div>
 
 					<!-- Natal Toggle Button (moved from astroHUD) -->
@@ -687,6 +686,24 @@
 
 
 
-	</body>
+	
+
+	<script>
+		// Navigation: Yuga/Gen/Personal selector navigates to skyclock variants
+		document.querySelectorAll('.scaleOpt').forEach(btn => {
+			btn.addEventListener('click', function() {
+				const scale = this.dataset.scale;
+				if (scale === 'yuga') {
+					window.location.href = 'skyclock/?variant=yuga';
+				} else if (scale === 'generational') {
+					window.location.href = 'skyclock/';
+				} else if (scale === 'personal') {
+					window.location.href = 'skyclock/?variant=personal';
+				}
+			});
+		});
+	</script>
+
+</body>
 	
 </html>
