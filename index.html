@@ -216,9 +216,9 @@
 				<!-- Timeline scale selector (Yuga / Generational / Personal) -->
 				<div id="scaleSelector" class="uiPill scaleSelector" role="radiogroup" aria-label="Timeline scale" data-scale="generational">
 								<span class="scaleKnob" aria-hidden="true"></span>
-								<button class="scaleOpt" type="button" role="radio" aria-checked="false" data-scale="yuga" tabindex="-1">Yuga</button>
-								<button class="scaleOpt" type="button" role="radio" aria-checked="true"  data-scale="generational" tabindex="0">Gen</button>
-								<button class="scaleOpt" type="button" role="radio" aria-checked="false" data-scale="personal" tabindex="-1">Personal</button>
+								<button class="scaleOpt" type="button" role="radio" aria-checked="false" data-scale="yuga" tabindex="-1" onclick="window.location.href='http://localhost:5173/skyclock/?variant=yuga'">Yuga</button>
+								<button class="scaleOpt" type="button" role="radio" aria-checked="true"  data-scale="generational" tabindex="0" onclick="window.location.href='http://localhost:5173/skyclock/'">Gen</button>
+								<button class="scaleOpt" type="button" role="radio" aria-checked="false" data-scale="personal" tabindex="-1" onclick="window.location.href='http://localhost:5173/skyclock/?variant=personal'">Personal</button>
 				</div>
 				<div id="dateBoxOuter">
 					<input id="dateBoxInput" type="text" placeholder="21 Jan 2026" />
@@ -350,7 +350,7 @@
 		<script src="https://unpkg.com/three@0.149.0/build/three.min.js"></script>
 		<script src="js/render-river-3d.js"></script>
 
-		<script src="js/ui-controller.js?v=10"></script>
+		<script src="js/ui-controller.js?v=11"></script>
 
 		<!-- President Thumbnails - Fixed to bottom of viewport with overlapping -->
 		<div id="presidentThumbContainer" style="position: fixed; bottom: 10px; left: 0; width: 100%; height: 100px; z-index: 1000; pointer-events: none;">
@@ -690,17 +690,21 @@
 
 	<script>
 		// Navigation: Yuga/Gen/Personal selector navigates to skyclock variants
+		// Use mousedown to fire before the ui-controller click handler
 		document.querySelectorAll('.scaleOpt').forEach(btn => {
-			btn.addEventListener('click', function() {
+			btn.addEventListener('mousedown', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
 				const scale = this.dataset.scale;
+				const baseUrl = window.location.origin;
 				if (scale === 'yuga') {
-					window.location.href = 'skyclock/?variant=yuga';
+					window.location.href = baseUrl + '/skyclock/?variant=yuga';
 				} else if (scale === 'generational') {
-					window.location.href = 'skyclock/';
+					window.location.href = baseUrl + '/skyclock/';
 				} else if (scale === 'personal') {
-					window.location.href = 'skyclock/?variant=personal';
+					window.location.href = baseUrl + '/skyclock/?variant=personal';
 				}
-			});
+			}, true); // Use capture phase
 		});
 	</script>
 
