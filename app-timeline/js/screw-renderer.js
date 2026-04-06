@@ -1529,7 +1529,7 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 
 	function initScrewRenderer() {
 		buildScrew();
-		buildPresidentThumbnails();
+		// buildPresidentThumbnails(); // Removed - now using fixed HTML element
 		buildConjunctionCycleBand();
 		buildSaeculumWave();
 		buildSaeculumLighting(0.3);
@@ -1566,11 +1566,12 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 
 		// Trump - 2025 to 2029, positioned at year 2024, at bottom of screw
 		const trumpX = yearToScrewX(2024);
+		const thumbY = CANON.SCREW_TOTAL_HEIGHT - 72; // Position at bottom, fully visible
+		console.log("[Thumb] SCREW_TOTAL_HEIGHT:", CANON.SCREW_TOTAL_HEIGHT, "thumbY:", thumbY);
 		
-		console.log("[Thumb v999] Creating at year 2024, trumpX:", trumpX);
 		const trumpImage = document.createElementNS("http://www.w3.org/2000/svg", "image");
 		trumpImage.setAttribute("x", trumpX - 30);
-		trumpImage.setAttribute("y", CANON.SCREW_TOTAL_HEIGHT - 20); // Very bottom of screw
+		trumpImage.setAttribute("y", thumbY); // Bottom of screw, image fully visible
 		trumpImage.setAttribute("width", 60);
 		trumpImage.setAttribute("height", 72);
 		trumpImage.setAttribute("href", "images/trump-portrait.jpg");

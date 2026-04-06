@@ -1,0 +1,79 @@
+		<!-- President Thumbnails - Fixed to bottom of viewport -->
+		<div id="presidentThumbContainer" style="position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 10px;">
+			<img id="bidenThumb" src="images/biden-portrait.jpg" alt="Biden" style="width: 60px; height: 72px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.5); cursor: pointer; transition: transform 0.2s, width 0.2s, height 0.2s;">
+			<img id="trumpThumb" src="images/trump-portrait.jpg" alt="Trump" style="width: 60px; height: 72px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.5); cursor: pointer; transition: transform 0.2s, width 0.2s, height 0.2s;">
+		</div>
+
+		<script>
+			// President thumbnails positioning
+			const BIDEN_TARGET_YEAR = 2022;  // Mid-term: 2021-2025
+			const TRUMP_TARGET_YEAR = 2026;  // Mid-term: 2025-2029
+			
+			function getPresidentScreenX(targetYear) {
+				if (typeof yearToScrewX !== 'function') return null;
+				
+				const presidentScrewX = yearToScrewX(targetYear);
+				
+				let currentScrollX = 0;
+				if (typeof timeState !== 'undefined' && timeState.scrollX !== undefined) {
+					currentScrollX = timeState.scrollX;
+				}
+				
+				if (typeof getNowScreenX !== 'function' || typeof SCREW_EPOCH_X === 'undefined') return null;
+				
+				const nowX = getNowScreenX();
+				const offsetFromEpoch = presidentScrewX - SCREW_EPOCH_X;
+				// Offset to correct alignment
+				const alignmentOffset = 6 * 5; // 6 years * 5 px/year = 30px
+				const screenX = nowX + offsetFromEpoch + currentScrollX + alignmentOffset;
+				
+				return screenX;
+			}
+			
+			function updatePresidentPositions() {
+				const bidenScreenX = getPresidentScreenX(BIDEN_TARGET_YEAR);
+				const trumpScreenX = getPresidentScreenX(TRUMP_TARGET_YEAR);
+				const container = document.getElementById('presidentThumbContainer');
+				
+				// Position container at Biden's location (leftmost president)
+				if (container && bidenScreenX !== null) {
+					const screwRect = document.getElementById('screwSVG')?.getBoundingClientRect();
+					if (screwRect) {
+						// Position left edge at Biden's position, Trump will be to the right
+						container.style.left = (screwRect.left + bidenScreenX) + 'px';
+						container.style.transform = 'translateX(-50%)';
+					}
+				}
+			}
+			
+			// Smooth animation loop
+			function animatePresidents() {
+				updatePresidentPositions();
+				requestAnimationFrame(animatePresidents);
+			}
+			animatePresidents();
+			
+			// Update on resize
+			window.addEventListener('resize', updatePresidentPositions);
+			
+			// Hover effects for both presidents
+			function setupHover(thumb) {
+				if (!thumb) return;
+				thumb.addEventListener('mouseenter', () => {
+					thumb.style.width = '90px';
+					thumb.style.height = '108px';
+					thumb.style.transform = 'translateY(-18px)';
+				});
+				thumb.addEventListener('mouseleave', () => {
+					thumb.style.width = '60px';
+					thumb.style.height = '72px';
+					thumb.style.transform = 'translateY(0)';
+				});
+			}
+			
+			setupHover(document.getElementById('bidenThumb'));
+			setupHover(document.getElementById('trumpThumb'));
+			
+			// Initial position
+			setTimeout(updatePresidentPositions, 100);
+		</script>
