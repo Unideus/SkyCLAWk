@@ -231,13 +231,18 @@ let cardStartLeft = 0, cardStartTop = 0;
   // ---------------------------------------------------------
   let HEAVEN_DATA_URL = "";
 
-  fetch("heaven_constellations.svg")
-    .then(r => r.ok ? r.text() : Promise.reject(new Error(`HTTP ${r.status}`)))
-    .then(txt => {
-      HEAVEN_DATA_URL = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(txt);
-      if (typeof requestWheelRedraw === "function") requestWheelRedraw();
-    })
-    .catch(err => console.warn("[wheel] heaven_constellations.svg load failed:", err));
+  // Check if inlined data is available (from heaven-data.js), otherwise fetch
+  if (typeof window.HEAVEN_CONSTELLATIONS_DATA !== 'undefined') {
+    HEAVEN_DATA_URL = window.HEAVEN_CONSTELLATIONS_DATA;
+  } else {
+    fetch("heaven_constellations.svg")
+      .then(r => r.ok ? r.text() : Promise.reject(new Error(`HTTP ${r.status}`)))
+      .then(txt => {
+        HEAVEN_DATA_URL = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(txt);
+        if (typeof requestWheelRedraw === "function") requestWheelRedraw();
+      })
+      .catch(err => console.warn("[wheel] heaven_constellations.svg load failed:", err));
+  }
 
   // =========================================================
   // SVG WHEEL RENDERER (ported from MyTimeline)
