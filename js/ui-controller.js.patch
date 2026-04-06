@@ -1,0 +1,62 @@
+Patch for syncRiverClip function - replace lines 263-293
+
+OLD:
+		function syncRiverClip() {
+		if (!window.River3D) return;
+
+		const svg = document.getElementById("screwSVG");
+		if (!svg) return;
+
+		const topLine  = svg.querySelector("#elementalBoundaryLine");
+		const axisLine = svg.querySelector("#timelineAxisLine");
+		if (!topLine || !axisLine) return;
+
+		const topPx = topLine.getBoundingClientRect().top;
+		const botPx = axisLine.getBoundingClientRect().top;
+		River3D.setBand(topPx, botPx);
+
+		const screwRect = svg.getBoundingClientRect();
+		const nowBoundaryScreenX = screwRect.left + getNowScreenX();
+
+		River3D.setXEdge(nowBoundaryScreenX);
+		River3D.setXClip(screwRect.left, nowBoundaryScreenX);
+		
+		// ✅ Archetype box river (labelSVG)
+			if (labelSVGEl && typeof River3D.setLabelRect === "function") {
+			const lr = labelSVGEl.getBoundingClientRect();
+			River3D.setLabelRect(lr.left, lr.top, lr.right, lr.bottom);
+			}
+		}
+
+NEW:
+		function syncRiverClip() {
+		if (!window.River3D) return;
+
+		const svg = document.getElementById("screwSVG");
+		if (!svg) return;
+
+		const screwRect = svg.getBoundingClientRect();
+		
+		// RIVER BEHIND SCREW: Position river to cover the screw area from behind
+		// The screw body sits at SCREW_TOP_PAD (20px) to TIMELINE_Y (180px) in SVG coords
+		// We want the river behind this, so we use the screw's top and the axis line bottom
+		const axisLine = svg.querySelector("#timelineAxisLine");
+		if (!axisLine) return;
+
+		// Top of river = top of screw SVG (to cover the elemental cycle area too)
+		// Bottom of river = the timeline axis (where screw body ends)
+		const topPx = screwRect.top;
+		const botPx = axisLine.getBoundingClientRect().top;
+		River3D.setBand(topPx, botPx);
+
+		const nowBoundaryScreenX = screwRect.left + getNowScreenX();
+
+		River3D.setXEdge(nowBoundaryScreenX);
+		River3D.setXClip(screwRect.left, nowBoundaryScreenX);
+		
+		// ✅ Archetype box river (labelSVG)
+			if (labelSVGEl && typeof River3D.setLabelRect === "function") {
+			const lr = labelSVGEl.getBoundingClientRect();
+			River3D.setLabelRect(lr.left, lr.top, lr.right, lr.bottom);
+			}
+		}

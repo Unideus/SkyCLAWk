@@ -1,0 +1,896 @@
+	body {
+	  margin: 0;
+	  background: #111;
+	  color: white;
+	  font-family: Georgia;
+	  display: flex;
+	  height: 100vh;
+	}
+
+	.sidebar {
+	  width: 260px;
+	  background: #222;
+	  padding: 16px;
+	  box-sizing: border-box;
+	  display: flex;
+	  flex-direction: column;
+	  gap: 10px;
+	  overflow-y: auto;
+	}
+
+	.sidebar button {
+	  padding: 8px;
+	  background: #444;
+	  border: none;
+	  color: white;
+	  cursor: pointer;
+	  margin-top: 10px;
+	}
+
+	.sidebar button:hover {
+	  background: #666;
+	}
+
+	/* =====================
+	   Play / Pause button
+	   ===================== */
+
+	#toggle-btn {
+	  font-weight: bold;
+	  letter-spacing: 0.5px;
+	  border-radius: 6px;
+	  transition:
+		background-color 0.25s ease,
+		color 0.25s ease,
+		box-shadow 0.25s ease;
+	}
+
+	/* PAUSED (ready to play) */
+	#toggle-btn.is-paused {
+	  background: #2f3a2f; /* muted dark green */
+	  color: #9be39b;      /* soft green text */
+	  box-shadow: inset 0 0 0 1px #3e6f3e;
+	}
+
+	/* PLAYING */
+	#toggle-btn.is-playing {
+	  background: #3a2f2f; /* muted dark red */
+	  color: #f2a3a3;      /* soft red text */
+	  box-shadow: inset 0 0 0 1px #7a3b3b;
+	}
+
+	.main {
+	  flex: 1;
+	  position: relative;
+	  display: flex;
+	  justify-content: center;
+	  align-items: flex-start;
+	  overflow: hidden;
+	  padding: 20px;
+	}
+
+	.container {
+	  position: relative;
+	  width: 1220px;
+	  height: 1090px; /* ✅ missing semicolon fixed */
+	}
+
+	#scale-wrapper {
+	  transform-origin: top center;
+	  width: 1220px;
+	  height: 1090px;
+	}
+
+	/* =========================
+	   3. TYPOGRAPHY & LABELS
+	   ========================= */
+
+	/* Sidebar labels */
+	.sidebar label {
+	  font-size: 0.9em;
+	  margin-bottom: 6px;
+	  display: block;
+	}
+
+	/* Section headings (Heaven / Word / Earth) */
+	.sidebar h3 {
+	  font-size: 1.4em;
+	  text-align: center;
+	  margin: 16px 0 8px;
+	  font-weight: bold;
+	  text-transform: uppercase;
+	  letter-spacing: 0.5px;
+	}
+
+	/* Site title (top-left overlay) */
+	.main-title {
+	  font-size: 26px;
+	  font-weight: bold;
+	  letter-spacing: 0.5px;
+	  color: #e6e6e6;
+	  text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+	}
+
+	.sub-title {
+	  font-size: 13px;
+	  font-style: italic;
+	  color: #9ca3af;
+	  margin-top: 2px;
+	  letter-spacing: 0.3px;
+	}
+
+	/* Menu title (inside sidebar boxes) */
+	.menu-title {
+	  text-align: center;
+	  margin-bottom: 14px;
+	  padding-bottom: 10px;
+	  border-bottom: 1px solid rgba(255,255,255,0.15);
+	  background: linear-gradient(to bottom, rgba(255,255,255,0.05), transparent);
+	  border-radius: 6px;
+	}
+
+	.menu-main-title {
+	  font-size: 22px;
+	  font-weight: bold;
+	  letter-spacing: 0.6px;
+	  color: #e6e6e6;
+	  text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+	}
+
+	.menu-sub-title {
+	  font-size: 12px;
+	  font-style: italic;
+	  color: #9ca3af;
+	  margin-top: 2px;
+	}
+
+	/* Heaven / Word / Earth labels */
+	.heaven-label,
+	.word-label,
+	.earth-label {
+	  font-size: 1.3em;
+	  font-weight: bold;
+	  text-shadow: 1px 1px 2px black;
+	  margin-bottom: 8px;
+	}
+
+	.heaven-label {
+	  color: #468CB4;
+	}
+
+	.earth-label {
+	  color: #b63a3a;
+	}
+
+	/* Special text treatments */
+	.gradient-label {
+	  background: linear-gradient(to right, #ffdd57, #22c55e);
+	  -webkit-background-clip: text;
+	  -webkit-text-fill-color: transparent;
+	  font-weight: bold;
+	}
+
+	.infinity-label {
+	  font-size: 1.1em;
+	  font-weight: bold;
+	}
+
+	.analemma-symbol {
+	  font-size: 1.25em;
+	  font-weight: bold;
+	  margin-left: 2px;
+	  cursor: help;
+	}
+
+	label:hover .analemma-symbol {
+	  text-shadow: 0 0 4px gold;
+	}
+
+	/* =========================
+	   3.5 INTRO / VITRUVIAN GLYPH
+	   ========================= */
+
+	/* Vitruvian-style circle + square overlap */
+	.vitruvian-glyph {
+	  position: relative;
+	  width: 140px;      /* overall size */
+	  height: 140px;
+	  margin: 12px auto; /* center it */
+	}
+
+	/* Circle (Ecliptic / Heaven) */
+	.vitruvian-glyph .glyph-circle {
+	  position: absolute;
+	  top: 0;
+	  left: 0;
+	  width: 100%;
+	  height: 100%;
+	  border: 2px solid #ffd400; /* gold */
+	  border-radius: 50%;
+	  box-sizing: border-box;
+	}
+
+	/* Adjusted inner circle positioning */
+	.glyph-circle {
+	  position: absolute;
+	  top: 50%;
+	  left: 50%;
+	  transform: translate(-0%, -6%) scale(0.92);
+	}
+
+	/* Square (Tropics / Earth) */
+	.vitruvian-glyph .glyph-square {
+	  position: absolute;
+	  top: 10%;     /* vertical offset like Vitruvius */
+	  left: 10%;
+	  width: 80%;
+	  height: 80%;
+	  border: 2px solid #ddd; /* light gray */
+	  box-sizing: border-box;
+	}
+
+	/* Shared center dot */
+	.glyph-center {
+	  position: absolute;
+	  width: 3px;
+	  height: 3px;
+	  border-radius: 50%;
+	  pointer-events: none;
+	}
+
+	/* Circle center (ENP) */
+	.circle-center {
+	  top: 50%;
+	  left: 50%;
+	  transform: translate(-50%, -50%);
+	  background: #ffd400;
+	}
+
+	/* Square center (NCP) */
+	.square-center {
+	  top: 50%;
+	  left: 50%;
+	  transform: translate(-50%, -50%);
+	  background: #ddd;
+	}
+
+	/* =========================
+	   INTRO BUTTON & MODAL
+	   ========================= */
+	.intro-button {
+	  position: fixed;
+	  top: 12px;
+	  right: 70px; /* places it left of the debug box */
+	  width: 44px;
+	  height: 44px;
+	  background: rgba(0,0,0,0.7);
+	  color: white;
+	  font-size: 28px;
+	  font-weight: bold;
+	  border-radius: 50%;
+	  display: flex;
+	  align-items: center;
+	  justify-content: center;
+	  cursor: pointer;
+	  z-index: 4000;
+	  box-shadow: 0 0 15px rgba(0,0,0,0.8);
+	  transition: all 0.3s ease;
+	  user-select: none;
+	}
+
+	.intro-button:hover {
+	  background: rgba(255,255,255,0.25);
+	  transform: scale(1.15);
+	  box-shadow: 0 0 20px rgba(255,255,255,0.3);
+	}
+
+	.modal {
+	  display: none;
+	  position: fixed;
+	  z-index: 5000;
+	  left: 0;
+	  top: 0;
+	  width: 100%;
+	  height: 100%;
+	  background: rgba(0,0,0,0.92);
+	  align-items: center;
+	  justify-content: center;
+	  padding: 20px;
+	  box-sizing: border-box;
+	}
+
+	.modal-content {
+	  background: #111;
+	  padding: 32px;
+	  border-radius: 16px;
+	  max-width: 720px;
+	  width: 90%;
+	  max-height: 90vh;
+	  overflow-y: auto;
+	  border: 1px solid #444;
+	  color: #eee;
+	  position: relative;
+	  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+	}
+
+	.modal-content h3 {
+	  margin: 24px 0 8px 0;
+	}
+
+	.close {
+	  position: absolute;
+	  top: 12px;
+	  right: 24px;
+	  font-size: 36px;
+	  cursor: pointer;
+	  opacity: 0.7;
+	  transition: opacity 0.2s;
+	}
+
+	.close:hover {
+	  opacity: 1;
+	}
+
+	/* =========================
+	   4. CONTROLS & UI ELEMENTS
+	   ========================= */
+
+	/* Hide native mode radios (custom UI used instead) */
+	input[name="mode"] {
+	  display: none;
+	}
+
+	/* Generic slider styling */
+	.sidebar input[type="range"] {
+	  width: 100%;
+	}
+
+	/* Toggle rows (label + control alignment) */
+	.toggle-row {
+	  display: flex;
+	  align-items: center;
+	  justify-content: space-between;
+	  gap: 12px;
+	}
+
+	/* Two-column toggle grids */
+	.toggle-grid {
+	  display: grid;
+	  grid-template-columns: 1fr 1fr;
+	  gap: 6px 10px;
+	}
+
+	/* Inline sliders (used for compact controls) */
+	.inline-slider {
+	  flex: 1;
+	  max-width: 100px;
+	}
+
+	/* Heaven checkbox rows */
+	.heaven-row {
+	  display: grid;
+	  grid-template-columns: repeat(3, max-content);
+	  column-gap: 10px;
+	  row-gap: 6px;
+	  justify-content: start;
+	}
+
+	.heaven-item {
+	  display: flex;
+	  align-items: center;
+	  gap: 6px;
+	  white-space: nowrap;
+	}
+
+	.heaven-item input[type="checkbox"] {
+	  margin: 0;
+	}
+	
+	.grand-conjunction-btn{
+	  position: fixed;
+	  bottom: 30px;
+	  right: 30px;
+	  z-index: 1000;
+	  display: block;
+	  width: 220px;
+	  opacity: 0.85;
+	  transition: opacity 0.3s ease, transform 0.2s ease;
+	  border-radius: 12px;
+	  overflow: hidden;
+	  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+	}
+
+	.grand-conjunction-btn:hover{
+	  opacity: 1;
+	  transform: scale(1.05);
+	}
+
+	.grand-conjunction-img{
+	  width: 100%;
+	  height: auto;
+	  display: block;
+	}
+
+
+	/* =========================
+	   5. MODE SELECTOR (QUADRANTS)
+	   ========================= */
+
+	#mode-circle {
+	  width: 200px;
+	  aspect-ratio: 1 / 1;
+	  position: relative;
+	  margin: 0 auto 16px auto;
+	  overflow: hidden;
+	  border: 2px solid #555;
+	  box-shadow: 0 0 8px #000;
+	  user-select: none;
+	}
+
+	/* Quadrants */
+	#mode-circle .quadrant {
+	  position: absolute;
+	  width: 50%;
+	  height: 50%;
+	  display: flex;
+	  align-items: center;
+	  justify-content: center;
+	  cursor: pointer;
+	  font-size: 0.9em;
+	  font-weight: bold;
+	  color: white;
+	  text-shadow: 1px 1px 2px black;
+	  opacity: 0.85;
+	  transition: opacity 0.2s ease, box-shadow 0.2s ease;
+	}
+
+	#mode-circle .quadrant:hover {
+	  opacity: 1;
+	}
+
+	/* Selected quadrant */
+	#mode-circle .quadrant.selected {
+	  opacity: 1;
+	  box-shadow: 0 0 8px 3px #fff;
+	  z-index: 2;
+	}
+
+	/* Quadrant positions & colors */
+	#mode-circle .top-left {
+	  top: 0;
+	  left: 0;
+	  background: radial-gradient(circle at top left, #ef4444, #7f1d1d); /* Fixed */
+	}
+
+	#mode-circle .top-right {
+	  top: 0;
+	  right: 0;
+	  background: radial-gradient(circle at top right, #facc15, #92400e); /* Real-Time */
+	}
+
+	#mode-circle .bottom-right {
+	  bottom: 0;
+	  right: 0;
+	  background: radial-gradient(circle at bottom right, #3b82f6, #1e3a8a); /* Precession */
+	}
+
+	#mode-circle .bottom-left {
+	  bottom: 0;
+	  left: 0;
+	  background: radial-gradient(circle at bottom left, #22c55e, #14532d); /* Yuga */
+	}
+
+	/* Center label */
+	#mode-label {
+	  position: absolute;
+	  top: 50%;
+	  left: 50%;
+	  transform: translate(-50%, -50%);
+	  font-size: 1em;
+	  font-weight: bold;
+	  color: #fff;
+	  text-shadow: 1px 1px 2px #000;
+	  pointer-events: none;
+	}
+
+	/* =========================
+	   6. HEAVEN / WORD / EARTH
+	   ========================= */
+
+	/* Shared section container */
+	.section-box {
+	  border-radius: 6px;
+	  padding: 10px;
+	  margin-bottom: 12px;
+	  border: 2px solid;
+	}
+
+	/* ================= HEAVEN ================= */
+	.heaven-box {
+	  background: linear-gradient(to bottom right, #f0f8ff, #87CEEB);
+	  border-color: #468CB4;
+	  color: #000;
+	}
+
+	/* ================= WORD MADE FLESH ================= */
+	.word-box {
+	  position: relative;
+	  color: #fff;
+	  border: 2px solid transparent;
+	  border-image: linear-gradient(to bottom, #ffdd57, #22c55e) 1;
+	  overflow: hidden;
+	}
+
+	/* Rainbow gradient background */
+	.word-box::before {
+	  content: "";
+	  position: absolute;
+	  inset: 0;
+	  background: linear-gradient(
+		to bottom,
+		indigo,
+		blue,
+		green,
+		yellow,
+		orange,
+		red
+	  );
+	  opacity: 0.75;
+	  z-index: 0;
+	}
+
+	/* Ensure content stays above gradient */
+	.word-box * {
+	  position: relative;
+	  z-index: 1;
+	}
+
+	/* Word text parts */
+	.word-part {
+	  color: #87ceeb; /* sky blue */
+	}
+
+	.made-part {
+	  font-style: italic;
+	  text-transform: lowercase;
+	  color: #cccccc;
+	  margin: 0 4px;
+	}
+
+	.flesh-part {
+	  color: #8b1a1a; /* muddy crimson red */
+	}
+
+	/* ================= EARTH ================= */
+	.earth-box {
+	  background: linear-gradient(
+		to top,
+		#4e342e 0%,
+		#795548 15%,
+		#8bc34a 35%,
+		#ffeb3b 55%,
+		#f0f8ff 100%
+	  );
+	  border-color: #b63a3a;
+	  color: #000;
+	}
+
+	/* ================= TROPICAL SYSTEM ================= */
+	.tropical-details summary {
+	  list-style: none;
+	}
+
+	.tropical-details summary::-webkit-details-marker {
+	  display: none;
+	}
+
+	.tropical-summary {
+	  display: flex;
+	  justify-content: space-between;
+	  align-items: center;
+	  cursor: pointer;
+	  font-weight: bold;
+	}
+
+	.tropical-left {
+	  display: inline-flex;
+	  align-items: center;
+	  gap: 6px;
+	}
+
+	.tropical-arrow {
+	  font-size: 14px;
+	  color: white;
+	  transition: transform 0.2s ease;
+	}
+
+	.tropical-details[open] .tropical-arrow {
+	  transform: rotate(90deg);
+	}
+
+	.tropical-toggle-row {
+	  display: flex;
+	  align-items: center;
+	  justify-content: space-between;
+	  gap: 4px;
+	  margin-top: 6px;
+	}
+
+	.tropical-label {
+	  display: flex;
+	  align-items: center;
+	  gap: 6px;
+	  margin: 0;
+	  cursor: pointer;
+	}
+
+	#tropical-settings-btn {
+	  background: none;
+	  border: none;
+	  color: #9ecbff;
+	  font-size: 1.1em;
+	  cursor: pointer;
+	  padding: 2px 6px;
+	  border-radius: 4px;
+	}
+
+	#tropical-settings-btn:hover {
+	  background: rgba(158, 203, 255, 0.15);
+	}
+
+	/* =========================
+	   7. DEBUG, OVERLAYS & SVG
+	   ========================= */
+
+	/* SVG overlay layer */
+	svg.overlay {
+	  position: absolute;
+	  top: 0;
+	  left: 0;
+	  width: 1220px;
+	  height: 1700px;
+	  pointer-events: none;
+	}
+
+	/* Background reference image (Vitruvian, etc.) */
+	#vitruv-img {
+	  position: absolute;
+	  top: 0;
+	  left: 0;
+	  width: 100%;
+	  height: 100%;
+	  object-fit: contain;
+	  display: none;
+	}
+
+	/* Debug HUD (top-right) */
+	.debug-box {
+	  position: fixed;
+	  top: 10px;
+	  right: 10px;
+	  background: rgba(0,0,0,0.6);
+	  padding: 6px 10px;
+	  border-radius: 4px;
+	  font-family: monospace;
+	  font-size: 0.9em;
+	  color: #0f0;
+	  z-index: 1000;
+	  text-align: right;
+	}
+
+	/* Debug panel (expandable) */
+	#debugPanel {
+	  display: none;
+	  position: fixed;
+	  bottom: 10px;
+	  right: 10px;
+	  width: 220px;
+	  max-height: 200px;
+	  overflow-y: auto;
+	  padding: 6px 8px;
+	  background: rgba(0,0,0,0.75);
+	  color: #9cf;
+	  font-family: monospace;
+	  font-size: 12px;
+	  border: 1px solid #3af;
+	  border-radius: 8px;
+	  z-index: 2000;
+	}
+
+	#debugPanel .dbgTitle {
+	  font-weight: bold;
+	  margin-bottom: 5px;
+	  font-size: 13px;
+	  color: #7dd3fc;
+	}
+
+	#debugText {
+	  white-space: pre-wrap;
+	}
+
+	/* Fully disable debug output when needed */
+	#debug {
+	  display: none !important;
+	}
+
+	/* SVG glyph text rendering */
+	#sign-glyphs-counter text {
+	  font-family: "DejaVu Sans", "Arial Unicode MS", "Symbola", Arial, sans-serif;
+	  font-variant-emoji: text;
+	  fill: white !important;
+	  stroke: none !important;
+	  stroke-width: 0 !important;
+	  paint-order: fill !important;
+	  filter: none !important;
+	  text-rendering: geometricPrecision;
+	}
+
+	/* Gleason map fade control */
+	#gleasons-group {
+	  transition: opacity 0.3s ease;
+	}
+
+	/* ENP tooltip reveal */
+	#enp-marker:hover #enp-tooltip {
+	  opacity: 1;
+	}
+
+	/* Accessibility: visually hidden but screen-reader accessible */
+	.visually-hidden {
+	  position: absolute !important;
+	  width: 1px;
+	  height: 1px;
+	  padding: 0;
+	  margin: -1px;
+	  overflow: hidden;
+	  clip: rect(0, 0, 0, 0);
+	  white-space: nowrap;
+	  border: 0;
+	}
+		
+/* =========================
+   8. RESPONSIVE & MOBILE
+   ========================= */
+
+/* Keep sidebar usable on smaller desktops/tablets */
+@media (max-width: 900px) {
+  .sidebar {
+    width: 240px;
+    padding: 12px;
+  }
+
+  #mode-circle {
+    width: 190px;
+    height: 190px;
+  }
+
+  .menu-main-title {
+    font-size: 26px;
+  }
+
+  .menu-sub-title {
+    font-size: 12px;
+  }
+}
+
+/* Phone / narrow windows: stack sidebar ABOVE the canvas so it can't "crush" */
+@media (max-width: 720px) {
+  body {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    width: 100%;
+    max-width: none;
+    height: auto;
+    max-height: 55vh;          /* sidebar scrolls instead of collapsing boxes */
+    overflow-y: auto;
+    border-right: none;
+    border-bottom: 2px solid #333;
+
+    /* critical: prevent flex layout from shrinking children into strips */
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Prevent vertical "crushing" of sidebar sections.
+     Let the sidebar scroll instead. */
+  .sidebar > * {
+    flex: 0 0 auto;            /* = no shrink */
+  }
+
+  .main {
+    width: 100%;
+    height: auto;
+  }
+
+  /* Prevent mode buttons from collapsing */
+  #mode-circle {
+    width: min(340px, 100%);
+    height: min(340px, 75vw);
+    min-height: 200px;
+    margin: 10px auto 0;
+    flex: 0 0 auto;
+  }
+
+  /* Prevent Word box from collapsing into a strip */
+  .word-box {
+    flex: 0 0 auto;
+    min-height: 140px;
+  }
+}
+
+/* Extra small: tighten typography so labels don't overlap */
+@media (max-width: 420px) {
+  #mode-circle {
+    min-height: 200px;
+  }
+
+  .quadrant {
+    font-size: 13px;
+    letter-spacing: 0.5px;
+  }
+
+  .word-label {
+    font-size: 18px;
+  }
+
+  .grand-conjunction-btn {
+    width: 110px !important;
+    bottom: 16px !important;
+    right: 16px !important;
+  }
+
+  .grand-conjunction-btn:hover {
+    transform: none !important;
+  }
+}
+
+/* =========================================================
+   FIX: Prevent sidebar flex children from collapsing ("crushing")
+   Paste at the VERY BOTTOM of skyclock.css
+   ========================================================= */
+
+/* The sidebar already scrolls; do NOT let its children shrink into strips */
+.sidebar > * {
+  flex: 0 0 auto;     /* no grow, no shrink */
+  min-height: max-content;
+}
+
+/* Explicitly protect the usual suspects */
+#mode-circle,
+.section-box,
+.word-box,
+.menu-title {
+  flex: 0 0 auto;
+}
+
+/* Optional: if the viewport is short, make sure sidebar scroll wins */
+.sidebar {
+  min-height: 0;      /* helps scrolling behavior in some flex layouts */
+}
+
+/* Mobile / narrow: keep your layout sensible */
+@media (max-width: 720px) {
+  body {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    width: 100%;
+    max-width: none;
+    max-height: 55vh;
+    overflow-y: auto;
+    border-right: none;
+    border-bottom: 2px solid #333;
+  }
+
+  .main {
+    width: 100%;
+    height: auto;
+  }
+}

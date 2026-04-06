@@ -1,0 +1,557 @@
+/* astro-hud.css — 4-quadrant HUD layout for popout astro wheel
+   ========================================================= */
+
+/* Force zodiac symbols to render as text, not colored emoji */
+.transit-sign,
+.transit-planet,
+.elem-row-header,
+.aspect-step-glyph {
+  font-family: "Segoe UI Symbol", "Noto Sans Symbols", "DejaVu Sans", sans-serif;
+  font-variant-emoji: text;
+  -webkit-font-variant-emoji: text;
+  text-rendering: optimizeLegibility;
+}
+
+/* Elemental box overlay at bottom right of wheel */
+#wheelElementalOverlay {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 10;
+  padding: 6px;
+  background: rgba(0,0,0,.75);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 4px;
+}
+
+#wheelElementalGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: "Segoe UI Symbol", "Noto Sans Symbols", sans-serif;
+  font-size: 11px;
+}
+
+/* Elemental grid layout */
+.elem-header-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.elem-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 26px;
+}
+
+/* Transits grid overlay at top right of wheel */
+#wheelTransitsOverlay {
+  position: absolute;
+  top: 60px;
+  right: 10px;
+  z-index: 10;
+  padding: 6px;
+  background: rgba(0,0,0,.75);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 4px;
+}
+
+#wheelTransitsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 10px;
+}
+
+.transit-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.transit-planet {
+  width: 16px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.transit-sign {
+  width: 32px;
+  text-align: center;
+  font-size: 14px;
+  background: transparent;
+  color: #fff; /* default fallback */
+  font-family: "Segoe UI Symbol", "Noto Sans Symbols", sans-serif;
+  font-variant-emoji: text;
+  -webkit-font-variant-emoji: text;
+}
+
+.transit-sign.transit-fire {
+  color: #ff6b35 !important;
+}
+
+.transit-sign.transit-earth {
+  color: #4ecdc4 !important;
+}
+
+.transit-sign.transit-air {
+  color: #ffe66d !important;
+}
+
+.transit-sign.transit-water {
+  color: #6a82fb !important;
+}
+
+.transit-degree {
+  width: 36px;
+  text-align: right;
+  font-size: 10px;
+  opacity: 0.9;
+}
+
+/* Aspects grid overlay at bottom left of wheel */
+#wheelAspectsOverlay {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  z-index: 10;
+  padding: 6px;
+  background: transparent;
+  border: none;
+}
+
+#wheelAspectsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11.5px;
+}
+
+.aspect-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Aspect stepped triangle layout - 15% larger */
+.aspect-step-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 20px;
+}
+
+.aspect-step-glyph {
+  width: 18px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.aspect-step-cell {
+  width: 20px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 2px;
+  background: rgba(255,255,255,0.05);
+}
+
+.aspect-step-cell.empty {
+  opacity: 0.3;
+  border-color: rgba(255,255,255,0.1);
+}
+
+/* Red aspects: conjunction, opposition, square */
+.aspect-step-cell.conj { border-color: rgba(255,68,68,0.4); background: rgba(255,68,68,0.1); color: #ff4444; }
+.aspect-step-cell.oppo { border-color: rgba(255,68,68,0.4); background: rgba(255,68,68,0.1); color: #ff4444; }
+.aspect-step-cell.square { border-color: rgba(255,68,68,0.4); background: rgba(255,68,68,0.1); color: #ff4444; }
+
+/* Blue aspects: trine, sextile */
+.aspect-step-cell.trine { border-color: rgba(68,68,255,0.4); background: rgba(68,68,255,0.1); color: #4444ff; }
+.aspect-step-cell.sextile { border-color: rgba(68,68,255,0.4); background: rgba(68,68,255,0.1); color: #4444ff; }
+
+.aspect-symbol {
+  width: 14px;
+  text-align: center;
+  font-size: 10px;
+}
+
+.aspect-aspect {
+  color: #70a0ff;
+  font-size: 10px;
+}
+
+/* Wheel stage */
+.wheelStage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#wheelImg {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Date/Time overlay at top of wheel */
+#wheelDateOverlay {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  padding: 6px 10px;
+  background: rgba(0,0,0,.75);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 8px;
+}
+
+#wheelDateValue {
+  font-size: 19px;
+  font-weight: 600;
+  color: #fff;
+  font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+  letter-spacing: 0.02em;
+}
+
+/* Bodies button under date */
+#bodiesBtn {
+  position: absolute;
+  top: 64px;
+  left: 14px;
+  padding: 4px 12px;
+  font-size: 11px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.8);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+#bodiesBtn:hover {
+  background: rgba(255,255,255,.15);
+  border-color: rgba(255,255,255,.3);
+}
+
+/* Natal button next to Bodies button - inherits .uiPill styling */
+#hudNatalBtn {
+  position: absolute;
+  top: 58px;
+  left: 80px;
+  z-index: 10;
+  border-radius: 8px !important;
+}
+
+#hudNatalBtn.active {
+  background: rgba(212,175,55,.2);
+  border-color: rgba(212,175,55,.5);
+  color: #d4af37;
+}
+
+/* Container for the 4-quadrant HUD */
+#astroHUD {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(8px);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Positions grid (top right) */
+#hudPositions {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+}
+
+#hudPositions .hud-label {
+  font-size: 10px;
+  opacity: 0.6;
+  margin-bottom: 4px;
+}
+
+.positions-grid {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 2px 8px;
+  font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+}
+
+.pos-row {
+  display: contents;
+}
+
+.pos-planet {
+  text-align: right;
+  opacity: 0.8;
+}
+
+.pos-transit {
+  color: #70a0ff;
+}
+
+.pos-natal {
+  color: #d4af37;
+  opacity: 0.7;
+}
+
+.pos-aspect {
+  color: #70a0ff;
+  font-size: 10px;
+}
+
+/* Element-colored sign glyphs in positions grid */
+.pos-sign {
+  font-size: 11px;
+}
+
+.pos-sign.pos-fire {
+  color: #ff6b35;
+}
+
+.pos-sign.pos-earth {
+  color: #4ecdc4;
+}
+
+.pos-sign.pos-air {
+  color: #ffe66d;
+}
+
+.pos-sign.pos-water {
+  color: #6a82fb;
+}
+
+.pos-position {
+  font-size: 11px;
+}
+
+/* Aspects list (bottom left) */
+#hudAspects {
+  grid-column: 1;
+  grid-row: 2;
+  justify-self: start;
+}
+
+#hudAspects .hud-label {
+  font-size: 10px;
+  opacity: 0.6;
+  margin-bottom: 4px;
+}
+
+.aspects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Elements grid (bottom right) */
+#hudElements {
+  grid-column: 2;
+  grid-row: 2;
+  justify-self: end;
+}
+
+#hudElements .hud-label {
+  font-size: 10px;
+  opacity: 0.6;
+  margin-bottom: 4px;
+}
+
+.elements-grid {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 2px 6px;
+  font-size: 11px;
+}
+
+.elem-corner {
+  width: 36px;
+}
+
+.elem-col-header {
+  width: 52px;
+  text-align: center;
+  color: rgba(255,255,255,.5);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.elem-row-header {
+  width: 36px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.elem-row-header.fire { color: #ff6b35; }
+.elem-row-header.earth { color: #4ecdc4; }
+.elem-row-header.air { color: #ffe66d; }
+.elem-row-header.water { color: #6a82fb; }
+
+.elem-cell {
+  width: 52px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-radius: 2px;
+}
+
+.elem-cell:nth-child(4n+2) { background: rgba(255,107,53,0.12); }
+.elem-cell:nth-child(4n+3) { background: rgba(78,205,196,0.12); }
+.elem-cell:nth-child(4n+4) { background: rgba(255,230,109,0.12); }
+.elem-cell:nth-child(4n+5) { background: rgba(106,130,251,0.12); }
+
+/* Natal toggle button (centered at bottom) */
+#hudNatalBtn {
+  grid-column: 1 / -1;
+  justify-self: center;
+  margin-top: 6px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.2);
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.8);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#hudNatalBtn:hover {
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.3);
+}
+
+#hudNatalBtn.active {
+  background: rgba(212,175,55,.2);
+  border-color: rgba(212,175,55,.5);
+  color: #d4af37;
+}
+
+/* Planet toggle buttons */
+.hud-toggles {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.hud-toggle-btn {
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,.15);
+  background: rgba(255,255,255,.05);
+  color: rgba(255,255,255,.6);
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hud-toggle-btn:hover {
+  background: rgba(255,255,255,.1);
+}
+
+.hud-toggle-btn.active {
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  border-color: rgba(255,255,255,.3);
+}
+
+/* Bodies Modal */
+.bodiesModalCard {
+  width: 320px;
+  max-width: 90vw;
+  padding: 20px;
+}
+
+.bodiesModalTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.bodies-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.body-toggle-btn {
+  padding: 10px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.2);
+  background: rgba(76, 175, 80, 0.2); /* Green = selected by default */
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.body-toggle-btn:hover {
+  background: rgba(76, 175, 80, 0.3);
+}
+
+.body-toggle-btn.off {
+  background: rgba(244, 67, 54, 0.2); /* Red = off */
+  border-color: rgba(255,255,255,.1);
+}
+
+.body-toggle-btn.off:hover {
+  background: rgba(244, 67, 54, 0.3);
+}
+
+.body-toggle-btn .planet-glyph {
+  font-size: 18px;
+}
+
+.body-toggle-btn .planet-name {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* Separator line between planets and asteroids */
+.bodies-separator {
+  grid-column: 1 / -1;
+  height: 1px;
+  background: rgba(255,255,255,.2);
+  margin: 4px 0;
+}
+
+/* President thumbnails on timeline */
+.president-thumb {
+  border-radius: 2px;
+  border: 1px solid rgba(255,215,0,0.5);
+  transition: all 0.2s ease;
+}
+
+.president-thumb:hover {
+  transform: scale(2);
+  border-color: rgba(255,215,0,1);
+  box-shadow: 0 0 10px rgba(255,215,0,0.5);
+  z-index: 100;
+}
