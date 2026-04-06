@@ -287,10 +287,6 @@
 			}
 
 
-		window.addEventListener("resize", () => {
-			if (typeof syncRiverClip === "function") syncRiverClip();
-		});
-
 		window.addEventListener("scroll", () => {
 			if (isWheelOpen()) syncEventShield();
 		}, { passive: true });

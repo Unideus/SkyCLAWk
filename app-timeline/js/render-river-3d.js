@@ -27,13 +27,13 @@
   const CONFIG = {
     // particle look
     riverCount: 520,
-    riverSize: 0.9,
-    riverOpacity: 0.55,
+    riverSize: 2.5,
+    riverOpacity: 0.85,
     riverYSpread: 0.92,          // fraction of band height used (0..1)
 
     // speed mapping
     pxPerYear: 5,                // timeline pixels per year (your scale)
-    baseFlowPxPerSec: 1.2,       // always-on flow even when paused/0.00
+    baseFlowPxPerSec: 8.0,       // always-on flow even when paused/0.00
     flowRatio: 1.10,             // multiplier on screw-derived speed
     logK: 120,                   // log knee (px/sec)
     logGain: 0.35,               // how much extra log boost

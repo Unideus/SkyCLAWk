@@ -1564,16 +1564,16 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 		if (!presidentsGroup) return;
 		presidentsGroup.innerHTML = "";
 
-		// Trump - 2025 to 2029
-		const trumpX = yearToScrewX(2025);
+		// Trump - 2025 to 2029, positioned at year 2024, at bottom of screw
+		const trumpX = yearToScrewX(2024);
 		
-		// Create SVG image element (simpler than foreignObject)
+		console.log("[Thumb v999] Creating at year 2024, trumpX:", trumpX);
 		const trumpImage = document.createElementNS("http://www.w3.org/2000/svg", "image");
-		trumpImage.setAttribute("x", trumpX - 15);
-		trumpImage.setAttribute("y", CANON.SCREW_TOTAL_HEIGHT - 50); // Bottom of page
-		trumpImage.setAttribute("width", 30);
-		trumpImage.setAttribute("height", 36);
-		trumpImage.setAttribute("href", "trump-thumb.svg");
+		trumpImage.setAttribute("x", trumpX - 30);
+		trumpImage.setAttribute("y", CANON.SCREW_TOTAL_HEIGHT - 20); // Very bottom of screw
+		trumpImage.setAttribute("width", 60);
+		trumpImage.setAttribute("height", 72);
+		trumpImage.setAttribute("href", "images/trump-portrait.jpg");
 		trumpImage.setAttribute("class", "president-thumb");
 		trumpImage.setAttribute("data-president", "Trump");
 		trumpImage.setAttribute("data-term", "2025-2029");
@@ -1581,16 +1581,16 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 		
 		// Hover effects
 		trumpImage.addEventListener("mouseenter", () => {
+			trumpImage.setAttribute("width", 90);
+			trumpImage.setAttribute("height", 108);
+			trumpImage.setAttribute("x", trumpX - 45);
+			trumpImage.setAttribute("y", CANON.SCREW_TOTAL_HEIGHT - 56);
+		});
+		trumpImage.addEventListener("mouseleave", () => {
 			trumpImage.setAttribute("width", 60);
 			trumpImage.setAttribute("height", 72);
 			trumpImage.setAttribute("x", trumpX - 30);
-			trumpImage.setAttribute("y", CANON.SCREW_TOTAL_HEIGHT - 86);
-		});
-		trumpImage.addEventListener("mouseleave", () => {
-			trumpImage.setAttribute("width", 30);
-			trumpImage.setAttribute("height", 36);
-			trumpImage.setAttribute("x", trumpX - 15);
-			trumpImage.setAttribute("y", CANON.SCREW_TOTAL_HEIGHT - 50);
+			trumpImage.setAttribute("y", CANON.SCREW_TOTAL_HEIGHT - 90);
 		});
 		
 		presidentsGroup.appendChild(trumpImage);
