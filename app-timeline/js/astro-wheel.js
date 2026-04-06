@@ -630,11 +630,10 @@ for (const k of show) {
     // base manual rotation + precession
     const STAR_ROT = 3; // degrees (+ clockwise)
 
-    const starOverlay = (HEAVEN_DATA_URL)
-      ? `
+    const starOverlay = `
         <g opacity="0.55" transform="rotate(${STAR_ROT + precessionDeg} ${cx} ${cy})">
           <image
-            href="${HEAVEN_DATA_URL}"
+            href="heaven_constellations.svg"
             x="${(cx - STAR_RADIUS) + STAR_DX}"
             y="${(cy - STAR_RADIUS) + STAR_DY}"
             width="${STAR_RADIUS * 2}"
@@ -642,8 +641,7 @@ for (const k of show) {
             preserveAspectRatio="xMidYMid meet"
           />
         </g>
-      `
-      : "";
+      `;
 
     const svg = `
       <svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
