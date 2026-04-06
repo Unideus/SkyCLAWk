@@ -230,19 +230,17 @@ let cardStartLeft = 0, cardStartTop = 0;
   // Preload constellation SVG and embed as data URL (works inside data: SVG wheel)
   // ---------------------------------------------------------
   let HEAVEN_DATA_URL = "";
+  let constellationReady = false;
 
-  // Check if inlined data is available (from heaven-data.js), otherwise fetch
-  if (typeof window.HEAVEN_CONSTELLATIONS_DATA !== 'undefined') {
-    HEAVEN_DATA_URL = window.HEAVEN_CONSTELLATIONS_DATA;
-  } else {
-    fetch("heaven_constellations.svg")
-      .then(r => r.ok ? r.text() : Promise.reject(new Error(`HTTP ${r.status}`)))
-      .then(txt => {
-        HEAVEN_DATA_URL = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(txt);
-        if (typeof requestWheelRedraw === "function") requestWheelRedraw();
-      })
-      .catch(err => console.warn("[wheel] heaven_constellations.svg load failed:", err));
-  }
+  fetch("heaven_constellations.svg")
+    .then(r => r.ok ? r.text() : Promise.reject(new Error(`HTTP ${r.status}`)))
+    .then(txt => {
+      // Use raw data URL without double-encoding - just the minimal encoding needed
+      HEAVEN_DATA_URL = "data:image/svg+xml," + encodeURIComponent(txt);
+      constellationReady = true;
+      if (typeof requestWheelRedraw === "function") requestWheelRedraw();
+    })
+    .catch(err => console.warn("[wheel] heaven_constellations.svg load failed:", err));
 
   // =========================================================
   // SVG WHEEL RENDERER (ported from MyTimeline)
@@ -630,10 +628,11 @@ for (const k of show) {
     // base manual rotation + precession
     const STAR_ROT = 3; // degrees (+ clockwise)
 
-    const starOverlay = `
+    const starOverlay = (constellationReady && HEAVEN_DATA_URL)
+      ? `
         <g opacity="0.55" transform="rotate(${STAR_ROT + precessionDeg} ${cx} ${cy})">
           <image
-            href="heaven_constellations.svg"
+            href="${HEAVEN_DATA_URL}"
             x="${(cx - STAR_RADIUS) + STAR_DX}"
             y="${(cy - STAR_RADIUS) + STAR_DY}"
             width="${STAR_RADIUS * 2}"
@@ -641,7 +640,8 @@ for (const k of show) {
             preserveAspectRatio="xMidYMid meet"
           />
         </g>
-      `;
+      `
+      : "";
 
     const svg = `
       <svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
