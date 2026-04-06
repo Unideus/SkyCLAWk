@@ -708,7 +708,7 @@ for (const k of show) {
 
     const natalLons = (window.NatalChart && window.NatalChart.enabled && window.NatalChart.longitudes) ? window.NatalChart.longitudes : null;
     const url = renderWheelSVG(lons, { baseLon: 0, showKeys: keys, natalLons, dateUTC: t })
-    wheelImg.src = url + `#t=${t.getTime()}`;
+    wheelImg.src = url;
 
     // Update date/time overlay at top of wheel
     const wheelDateValue = document.getElementById("wheelDateValue");
