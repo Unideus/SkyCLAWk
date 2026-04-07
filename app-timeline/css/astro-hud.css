@@ -197,24 +197,10 @@
   overflow: hidden;
 }
 
-/* Constellation background behind wheel */
-.wheelStage::before {
-  content: "";
-  position: absolute;
-  width: 80%;
-  height: 80%;
-  background: url('../heaven_constellations.svg') center/contain no-repeat;
-  opacity: 0.55;
-  pointer-events: none;
-  z-index: 0;
-}
-
 #wheelImg {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  position: relative;
-  z-index: 1;
 }
 
 /* Date/Time overlay at top of wheel */
