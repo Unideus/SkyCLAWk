@@ -223,8 +223,8 @@ let cardStartLeft = 0, cardStartTop = 0;
     resizeHandle.addEventListener("pointercancel", () => { resizeOn = false; });
   }
 
-  // Open by default on first load
-  requestAnimationFrame(openWheel);
+  // Wheel closed by default - user must click Zodiac Wheel button to open
+  // requestAnimationFrame(openWheel);
 
   // ---------------------------------------------------------
   // Preload constellation SVG and embed as data URL (works inside data: SVG wheel)
