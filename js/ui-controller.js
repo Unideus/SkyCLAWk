@@ -1058,6 +1058,11 @@
 
 					// ✅ Then seed natal to the entered date
 					commitNatalFromYMD(y, m, d);
+
+					// ✅ Disable live mode in astro wheel when user enters a manual date
+					if (typeof window.setAstroWheelLiveMode === "function") {
+						window.setAstroWheelLiveMode(false);
+					}
 				};
 
 				dateBoxInput.addEventListener("input", markDirty);
