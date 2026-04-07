@@ -1401,7 +1401,7 @@ if (nextElementBtn) {
 		}
 
 		let lastWheelDrawMs = 0;
-		const WHEEL_FPS = 30;
+		const WHEEL_FPS = 10;
 		const WHEEL_FRAME_MS = 1000 / WHEEL_FPS;
 
 		let wheelNeedsRedraw = true;
