@@ -20,7 +20,7 @@
 
 
 	<link href="css/timeline.css?v=6" rel="stylesheet"/>
-	<link href="css/astro-hud.css?v=26" rel="stylesheet"/>
+	<link href="css/astro-hud.css?v=27" rel="stylesheet"/>
 	<link rel="icon" href="timelinetitle.webp" type="image/webp">
 	
 	</head>
@@ -76,7 +76,7 @@
 						<div id="wheelElementalGrid"></div>
 					</div>
 
-					<div class="wheelStage">
+					<div class="wheelStage" id="wheelStage">
 						<img id="wheelImg" alt="Astro wheel" draggable="false" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='none' stroke='%23333' stroke-width='2'/%3E%3C/svg%3E" />
 					</div>
 
@@ -222,7 +222,7 @@
 				</div>
 				<div id="dateBoxOuter">
 					<input id="dateBoxInput" type="text" placeholder="21 Jan 2026" />
-					<input id="timeBoxInput" type="time" value="12:00" step="60" disabled />
+					<input id="timeBoxInput" type="time" value="12:00" step="60" />
 					<input id="locationBoxInput" type="text" placeholder="Location (coming soon)" disabled />
 					<button type="button" class="dateGoBtn" id="dateBoxGoBtn">GO</button>
 				</div>
@@ -344,14 +344,14 @@
 		<script src="js/heaven-data.js"></script>
 
 		<script src="js/screw-renderer.js?v=1000"></script>
-		<script src="js/astro-wheel.js?v=10"></script>
+		<script src="js/astro-wheel.js?v=12"></script>
 		<script src="js/conjunction-selector.js"></script>
 
 		<!-- 3D (Phase 1) — Three.js global build + simple renderer wrapper -->
 		<script src="https://unpkg.com/three@0.149.0/build/three.min.js"></script>
 		<script src="js/render-river-3d.js"></script>
 
-		<script src="js/ui-controller.js?v=11"></script>
+		<script src="js/ui-controller.js?v=15"></script>
 
 		<!-- President Thumbnails - Fixed to bottom of viewport with overlapping -->
 		<div id="presidentThumbContainer" style="position: fixed; bottom: 10px; left: 0; width: 100%; height: 100px; z-index: 1000; pointer-events: none;">

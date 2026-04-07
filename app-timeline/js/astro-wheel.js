@@ -233,9 +233,12 @@ let cardStartLeft = 0, cardStartTop = 0;
   let constellationReady = false;
 
   fetch("heaven_constellations.svg")
-    .then(r => r.ok ? r.text() : Promise.reject(new Error(`HTTP ${r.status}`)))
+    .then(r => {
+      console.log("[wheel] constellation fetch:", r.status, r.ok);
+      return r.ok ? r.text() : Promise.reject(new Error(`HTTP ${r.status}`));
+    })
     .then(txt => {
-      // Use raw data URL without double-encoding - just the minimal encoding needed
+      console.log("[wheel] constellation loaded, size:", txt.length);
       HEAVEN_DATA_URL = "data:image/svg+xml," + encodeURIComponent(txt);
       constellationReady = true;
       if (typeof requestWheelRedraw === "function") requestWheelRedraw();
@@ -280,6 +283,8 @@ let cardStartLeft = 0, cardStartTop = 0;
   function renderWheelSVG(bodyLons, opts = {}) {
     const W = 900, H = 900;
     const cx = W / 2, cy = H / 2;
+
+    // ---------------------------------------------------------
 
     // ---------------------------------------------------------
     // JD UT (for precession) — derived from opts.dateUTC (passed from drawAstroWheel)
@@ -628,7 +633,16 @@ for (const k of show) {
     // base manual rotation + precession
     const STAR_ROT = 3; // degrees (+ clockwise)
 
-    const starOverlay = "";
+    const starOverlay = HEAVEN_DATA_URL ? `
+      <g opacity="0.55" transform="rotate(${STAR_ROT + precessionDeg} ${cx} ${cy})">
+        <image href="${HEAVEN_DATA_URL}"
+               x="${(cx - STAR_RADIUS) + STAR_DX}"
+               y="${(cy - STAR_RADIUS) + STAR_DY}"
+               width="${STAR_RADIUS * 2}"
+               height="${STAR_RADIUS * 2}"
+               preserveAspectRatio="xMidYMid meet" />
+      </g>
+    ` : "";
 
     const svg = `
       <svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
@@ -656,12 +670,16 @@ for (const k of show) {
     if (!wheelImg) return;
 
     // Use current time when in live mode, otherwise use timeState/AstroEngine
+    // If navTargetDateUTC is set (user clicked GO), use that for immediate feedback
     const t = isLiveMode 
       ? new Date()
-      : (typeof timeState !== "undefined" && timeState && timeState.dateUTC instanceof Date) ? timeState.dateUTC :
+      : (typeof timeState !== "undefined" && timeState && timeState.navTargetDateUTC instanceof Date) ? timeState.navTargetDateUTC :
+        (typeof timeState !== "undefined" && timeState && timeState.dateUTC instanceof Date) ? timeState.dateUTC :
         (window.AstroEngine && window.AstroEngine.dateUTC instanceof Date) ? window.AstroEngine.dateUTC :
         (window.AstroEngine && window.AstroEngine.dateUTC) ? new Date(window.AstroEngine.dateUTC) :
         new Date();
+
+    console.log("[wheel] drawAstroWheel called, date:", t.toISOString(), "navTarget:", timeState?.navTargetDateUTC?.toISOString());
 
     const lons = (typeof window.getPlanetLongitudes === "function")
       ? window.getPlanetLongitudes(t)
@@ -706,13 +724,20 @@ for (const k of show) {
       const weekdays = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
       const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
       
-      const weekday = weekdays[t.getDay()];
-      const day = t.getDate();
-      const month = months[t.getMonth()];
-      const year = t.getFullYear();
+      // Convert UTC to local time
+      // getTimezoneOffset() returns minutes WEST of UTC (e.g., 300 for Eastern)
+      // So local = UTC - offset
+      const tzOffsetMs = new Date().getTimezoneOffset() * 60000;
+      const localTime = t.getTime() - tzOffsetMs;
+      const localDate = new Date(localTime);
       
-      let hours = t.getHours();
-      const minutes = String(t.getMinutes()).padStart(2, "0");
+      const weekday = weekdays[localDate.getUTCDay()];
+      const day = localDate.getUTCDate();
+      const month = months[localDate.getUTCMonth()];
+      const year = localDate.getUTCFullYear();
+      
+      let hours = localDate.getUTCHours();
+      const minutes = String(localDate.getUTCMinutes()).padStart(2, "0");
       const ampm = hours >= 12 ? "PM" : "AM";
       hours = hours % 12;
       hours = hours ? hours : 12;
@@ -836,9 +861,6 @@ for (const k of show) {
       const deg = Math.floor(lon % 30);
       const min = Math.floor((lon % 30 - deg) * 60);
 
-      // DEBUG: Log what we're assigning
-      console.log(`[AstroWheel] ${p}: lon=${lon.toFixed(2)}, signIndex=${signIndex}, sign=${sign}, elem=${elem}`);
-
       const elemColor = elementColors[elem] || '#fff';
 
       html += `
@@ -851,7 +873,6 @@ for (const k of show) {
     }
 
     grid.innerHTML = html;
-    console.log('[AstroWheel] Transits HTML:', html.substring(0, 200));
   }
 
   // Show where planets are currently located (transit positions)
@@ -953,7 +974,6 @@ for (const k of show) {
   // Populate HUD Positions grid with element-colored sign glyphs
   function populateHUDPositionsGrid(transitLons, natalLons) {
     const grid = document.getElementById("hudPositionsGrid");
-    console.log('[AstroWheel] populateHUDPositionsGrid called, grid:', grid, 'transitLons:', transitLons);
     if (!grid || !transitLons) return;
 
     const planetGlyphs = {
