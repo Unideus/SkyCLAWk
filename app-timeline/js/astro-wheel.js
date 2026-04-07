@@ -646,7 +646,7 @@ for (const k of show) {
         ${planetLabels}
       </svg>
     `;
-    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    return "data:image/svg+xml," + encodeURIComponent(svg);
   }
 
   // =========================================================
