@@ -1522,24 +1522,13 @@ if (nextElementBtn) {
 			}
 
 			// Only redraw the wheel when the modal is open, and throttle redraw rate.
-			const wheelModal = document.getElementById("wheelModal");
 			const wheelOpen = isWheelOpen();
 
-			if (wheelOpen) {
-				if ((t - lastWheelDrawMs) >= WHEEL_FRAME_MS) {
-					// Only compute/draw wheel when it's open (prevents Swiss calls when wheel is closed)
-					const wheelOpen = (typeof isWheelOpen === "function") ? isWheelOpen() : true;
-
-					if (wheelOpen) {
-					if ((t - lastWheelDrawMs) >= WHEEL_FRAME_MS) {
-						drawAstroWheel();
-						lastWheelDrawMs = t;
-					}
-					}
-					lastWheelDrawMs = t;
-				}
-				syncEventShield();
+			if (wheelOpen && (t - lastWheelDrawMs) >= WHEEL_FRAME_MS) {
+				drawAstroWheel();
+				lastWheelDrawMs = t;
 			}
+			syncEventShield();
 			requestAnimationFrame(animate);
 		}
 
