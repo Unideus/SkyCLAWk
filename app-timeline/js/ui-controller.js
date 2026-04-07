@@ -1406,11 +1406,6 @@ if (nextElementBtn) {
 
 		let wheelNeedsRedraw = true;
 
-		function isWheelOpen() {
-		const wheelModal = document.getElementById("wheelModal");
-		return wheelModal && wheelModal.getAttribute("aria-hidden") === "false";
-		}
-
 		function requestWheelRedraw() {
 		wheelNeedsRedraw = true;
 		}
