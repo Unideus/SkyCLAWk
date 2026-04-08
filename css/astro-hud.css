@@ -197,6 +197,13 @@
   overflow: hidden;
 }
 
+/* Ensure no pseudo-elements on wheelStage */
+.wheelStage::before,
+.wheelStage::after {
+  display: none !important;
+  content: none !important;
+}
+
 #wheelImg {
   max-width: 100%;
   max-height: 100%;

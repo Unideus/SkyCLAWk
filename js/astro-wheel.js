@@ -230,11 +230,17 @@ let cardStartLeft = 0, cardStartTop = 0;
   // Preload constellation SVG and embed as data URL (works inside data: SVG wheel)
   // ---------------------------------------------------------
   let HEAVEN_DATA_URL = "";
+  let constellationReady = false;
 
-  fetch("/heaven_constellations.svg")
-    .then(r => r.ok ? r.text() : Promise.reject(new Error(`HTTP ${r.status}`)))
+  fetch("heaven_constellations.svg")
+    .then(r => {
+      console.log("[wheel] constellation fetch:", r.status, r.ok);
+      return r.ok ? r.text() : Promise.reject(new Error(`HTTP ${r.status}`));
+    })
     .then(txt => {
-      HEAVEN_DATA_URL = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(txt);
+      console.log("[wheel] constellation loaded, size:", txt.length);
+      HEAVEN_DATA_URL = "data:image/svg+xml," + encodeURIComponent(txt);
+      constellationReady = true;
       if (typeof requestWheelRedraw === "function") requestWheelRedraw();
     })
     .catch(err => console.warn("[wheel] heaven_constellations.svg load failed:", err));
@@ -277,6 +283,8 @@ let cardStartLeft = 0, cardStartTop = 0;
   function renderWheelSVG(bodyLons, opts = {}) {
     const W = 900, H = 900;
     const cx = W / 2, cy = H / 2;
+
+    // ---------------------------------------------------------
 
     // ---------------------------------------------------------
     // JD UT (for precession) — derived from opts.dateUTC (passed from drawAstroWheel)
@@ -423,23 +431,113 @@ let cardStartLeft = 0, cardStartTop = 0;
       }
     }
 
-    // ---- natal overlay (optional, inside sign ring)
+    // ---- natal overlay (dots on ecliptic + glyphs with auto-separation + feathered circular shadows)
+    let natalShadowDefs = "";
+    let natalShadows = "";
+    let natalDots = "";
+    let natalLeaders = "";
     let natalLabels = "";
+    const NATAL_DOT_R = 3.0;
+    const NATAL_LEADER_GAP_DOT = 6;
+    const NATAL_LEADER_GAP_GLYPH = 12;
+    const rNatalEcliptic = rStemOuter2;
+    const rNatalGlyph = (rSignInner + rOuter) / 2;
+    const SHADOW_RADIUS = 24; // larger backdrop
+    
+    // Persistent natal glyph angle offsets
+    const __natalGlyphAngOffset = (renderWheelSVG.__natalGlyphAngOffset ||= new Map());
+    
+    // Natal separation constants (less aggressive than transits)
+    const NATAL_GLYPH_FONT_PX = 22;
+    const NATAL_GLYPH_MIN_GAP_PX = 10;
+    const NATAL_MIN_SEP_DEG = Math.max(
+      0.5,
+      Math.min(5.0, ((NATAL_GLYPH_FONT_PX + NATAL_GLYPH_MIN_GAP_PX) / rNatalGlyph) * (180 / Math.PI))
+    );
+    
     if (opts.natalLons && typeof opts.natalLons === "object") {
-      const rNatal = 325 * ZODIAC_SCALE; // keep it inside the scaled wheel
-      for (const k of show) {
+      const natalKeys = Object.keys(opts.natalLons).filter(k => {
         const lon = Number(opts.natalLons[k]);
-        if (!Number.isFinite(lon)) continue;
-        const a = ang(lon);
-        const [x, y] = pt(rNatal, a);
-        natalLabels += `<text x="${x}" y="${y}" font-size="24" text-anchor="middle" dominant-baseline="middle"
+        return k && k !== '0' && Number.isFinite(lon) && planetGlyph.hasOwnProperty(k);
+      });
+      
+      // Compute separation offsets for natal glyphs
+      const natalTargetOffsets = computeGlyphAngleOffsets(natalKeys, opts.natalLons, NATAL_MIN_SEP_DEG);
+      
+      // First pass: collect all positions
+      const natalPositions = [];
+      for (const k of natalKeys) {
+        const lon = Number(opts.natalLons[k]);
+        const targetOff = Number(natalTargetOffsets.get(k) || 0);
+        const curOff = Number(__natalGlyphAngOffset.get(k) || 0);
+        
+        // Smooth transition
+        const ANG_SMOOTH = 0.20;
+        const ANG_DECAY = 0.35;
+        const EPS = 1e-4;
+        let nextOff;
+        if (Math.abs(targetOff) < EPS) {
+          nextOff = curOff + (0 - curOff) * ANG_DECAY;
+          if (Math.abs(nextOff) < 0.001) nextOff = 0;
+        } else {
+          nextOff = curOff + (targetOff - curOff) * ANG_SMOOTH;
+        }
+        __natalGlyphAngOffset.set(k, nextOff);
+        
+        // Dot at TRUE longitude on ecliptic
+        const aDot = ang(lon);
+        const [dx, dy] = pt(rNatalEcliptic, aDot);
+        
+        // Glyph with offset angle
+        const aGlyph = (nextOff === 0) ? aDot : ang(lon + nextOff);
+        const [gx, gy] = pt(rNatalGlyph, aGlyph);
+        
+        // Leader line from dot to glyph
+        const vx = gx - dx;
+        const vy = gy - dy;
+        const vLen = Math.hypot(vx, vy) || 1;
+        const ux = vx / vLen;
+        const uy = vy / vLen;
+        
+        const lx1 = dx + ux * NATAL_LEADER_GAP_DOT;
+        const ly1 = dy + uy * NATAL_LEADER_GAP_DOT;
+        const lx2 = gx - ux * NATAL_LEADER_GAP_GLYPH;
+        const ly2 = gy - uy * NATAL_LEADER_GAP_GLYPH;
+        
+        natalPositions.push({ k, dx, dy, gx, gy, lx1, ly1, lx2, ly2 });
+      }
+      
+      // Second pass: render shadow definitions first (very dark center, quick feather)
+      for (const p of natalPositions) {
+        natalShadowDefs += `
+          <radialGradient id="shadowGrad_${p.k}" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="black" stop-opacity="1"/>
+            <stop offset="40%" stop-color="black" stop-opacity="0.95"/>
+            <stop offset="70%" stop-color="black" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="black" stop-opacity="0"/>
+          </radialGradient>`;
+      }
+      
+      // Third pass: render circular shadow backdrops (centered on glyphs, accounting for text offset)
+      const TEXT_DY_EM = 0.35;
+      const fontSizePx = 22;
+      const shadowYOffset = TEXT_DY_EM * fontSizePx;
+      for (const p of natalPositions) {
+        natalShadows += `<circle cx="${p.gx}" cy="${p.gy + shadowYOffset}" r="${SHADOW_RADIUS}" fill="url(#shadowGrad_${p.k})" />`;
+      }
+      
+      // Third pass: render actual elements on top
+      for (const p of natalPositions) {
+        natalDots += `<circle cx="${p.dx}" cy="${p.dy}" r="${NATAL_DOT_R}" fill="rgba(255,255,255,0.95)" />`;
+        natalLeaders += `<line x1="${p.lx1}" y1="${p.ly1}" x2="${p.lx2}" y2="${p.ly2}" 
+          stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round" />`;
+        natalLabels += `<text x="${p.gx}" y="${p.gy}" dy="0.35em" 
+          font-size="22" text-anchor="middle" dominant-baseline="middle"
           font-family="Segoe UI Symbol, Noto Sans Symbols2, DejaVu Sans, Arial Unicode MS, sans-serif"
           font-weight="400"
-          fill="white" opacity="0.55">${planetGlyph[k] || "•"}</text>`;
+          fill="white" opacity="1">${planetGlyph[p.k] || "•"}</text>`;
       }
     }
-
-    // ---------------------------------------------------------
 // Auto-separate (glyphs only)
 // Goals:
 //  - Leaders are PERFECTLY RADIAL until there is a real overlap
@@ -625,30 +723,32 @@ for (const k of show) {
     // base manual rotation + precession
     const STAR_ROT = 3; // degrees (+ clockwise)
 
-    const starOverlay = (HEAVEN_DATA_URL)
-      ? `
-        <g opacity="0.55" transform="rotate(${STAR_ROT + precessionDeg} ${cx} ${cy})">
-          <image
-            href="${HEAVEN_DATA_URL}"
-            x="${(cx - STAR_RADIUS) + STAR_DX}"
-            y="${(cy - STAR_RADIUS) + STAR_DY}"
-            width="${STAR_RADIUS * 2}"
-            height="${STAR_RADIUS * 2}"
-            preserveAspectRatio="xMidYMid meet"
-          />
-        </g>
-      `
-      : "";
+    const starOverlay = HEAVEN_DATA_URL ? `
+      <g opacity="0.55" transform="rotate(${STAR_ROT + precessionDeg} ${cx} ${cy})">
+        <image href="${HEAVEN_DATA_URL}"
+               x="${(cx - STAR_RADIUS) + STAR_DX}"
+               y="${(cy - STAR_RADIUS) + STAR_DY}"
+               width="${STAR_RADIUS * 2}"
+               height="${STAR_RADIUS * 2}"
+               preserveAspectRatio="xMidYMid meet" />
+      </g>
+    ` : "";
 
     const svg = `
       <svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+        <defs>
+          ${natalShadowDefs}
+        </defs>
         <rect width="100%" height="100%" fill="rgba(0,0,0,0)"/>
         ${starOverlay}
         ${wedges}
         <circle cx="${cx}" cy="${cy}" r="${rOuter}" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="3"/>
         <circle cx="${cx}" cy="${cy}" r="${rSignInner}" fill="rgba(0,0,0,.35)" stroke="rgba(255,255,255,.20)" stroke-width="2"/>
         ${signText}
+        ${natalShadows}
+        ${natalLeaders}
         ${natalLabels}
+        ${natalDots}
         ${aspectLines}
         ${aspectTicks}
         ${planetDots}
@@ -656,7 +756,7 @@ for (const k of show) {
         ${planetLabels}
       </svg>
     `;
-    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    return "data:image/svg+xml," + encodeURIComponent(svg);
   }
 
   // =========================================================
@@ -666,12 +766,16 @@ for (const k of show) {
     if (!wheelImg) return;
 
     // Use current time when in live mode, otherwise use timeState/AstroEngine
+    // If navTargetDateUTC is set (user clicked GO), use that for immediate feedback
     const t = isLiveMode 
       ? new Date()
-      : (typeof timeState !== "undefined" && timeState && timeState.dateUTC instanceof Date) ? timeState.dateUTC :
+      : (typeof timeState !== "undefined" && timeState && timeState.navTargetDateUTC instanceof Date) ? timeState.navTargetDateUTC :
+        (typeof timeState !== "undefined" && timeState && timeState.dateUTC instanceof Date) ? timeState.dateUTC :
         (window.AstroEngine && window.AstroEngine.dateUTC instanceof Date) ? window.AstroEngine.dateUTC :
         (window.AstroEngine && window.AstroEngine.dateUTC) ? new Date(window.AstroEngine.dateUTC) :
         new Date();
+
+    console.log("[wheel] drawAstroWheel called, date:", t.toISOString(), "navTarget:", timeState?.navTargetDateUTC?.toISOString());
 
     const lons = (typeof window.getPlanetLongitudes === "function")
       ? window.getPlanetLongitudes(t)
@@ -716,13 +820,16 @@ for (const k of show) {
       const weekdays = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
       const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
       
-      const weekday = weekdays[t.getDay()];
-      const day = t.getDate();
-      const month = months[t.getMonth()];
-      const year = t.getFullYear();
+      // t is UTC. Convert to local time properly.
+      const localDate = new Date(t.getTime());
       
-      let hours = t.getHours();
-      const minutes = String(t.getMinutes()).padStart(2, "0");
+      const weekday = weekdays[localDate.getDay()];
+      const day = localDate.getDate();
+      const month = months[localDate.getMonth()];
+      const year = localDate.getFullYear();
+      
+      let hours = localDate.getHours();
+      const minutes = String(localDate.getMinutes()).padStart(2, "0");
       const ampm = hours >= 12 ? "PM" : "AM";
       hours = hours % 12;
       hours = hours ? hours : 12;
@@ -846,9 +953,6 @@ for (const k of show) {
       const deg = Math.floor(lon % 30);
       const min = Math.floor((lon % 30 - deg) * 60);
 
-      // DEBUG: Log what we're assigning
-      console.log(`[AstroWheel] ${p}: lon=${lon.toFixed(2)}, signIndex=${signIndex}, sign=${sign}, elem=${elem}`);
-
       const elemColor = elementColors[elem] || '#fff';
 
       html += `
@@ -861,7 +965,6 @@ for (const k of show) {
     }
 
     grid.innerHTML = html;
-    console.log('[AstroWheel] Transits HTML:', html.substring(0, 200));
   }
 
   // Show where planets are currently located (transit positions)
@@ -963,7 +1066,6 @@ for (const k of show) {
   // Populate HUD Positions grid with element-colored sign glyphs
   function populateHUDPositionsGrid(transitLons, natalLons) {
     const grid = document.getElementById("hudPositionsGrid");
-    console.log('[AstroWheel] populateHUDPositionsGrid called, grid:', grid, 'transitLons:', transitLons);
     if (!grid || !transitLons) return;
 
     const planetGlyphs = {

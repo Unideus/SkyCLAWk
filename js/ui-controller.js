@@ -14,6 +14,8 @@
 	const lifeCycleOverlay = document.getElementById("lifeCycleOverlay");
 	const dateBoxText = document.getElementById("dateBoxText");
 	const dateBoxInput = document.getElementById("dateBoxInput");
+	const timeBoxInput = document.getElementById("timeBoxInput");
+	const locationBoxInput = document.getElementById("locationBoxInput");
 	const astroDateText = document.getElementById("astroDateText");
 		let dateBoxGoBtn =
 		  document.getElementById("dateBoxGoBtn") ||
@@ -318,7 +320,7 @@
 		});
 		}
 		
-		const natalToggle = document.getElementById("natalToggle");
+		const natalToggle = document.getElementById("hudNatalBtn");
 
 		// --- Natal button text lives ON the button (no extra box) ---
 		const setNatalToggleText = () => {
@@ -341,53 +343,30 @@
 	// initial sync (on load)
 	setNatalToggleText();
 
+	// Natal button - set current timeline date as natal chart
 	if (natalToggle) {
 	  natalToggle.addEventListener("click", () => {
-		// Do not overwrite an existing object (it may contain setDateUTC + longitudes)
-		if (!window.NatalChart) window.NatalChart = { enabled:false, dateUTC:null, longitudes:null };
-
-		window.NatalChart.enabled = !window.NatalChart.enabled;
-
-		// If turning ON, seed date from dateBox (or engine date) and compute natal longitudes
-		if (window.NatalChart.enabled && typeof window.NatalChart.setDateUTC === "function") {
-		  let y, m, d;
-
-		const v = (dateBoxInput && dateBoxInput.value) ? String(dateBoxInput.value).trim() : "";
-		if (v) {
-		  if (v.includes("-")) {
-			const parts = v.split("-");
-			y = Number(parts[0]);
-			m = Number(parts[1]);
-			d = Number(parts[2]);
-		  } else {
-			const parts = v.replace(/\s+/g, " ").trim().split(" ");
-			if (parts.length === 3) {
-			  d = Number(parts[0]);
-			  const monStr = String(parts[1]).toLowerCase();
-			  y = Number(parts[2]);
-			  const months = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
-			  m = months.indexOf(monStr) + 1;
+		console.log("[NATAL HANDLER] click fired, timeState:", timeState);
+		// Toggle off if already enabled
+		if (window.NatalChart && window.NatalChart.enabled) {
+			window.NatalChart.enabled = false;
+			const natalBtn = document.getElementById("hudNatalBtn");
+			if (natalBtn) natalBtn.classList.remove("active");
+			if (typeof drawAstroWheel === "function") drawAstroWheel();
+			return;
+		}
+		const now = timeState.dateUTC;
+		if (now instanceof Date && !Number.isNaN(now.getTime())) {
+			const y = now.getUTCFullYear();
+			const m = now.getUTCMonth() + 1;
+			const d = now.getUTCDate();
+			window.commitNatalFromYMD(y, m, d);
+			// Disable live mode so wheel shows natal date
+			if (typeof window.setAstroWheelLiveMode === "function") {
+				window.setAstroWheelLiveMode(false);
 			}
-		  }
+			console.log("[natal] set to", now.toISOString());
 		}
-
-
-		  // fallback: current engine date
-		  if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) {
-			const cur = AstroEngine.dateUTC;
-			y = cur.getUTCFullYear();
-			m = cur.getUTCMonth() + 1;
-			d = cur.getUTCDate();
-		  }
-
-		  const natalUTC = new Date(Date.UTC(y, m - 1, d, 12, 0, 0)); // date-only noon UTC
-		  window.NatalChart.setDateUTC(natalUTC);
-		  window.NatalChart.dateUTC = natalUTC;
-		}
-
-		setNatalToggleText();
-		drawAstroWheel();
-		syncEventShield();
 	  });
 	}
 
@@ -969,6 +948,7 @@
 
 				// ✅ Seeds natal from Y/M/D (no time, noon UTC)
 				const commitNatalFromYMD = (y, m, d) => {
+					console.log("[commitNatalFromYMD] called with", y, m, d);
 					const natalUTC = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
 
 					if (!window.NatalChart) window.NatalChart = { enabled:false, dateUTC:null, longitudes:null };
@@ -981,8 +961,13 @@
 					window.NatalChart.dateUTC = natalUTC;
 					window.NatalChart.enabled = true;
 
+				// Force wheel redraw to show natal positions
+				if (typeof drawAstroWheel === "function") {
+					drawAstroWheel();
+				}
+
 					// Keep Natal button text + state in sync (single button, no extra box)
-					const natalBtn = document.getElementById("natalToggle");
+					const natalBtn = document.getElementById("hudNatalBtn");
 					if (natalBtn) {
 						const dd = String(natalUTC.getUTCDate()).padStart(2, "0");
 						const mon = natalUTC.toLocaleString(undefined, { month:"short", timeZone:"UTC" });
@@ -992,10 +977,16 @@
 					}
 				};
 
+				window.commitNatalFromYMD = commitNatalFromYMD;
+
 				const applyDateBox = () => {
+					console.log("[applyDateBox] called");
 					// IMPORTANT: use pending value first (survives blur->revert issues)
 					const v = ((dateBoxInput.dataset.pending || dateBoxInput.value || "") + "").trim();
-					if (!v) return;
+					if (!v) {
+						console.log("[applyDateBox] no value");
+						return;
+					}
 
 				let y, m, d;
 
@@ -1029,15 +1020,25 @@
 				}
 
 
-					// Preserve current UTC time-of-day while changing the calendar date
-					const cur = timeState.dateUTC;
-					const target = new Date(Date.UTC(
-						y, m - 1, d,
-						cur.getUTCHours(),
-						cur.getUTCMinutes(),
-						cur.getUTCSeconds(),
-						cur.getUTCMilliseconds()
-					));
+					// Read time from timeBoxInput and use it for the target date
+					const timeBoxInput = document.getElementById("timeBoxInput");
+					let hours = 12, minutes = 0;
+					if (timeBoxInput && timeBoxInput.value) {
+					  const timeParts = timeBoxInput.value.split(":");
+					  if (timeParts.length >= 2) {
+					    hours = Number(timeParts[0]) || 0;
+					    minutes = Number(timeParts[1]) || 0;
+					  }
+					}
+
+					// Convert local input time to UTC for storage
+					const localInputDate = new Date(y, m - 1, d, hours, minutes, 0);
+					const target = new Date(localInputDate.getTime());
+
+					if (Number.isNaN(target.getTime())) {
+						dateBoxInput.classList.add("invalid");
+						return;
+					}
 
 					if (Number.isNaN(target.getTime())) {
 						dateBoxInput.classList.add("invalid");
@@ -1056,23 +1057,32 @@
 					// ✅ This moves the timeline
 					timeState.navTargetDateUTC = target;
 
-					// ✅ Then seed natal to the entered date
-					commitNatalFromYMD(y, m, d);
-
 					// ✅ Disable live mode in astro wheel when user enters a manual date
 					if (typeof window.setAstroWheelLiveMode === "function") {
 						window.setAstroWheelLiveMode(false);
 					}
+
+					// ✅ Force wheel redraw if open
+					if (typeof drawAstroWheel === "function" && typeof isWheelOpen === "function" && isWheelOpen()) {
+						drawAstroWheel();
+					}
+					
+					// ✅ Also request redraw for when wheel opens later
+					if (typeof requestWheelRedraw === "function") {
+						requestWheelRedraw();
+					}
+
+					// Natal planets will populate only when user clicks the Natal button
+					// Removed: window.commitNatalFromYMD(y, m, d);
 				};
 
 				dateBoxInput.addEventListener("input", markDirty);
 
 				// ✅ CRITICAL FIX:
-				// If blur is caused by clicking GO, do NOT revert (that would erase the user's typed date).
-				dateBoxInput.addEventListener("blur", (e) => {
-					if (e && e.relatedTarget && dateBoxGoBtn && e.relatedTarget === dateBoxGoBtn) return;
-					revertIfDirty();
-				});
+				// Don't revert on blur - let user tab to other inputs freely
+				// Only revert when Escape key is pressed
+				const timeBoxInput = document.getElementById("timeBoxInput");
+				const locationBoxInput = document.getElementById("locationBoxInput");
 
 				// ✅ GO must commit BEFORE blur/revert can fire
 				if (dateBoxGoBtn) {
@@ -1099,6 +1109,10 @@
 					if (e.key === "Enter") {
 						e.preventDefault();
 						applyDateBox();
+						dateBoxInput.blur();
+					} else if (e.key === "Escape") {
+						e.preventDefault();
+						revertIfDirty();
 						dateBoxInput.blur();
 					}
 				});
@@ -1395,7 +1409,12 @@ if (nextElementBtn) {
 		  if (astroDateText) astroDateText.textContent = `${day} ${monthTitle} ${year}`;
 
 		  // Keep the native date input synchronized (UTC) unless the user is editing
-		  if (dateBoxInput && document.activeElement !== dateBoxInput && !dateBoxInput.dataset.dirty) {
+		  // Allow tabbing between date/time/location without reverting
+		  const activeEl = document.activeElement;
+		  const isEditingDate = activeEl === dateBoxInput;
+		  const isEditingRelated = activeEl === timeBoxInput || activeEl === locationBoxInput;
+		  const userEditing = isEditingDate || isEditingRelated || dateBoxInput.dataset.dirty;
+		  if (dateBoxInput && !userEditing) {
 			const dd = String(date.getUTCDate()).padStart(2, "0");
 			const mon = date.toLocaleString("en-US", { month: "short", timeZone: "UTC" });
 			const yyyy = String(date.getUTCFullYear());
@@ -1406,15 +1425,10 @@ if (nextElementBtn) {
 		}
 
 		let lastWheelDrawMs = 0;
-		const WHEEL_FPS = 30;
+		const WHEEL_FPS = 10;
 		const WHEEL_FRAME_MS = 1000 / WHEEL_FPS;
 
 		let wheelNeedsRedraw = true;
-
-		function isWheelOpen() {
-		const wheelModal = document.getElementById("wheelModal");
-		return wheelModal && wheelModal.getAttribute("aria-hidden") === "false";
-		}
 
 		function requestWheelRedraw() {
 		wheelNeedsRedraw = true;
@@ -1527,24 +1541,13 @@ if (nextElementBtn) {
 			}
 
 			// Only redraw the wheel when the modal is open, and throttle redraw rate.
-			const wheelModal = document.getElementById("wheelModal");
 			const wheelOpen = isWheelOpen();
 
-			if (wheelOpen) {
-				if ((t - lastWheelDrawMs) >= WHEEL_FRAME_MS) {
-					// Only compute/draw wheel when it's open (prevents Swiss calls when wheel is closed)
-					const wheelOpen = (typeof isWheelOpen === "function") ? isWheelOpen() : true;
-
-					if (wheelOpen) {
-					if ((t - lastWheelDrawMs) >= WHEEL_FRAME_MS) {
-						drawAstroWheel();
-						lastWheelDrawMs = t;
-					}
-					}
-					lastWheelDrawMs = t;
-				}
-				syncEventShield();
+			if (wheelOpen && (t - lastWheelDrawMs) >= WHEEL_FRAME_MS) {
+				drawAstroWheel();
+				lastWheelDrawMs = t;
 			}
+			syncEventShield();
 			requestAnimationFrame(animate);
 		}
 

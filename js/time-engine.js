@@ -35,6 +35,9 @@ const timeState = {
   navTargetDateUTC: null,       // smooth nav target (buttons)
 };
 
+// Expose timeState globally for ui-controller and other modules
+window.timeState = timeState;
+
 const MS_PER_YEAR = 365.2422 * 24 * 60 * 60 * 1000;
 
 /* =========================================================

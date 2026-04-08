@@ -284,3 +284,5 @@
 		};
 	  }
 	}
+
+window.getPlanetLongitudes = getPlanetLongitudes;
