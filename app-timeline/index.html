@@ -80,8 +80,18 @@
 						<img id="wheelImg" alt="Astro wheel" draggable="false" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='none' stroke='%23333' stroke-width='2'/%3E%3C/svg%3E" />
 					</div>
 
-					<!-- Natal Toggle Button (moved from astroHUD) -->
+					<!-- Natal Toggle Button -->
 					<button id="hudNatalBtn" class="uiPill" type="button">Natal: -- -- ----</button>
+
+					<!-- Natal Date Picker (hidden by default) -->
+					<div id="natalPicker" class="natalPicker" style="display:none">
+						<label>Natal Date</label>
+						<input id="natalDateInput" type="date" />
+						<div class="natalPickerBtns">
+							<button id="natalSetBtn" class="uiPill" type="button">Set</button>
+							<button id="natalCancelBtn" class="uiPill" type="button">Cancel</button>
+						</div>
+					</div>
 
 					<div class="zyResizeHandle" id="wheelResizeHandle" title="Resize"></div>
 				</div>
@@ -337,21 +347,21 @@
 
 		<script src="js/time-engine.js"></script>
 		<script src="js/generation-model.js"></script>
-		<script src="js/astronomy-adapter.js?v=2"></script>
+		<script src="js/astronomy-adapter.js?v=3"></script>
 
 		<!-- Era markers must load BEFORE screw-renderer builds the SVG -->
 		<script src="js/_era_markers.js"></script>
 		<script src="js/heaven-data.js"></script>
 
 		<script src="js/screw-renderer.js?v=1000"></script>
-		<script src="js/astro-wheel.js?v=12"></script>
+		<script src="js/astro-wheel.js?v=33"></script>
 		<script src="js/conjunction-selector.js"></script>
 
 		<!-- 3D (Phase 1) — Three.js global build + simple renderer wrapper -->
 		<script src="https://unpkg.com/three@0.149.0/build/three.min.js"></script>
 		<script src="js/render-river-3d.js"></script>
 
-		<script src="js/ui-controller.js?v=15"></script>
+		<script src="js/ui-controller.js?v=16"></script>
 
 		<!-- President Thumbnails - Fixed to bottom of viewport with overlapping -->
 		<div id="presidentThumbContainer" style="position: fixed; bottom: 10px; left: 0; width: 100%; height: 100px; z-index: 1000; pointer-events: none;">

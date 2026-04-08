@@ -343,10 +343,30 @@
 	// initial sync (on load)
 	setNatalToggleText();
 
-	// Natal button disabled for now - focus on getting planets moving first
+	// Natal button - set current timeline date as natal chart
 	if (natalToggle) {
 	  natalToggle.addEventListener("click", () => {
-		console.log("[natal] button clicked - feature disabled");
+		console.log("[NATAL HANDLER] click fired, timeState:", timeState);
+		// Toggle off if already enabled
+		if (window.NatalChart && window.NatalChart.enabled) {
+			window.NatalChart.enabled = false;
+			const natalBtn = document.getElementById("hudNatalBtn");
+			if (natalBtn) natalBtn.classList.remove("active");
+			if (typeof drawAstroWheel === "function") drawAstroWheel();
+			return;
+		}
+		const now = timeState.dateUTC;
+		if (now instanceof Date && !Number.isNaN(now.getTime())) {
+			const y = now.getUTCFullYear();
+			const m = now.getUTCMonth() + 1;
+			const d = now.getUTCDate();
+			window.commitNatalFromYMD(y, m, d);
+			// Disable live mode so wheel shows natal date
+			if (typeof window.setAstroWheelLiveMode === "function") {
+				window.setAstroWheelLiveMode(false);
+			}
+			console.log("[natal] set to", now.toISOString());
+		}
 	  });
 	}
 
@@ -928,6 +948,7 @@
 
 				// ✅ Seeds natal from Y/M/D (no time, noon UTC)
 				const commitNatalFromYMD = (y, m, d) => {
+					console.log("[commitNatalFromYMD] called with", y, m, d);
 					const natalUTC = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
 
 					if (!window.NatalChart) window.NatalChart = { enabled:false, dateUTC:null, longitudes:null };
@@ -940,8 +961,13 @@
 					window.NatalChart.dateUTC = natalUTC;
 					window.NatalChart.enabled = true;
 
+				// Force wheel redraw to show natal positions
+				if (typeof drawAstroWheel === "function") {
+					drawAstroWheel();
+				}
+
 					// Keep Natal button text + state in sync (single button, no extra box)
-					const natalBtn = document.getElementById("natalToggle");
+					const natalBtn = document.getElementById("hudNatalBtn");
 					if (natalBtn) {
 						const dd = String(natalUTC.getUTCDate()).padStart(2, "0");
 						const mon = natalUTC.toLocaleString(undefined, { month:"short", timeZone:"UTC" });
@@ -950,6 +976,8 @@
 						natalBtn.classList.toggle("active", true);
 					}
 				};
+
+				window.commitNatalFromYMD = commitNatalFromYMD;
 
 				const applyDateBox = () => {
 					console.log("[applyDateBox] called");
@@ -1003,13 +1031,14 @@
 					  }
 					}
 
-					const target = new Date(Date.UTC(
-						y, m - 1, d,
-						hours,
-						minutes,
-						0,
-						0
-					));
+					// Convert local input time to UTC for storage
+					const localInputDate = new Date(y, m - 1, d, hours, minutes, 0);
+					const target = new Date(localInputDate.getTime());
+
+					if (Number.isNaN(target.getTime())) {
+						dateBoxInput.classList.add("invalid");
+						return;
+					}
 
 					if (Number.isNaN(target.getTime())) {
 						dateBoxInput.classList.add("invalid");
@@ -1028,6 +1057,11 @@
 					// ✅ This moves the timeline
 					timeState.navTargetDateUTC = target;
 
+					// ✅ Disable live mode in astro wheel when user enters a manual date
+					if (typeof window.setAstroWheelLiveMode === "function") {
+						window.setAstroWheelLiveMode(false);
+					}
+
 					// ✅ Force wheel redraw if open
 					if (typeof drawAstroWheel === "function" && typeof isWheelOpen === "function" && isWheelOpen()) {
 						drawAstroWheel();
@@ -1039,7 +1073,7 @@
 					}
 
 					// Natal planets will populate only when user clicks the Natal button
-					// Removed: commitNatalFromYMD(y, m, d);
+					// Removed: window.commitNatalFromYMD(y, m, d);
 				};
 
 				dateBoxInput.addEventListener("input", markDirty);
