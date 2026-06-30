@@ -979,6 +979,7 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 			function buildConjunctionCycleBand() {
 				const baselineGroup = document.getElementById("elementalCycle");
 				const overlayGroup  = document.getElementById("overlayCycle");
+				const yugaGroup     = document.getElementById("yugaCycle");
 				const projectionRoot = document.getElementById("cycleProjections");
 				if (!baselineGroup) return;
 
@@ -986,8 +987,9 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 					let saved = {};
 					try { saved = JSON.parse(localStorage.getItem("zy_cycle_projections") || "{}"); } catch (e) {}
 					return (window.__zyCycleProjectionState = {
-						baseline: saved.baseline !== false,
-						overlay: saved.overlay !== false
+						baseline: true, // Always show Saturn/Jupiter band
+						overlay: saved.overlay !== false,
+						yuga: saved.yuga !== false
 					});
 				})();
 
@@ -1009,6 +1011,63 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 
 				const baselineProjection = getProjectionLane("baseline");
 				const overlayProjection = getProjectionLane("overlay");
+				const yugaProjection = getProjectionLane("yuga");
+
+				// -----------------------------
+				// HUD helpers (ported from generational page to prevent label jump on click)
+				// -----------------------------
+				function applyProjectionVisibility(laneKey, enabled) {
+					if (!projectionRoot) return;
+					const lane = projectionRoot.querySelector(`[data-projection-lane="${laneKey}"]`);
+					if (lane) {
+						lane.style.visibility = enabled ? "visible" : "hidden";
+						lane.style.pointerEvents = "none";
+					}
+				}
+
+				function applyHudPressedState(el, enabled, activeTitle, inactiveTitle) {
+					el.setAttribute("aria-pressed", enabled ? "true" : "false");
+					el.style.border = enabled
+						? "1px solid rgba(255,255,255,0.55)"
+						: "1px solid rgba(255,255,255,0.16)";
+					el.title = enabled ? activeTitle : inactiveTitle;
+				}
+
+				function snapshotHudPositions() {
+					const out = {};
+					for (const id of ["conjHud_lane0", "conjHud_lane1", "yugaHudToggle"]) {
+						const el = document.getElementById(id);
+						if (!el) continue;
+						out[id] = {
+							left: el.style.left,
+							top: el.style.top
+						};
+					}
+					return out;
+				}
+
+				function restoreHudPositions(snapshot) {
+					for (const id of Object.keys(snapshot || {})) {
+						const el = document.getElementById(id);
+						if (!el) continue;
+						el.style.left = snapshot[id].left;
+						el.style.top = snapshot[id].top;
+					}
+				}
+
+				function lockHudPositions(snapshot) {
+					window.__zyCycleHudLockedPositions = snapshot || {};
+					restoreHudPositions(window.__zyCycleHudLockedPositions);
+					requestAnimationFrame(() => restoreHudPositions(window.__zyCycleHudLockedPositions));
+				}
+
+				function restoreScrollPosition(x, y) {
+					window.scrollTo(x, y);
+					requestAnimationFrame(() => {
+						window.scrollTo(x, y);
+						requestAnimationFrame(() => window.scrollTo(x, y));
+					});
+				}
 
 				// -----------------------------
 				// HUD housekeeping (screen-fixed labels)
@@ -1023,15 +1082,16 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 					hud.style.width = "0";
 					hud.style.height = "0";
 					hud.style.pointerEvents = "none";
-					hud.style.zIndex = "5"; // above elemental bands (z=3), below astro-wheel (z=10)
 					document.body.appendChild(hud);
-				}
-				// mark existing as unused, we’ll keep only the ones we touch this pass
+					}
+					hud.style.zIndex = "1000"; // above top menu (z=999) so labels aren't hidden
+					// mark existing as unused, we'll keep only the ones we touch this pass
 				Array.from(hud.children).forEach(ch => { ch.dataset.keep = "0"; });
 
-				// Clear both SVG band groups (prevents “old cycle sticks around”)
+				// Clear both SVG band groups (prevents "old cycle sticks around")
 				baselineGroup.innerHTML = "";
 				if (overlayGroup) overlayGroup.innerHTML = "";
+				if (yugaGroup) yugaGroup.innerHTML = "";
 
 				const svg = document.getElementById("screwSVG");
 				if (!svg) return;
@@ -1045,13 +1105,47 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 
 				const H   = ELEMENTAL.HEIGHT;
 				const GAP = 6;
+				const HUD_LEFT_OFFSET = 74;
+				const YUGA_BUTTON_H = H * 2 + GAP;
 
-				// Bands live ABOVE the screw
+				// Bands live ABOVE the screw (matches generational page)
 				const Y_BASE = -(H * 2 + GAP);
 				const Y_OVER = -H;
 
-				const OP_BASE = 0.18;
+				const OP_BASE = 0.30;
 				const OP_OVER = 0.26;
+
+				// -----------------------------
+				// helpers (screen-space band center queries)
+				// -----------------------------
+				function getBandScreenCenterY(groupId, fallbackY, fallbackHeight = H) {
+					const group = document.getElementById(groupId);
+					const bandRect = group
+						? group.querySelector(".cycleRectLayer rect, rect[data-dense-mask='1'], rect")
+						: null;
+					if (bandRect && typeof bandRect.getBoundingClientRect === "function") {
+						const r = bandRect.getBoundingClientRect();
+						if (Number.isFinite(r.top) && Number.isFinite(r.height) && r.height > 0) {
+							return r.top + (r.height / 2);
+						}
+					}
+					if (group && typeof group.getBoundingClientRect === "function") {
+						const r = group.getBoundingClientRect();
+						if (Number.isFinite(r.top) && Number.isFinite(r.height) && r.height > 0) {
+							return r.top + (r.height / 2);
+						}
+					}
+
+					const svgRect = svg.getBoundingClientRect();
+					const scrollGroupY = CANON.SCREW_TOP_PAD + (typeof EXTRA_SCREW_TOP_PAD === "number" ? EXTRA_SCREW_TOP_PAD : 55);
+					return svgRect.top + scrollGroupY + fallbackY + (fallbackHeight / 2);
+				}
+
+				function getConjBandScreenCenterY(Y) {
+					const svgRect = svg.getBoundingClientRect();
+					const scrollGroupY = CANON.SCREW_TOP_PAD + (typeof EXTRA_SCREW_TOP_PAD === "number" ? EXTRA_SCREW_TOP_PAD : 55);
+					return svgRect.top + scrollGroupY + Y + (H / 2);
+				}
 
 				// -----------------------------
 				// helpers
@@ -1176,7 +1270,7 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 					const g1 = GLYPH[p1Label] || p1Label;
 					const g2 = GLYPH[p2Label] || p2Label;
 
-					const isOverlay = (Y <= -(H * 1.5));
+					const isOverlay = (Y === Y_OVER);
 					const laneIdx = isOverlay ? 1 : 0;
 					const labelId = `conjHud_lane${laneIdx}`;
 
@@ -1216,11 +1310,37 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 						? "Hide elemental projection through history"
 						: "Show elemental projection through history";
 					el.setAttribute("role", "button");
-					el.setAttribute("aria-pressed", projectionState[projectionKey] ? "true" : "false");
-					el.onclick = () => {
+					applyHudPressedState(
+						el,
+						projectionState[projectionKey],
+						"Hide elemental projection through history",
+						"Show elemental projection through history"
+					);
+					el.tabIndex = -1;
+					el.onpointerdown = (event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						window.__zyCycleHudPointerSnapshot = snapshotHudPositions();
+					};
+					el.onclick = (event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						const keepX = window.scrollX;
+						const keepY = window.scrollY;
+						const labelPositions = window.__zyCycleHudPointerSnapshot || snapshotHudPositions();
+						window.__zyCycleHudLockedPositions = labelPositions;
 						projectionState[projectionKey] = !projectionState[projectionKey];
 						saveProjectionState();
-						buildConjunctionCycleBand();
+						applyProjectionVisibility(projectionKey, projectionState[projectionKey]);
+						applyHudPressedState(
+							el,
+							projectionState[projectionKey],
+							"Hide elemental projection through history",
+							"Show elemental projection through history"
+						);
+						lockHudPositions(labelPositions);
+						restoreScrollPosition(keepX, keepY);
+						window.__zyCycleHudPointerSnapshot = null;
 					};
 					el.style.background = "rgba(0,0,0,0.90)";
 					el.style.padding = "0 8px";
@@ -1234,16 +1354,16 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 
 					// lock to left edge of the SVG on screen
 					const svgRect = svg.getBoundingClientRect();
-					const bandLeftPx = svgRect.left;
-					el.style.left = `${bandLeftPx}px`;
+					const HUD_LEFT_OFFSET = 74;
+					const bandLeftPx = svgRect.left + HUD_LEFT_OFFSET;
 
-					// Center on the rendered lanes. The SVG band group is 3px below the old 22px pad.
-					// Keep this deterministic; querying the rect here can fail during live rebuild/rerender timing.
-					const BASELINE_TOP_PAD = 25;
-					const baselineCenterY = svgRect.top + BASELINE_TOP_PAD + (H / 2);
-					const overlayLabelNudgeY = isOverlay ? 2 : 0;
-					const laneCenterY = baselineCenterY + (isOverlay ? -(H + GAP) : 0) + overlayLabelNudgeY;
-					el.style.top = `${laneCenterY}px`;
+					// Exact band center on screen + nudge to sit on the band
+					const scrollGroupY = CANON.SCREW_TOP_PAD + (typeof EXTRA_SCREW_TOP_PAD === "number" ? EXTRA_SCREW_TOP_PAD : 55);
+					const laneCenterY = svgRect.top + scrollGroupY + Y + (H / 2) + 32 + (H + GAP);
+
+					const lockedPosition = window.__zyCycleHudLockedPositions && window.__zyCycleHudLockedPositions[labelId];
+					el.style.left = lockedPosition ? lockedPosition.left : `${bandLeftPx}px`;
+					el.style.top = lockedPosition ? lockedPosition.top : `${laneCenterY}px`;
 					el.style.transform = "translateY(-50%)";
 					el.style.visibility = "visible";
 					el.style.opacity = "1";
@@ -1261,6 +1381,257 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 
 					// Larger planet glyphs, smaller conjunction mark, vertically centered as one flex row
 					el.innerHTML = `<span style="display:inline-flex;align-items:center;gap:3px;">${planetGlyph(g1t)}${conjGlyph}${planetGlyph(g2t)}${durationText}</span>`;
+				}
+
+				function dateFromYearOffset(anchorDate, yearsOffset) {
+					const d = new Date(anchorDate.getTime());
+					d.setUTCFullYear(anchorDate.getUTCFullYear() + yearsOffset);
+					return d;
+				}
+
+				function setYugaHudButton() {
+					if (!yugaGroup) return;
+
+					const labelId = "yugaHudToggle";
+					let el = document.getElementById(labelId);
+					if (!el) {
+						el = document.createElement("div");
+						el.id = labelId;
+						hud.appendChild(el);
+					}
+
+					el.style.position = "fixed";
+					el.style.whiteSpace = "nowrap";
+					el.style.pointerEvents = "auto";
+					el.style.cursor = "pointer";
+					el.style.fontFamily = "system-ui, sans-serif";
+					el.style.fontSize = "12px";
+					el.style.fontWeight = "900";
+					el.style.letterSpacing = "0.08em";
+					el.style.textTransform = "uppercase";
+					el.style.color = "#fff";
+					el.style.display = "inline-flex";
+					el.style.alignItems = "center";
+					el.style.justifyContent = "center";
+					el.style.lineHeight = "1";
+					el.style.textShadow = "0 0 3px rgba(0,0,0,0.85), 0 0 3px rgba(0,0,0,0.85)";
+					el.style.background = "rgba(0,0,0,0.90)";
+					el.style.padding = "0 8px";
+					el.style.height = YUGA_BUTTON_H + "px";
+					el.style.minWidth = "62px";
+					el.style.boxSizing = "border-box";
+					el.style.borderRadius = "6px";
+					el.setAttribute("role", "button");
+					applyHudPressedState(
+						el,
+						projectionState.yuga,
+						"Hide yuga age projection through history",
+						"Show yuga age projection through history"
+					);
+					el.tabIndex = -1;
+					el.onpointerdown = (event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						window.__zyCycleHudPointerSnapshot = snapshotHudPositions();
+					};
+					el.onclick = (event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						const keepX = window.scrollX;
+						const keepY = window.scrollY;
+						const labelPositions = window.__zyCycleHudPointerSnapshot || snapshotHudPositions();
+						window.__zyCycleHudLockedPositions = labelPositions;
+						projectionState.yuga = !projectionState.yuga;
+						saveProjectionState();
+						applyProjectionVisibility("yuga", projectionState.yuga);
+						applyHudPressedState(
+							el,
+							projectionState.yuga,
+							"Hide yuga age projection through history",
+							"Show yuga age projection through history"
+						);
+						lockHudPositions(labelPositions);
+						restoreScrollPosition(keepX, keepY);
+						window.__zyCycleHudPointerSnapshot = null;
+					};
+					el.dataset.keep = "1";
+					el.textContent = "Yuga";
+
+					const svgRect = svg.getBoundingClientRect();
+
+					const twoBandCenterY = getBandScreenCenterY("yugaCycle", Y_BASE, H * 2 + GAP) + 59;
+					const lockedPosition = window.__zyCycleHudLockedPositions && window.__zyCycleHudLockedPositions[labelId];
+					el.style.left = lockedPosition ? lockedPosition.left : `${svgRect.left}px`;
+					el.style.top = lockedPosition ? lockedPosition.top : `${twoBandCenterY}px`;
+					el.style.transform = "translateY(-50%)";
+					el.style.visibility = "visible";
+					el.style.opacity = "1";
+				}
+
+				function drawYugaCycleBand() {
+					if (!yugaGroup || !yugaProjection || typeof dateToScrewX !== "function") return;
+
+					yugaGroup.innerHTML = "";
+					yugaProjection.innerHTML = "";
+
+					const anchorDate = new Date("2020-12-21T18:20:00Z");
+					const segments = [
+						{ name: "Descending Dwapara", short: "Bronze", start: -3600, end: -1200, rgb: "205, 92, 43" },
+						{ name: "Kali", short: "Iron", start: -1200, end: 0, rgb: "106, 106, 112" },
+						{ name: "Ascending Dwapara", short: "Bronze", start: 0, end: 2400, rgb: "224, 104, 47" },
+						{ name: "Ascending Treta", short: "Silver", start: 2400, end: 6000, rgb: "204, 204, 192" },
+						{ name: "Ascending Satya", short: "Gold", start: 6000, end: 10800, rgb: "240, 199, 64" }
+					];
+
+					const visiblePad = PX_PER_MAJOR * 2;
+					const historyY = CANON.TIMELINE_Y + 34;
+					const historyH = Math.max(1, CANON.SCREW_TOTAL_HEIGHT - historyY);
+					const watermarkY = historyY + historyH * 0.44;
+					const transitionLabelY = watermarkY + 38;
+
+					function transitionYears(seg) {
+						return Math.max(1, (seg.end - seg.start) / 12);
+					}
+
+					function addTransitionWindow(seg, startYear, endYear, anchor) {
+						const d0 = dateFromYearOffset(anchorDate, startYear);
+						const d1 = dateFromYearOffset(anchorDate, endYear);
+						const x0 = dateToScrewX(d0);
+						const x1 = dateToScrewX(d1);
+						const w = x1 - x0;
+						if (!Number.isFinite(w) || w <= 0) return;
+						if (x1 < MINX - visiblePad || x0 > MAXX + visiblePad) return;
+
+						const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+						rect.setAttribute("x", x0);
+						rect.setAttribute("y", String(historyY));
+						rect.setAttribute("width", w);
+						rect.setAttribute("height", String(historyH));
+						rect.setAttribute("fill", `rgb(${seg.rgb})`);
+						rect.setAttribute("fill-opacity", "0.11");
+						rect.setAttribute("pointer-events", "none");
+						yugaProjection.appendChild(rect);
+
+						const edge = anchor === "end" ? x1 : x0;
+						const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+						line.setAttribute("x1", String(edge));
+						line.setAttribute("x2", String(edge));
+						line.setAttribute("y1", String(historyY));
+						line.setAttribute("y2", String(historyY + historyH));
+						line.setAttribute("stroke", `rgb(${seg.rgb})`);
+						line.setAttribute("stroke-opacity", "0.36");
+						line.setAttribute("stroke-width", "1");
+						line.setAttribute("pointer-events", "none");
+						yugaProjection.appendChild(line);
+					}
+
+					for (const seg of segments) {
+						const d0 = dateFromYearOffset(anchorDate, seg.start);
+						const d1 = dateFromYearOffset(anchorDate, seg.end);
+						const x0 = dateToScrewX(d0);
+						const x1 = dateToScrewX(d1);
+						const w = x1 - x0;
+						if (!Number.isFinite(w) || w <= 0) continue;
+						if (x1 < MINX - visiblePad || x0 > MAXX + visiblePad) continue;
+
+						const projectionRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+						projectionRect.setAttribute("x", x0);
+						projectionRect.setAttribute("y", String(historyY));
+						projectionRect.setAttribute("width", w);
+						projectionRect.setAttribute("height", String(historyH));
+						projectionRect.setAttribute("fill", `rgb(${seg.rgb})`);
+						projectionRect.setAttribute("fill-opacity", "0.045");
+						projectionRect.setAttribute("pointer-events", "none");
+						yugaProjection.appendChild(projectionRect);
+					}
+
+					for (const seg of segments) {
+						const t = transitionYears(seg);
+						addTransitionWindow(seg, seg.start, seg.start + t, "start");
+						addTransitionWindow(seg, seg.end - t, seg.end, "end");
+					}
+
+					const cuspX = dateToScrewX(anchorDate);
+					const previousYuga = segments.find(seg => seg.start < 0 && seg.end === 0) || segments[1];
+					const previousLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+					previousLabel.setAttribute("x", String(cuspX - 26));
+					previousLabel.setAttribute("y", String(watermarkY));
+					previousLabel.setAttribute("text-anchor", "end");
+					previousLabel.setAttribute("dominant-baseline", "middle");
+					previousLabel.setAttribute("font-size", "30");
+					previousLabel.setAttribute("font-weight", "900");
+					previousLabel.setAttribute("letter-spacing", "0.08em");
+					previousLabel.setAttribute("fill", "#ffffff");
+					previousLabel.setAttribute("opacity", "0.12");
+					previousLabel.setAttribute("paint-order", "stroke");
+					previousLabel.setAttribute("stroke", "rgba(0,0,0,0.62)");
+					previousLabel.setAttribute("stroke-width", "2");
+					previousLabel.setAttribute("pointer-events", "none");
+					previousLabel.textContent = `Ascending ${previousYuga.name} / ${previousYuga.short}`;
+					yugaProjection.appendChild(previousLabel);
+
+					const previousTransitionLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+					previousTransitionLabel.setAttribute("x", String(cuspX - 26));
+					previousTransitionLabel.setAttribute("y", String(transitionLabelY));
+					previousTransitionLabel.setAttribute("text-anchor", "end");
+					previousTransitionLabel.setAttribute("dominant-baseline", "middle");
+					previousTransitionLabel.setAttribute("font-size", "12");
+					previousTransitionLabel.setAttribute("font-weight", "900");
+					previousTransitionLabel.setAttribute("letter-spacing", "0.08em");
+					previousTransitionLabel.setAttribute("fill", "#ffffff");
+					previousTransitionLabel.setAttribute("opacity", "0.16");
+					previousTransitionLabel.setAttribute("paint-order", "stroke");
+					previousTransitionLabel.setAttribute("stroke", "rgba(0,0,0,0.70)");
+					previousTransitionLabel.setAttribute("stroke-width", "2");
+					previousTransitionLabel.setAttribute("pointer-events", "none");
+					previousTransitionLabel.textContent = `${previousYuga.short} dusk`;
+					yugaProjection.appendChild(previousTransitionLabel);
+
+					const currentYuga = segments.find(seg => seg.start <= 0 && seg.end > 0) || segments[2];
+					const currentLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+					currentLabel.setAttribute("x", String(cuspX + 26));
+					currentLabel.setAttribute("y", String(watermarkY));
+					currentLabel.setAttribute("text-anchor", "start");
+					currentLabel.setAttribute("dominant-baseline", "middle");
+					currentLabel.setAttribute("font-size", "30");
+					currentLabel.setAttribute("font-weight", "900");
+					currentLabel.setAttribute("letter-spacing", "0.08em");
+					currentLabel.setAttribute("fill", "#ffffff");
+					currentLabel.setAttribute("opacity", "0.12");
+					currentLabel.setAttribute("paint-order", "stroke");
+					currentLabel.setAttribute("stroke", "rgba(0,0,0,0.62)");
+					currentLabel.setAttribute("stroke-width", "2");
+					currentLabel.setAttribute("pointer-events", "none");
+					currentLabel.textContent = `${currentYuga.name} / ${currentYuga.short}`;
+					yugaProjection.appendChild(currentLabel);
+
+					const currentTransitionLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+					currentTransitionLabel.setAttribute("x", String(cuspX + 26));
+					currentTransitionLabel.setAttribute("y", String(transitionLabelY));
+					currentTransitionLabel.setAttribute("text-anchor", "start");
+					currentTransitionLabel.setAttribute("dominant-baseline", "middle");
+					currentTransitionLabel.setAttribute("font-size", "12");
+					currentTransitionLabel.setAttribute("font-weight", "900");
+					currentTransitionLabel.setAttribute("letter-spacing", "0.08em");
+					currentTransitionLabel.setAttribute("fill", "#ffffff");
+					currentTransitionLabel.setAttribute("opacity", "0.16");
+					currentTransitionLabel.setAttribute("paint-order", "stroke");
+					currentTransitionLabel.setAttribute("stroke", "rgba(0,0,0,0.70)");
+					currentTransitionLabel.setAttribute("stroke-width", "2");
+					currentTransitionLabel.setAttribute("pointer-events", "none");
+					currentTransitionLabel.textContent = `${currentYuga.short} dawn`;
+					yugaProjection.appendChild(currentTransitionLabel);
+
+					const projectionCusp = document.createElementNS("http://www.w3.org/2000/svg", "line");
+					projectionCusp.setAttribute("x1", cuspX);
+					projectionCusp.setAttribute("x2", cuspX);
+					projectionCusp.setAttribute("y1", String(historyY));
+					projectionCusp.setAttribute("y2", String(historyY + historyH));
+					projectionCusp.setAttribute("stroke", "#ffffff");
+					projectionCusp.setAttribute("stroke-opacity", "0.32");
+					projectionCusp.setAttribute("stroke-width", "1.5");
+					projectionCusp.setAttribute("pointer-events", "none");
+					yugaProjection.appendChild(projectionCusp);
 				}
 
 				// -----------------------------
@@ -1283,7 +1654,7 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 				groupEl.appendChild(glyphLayer);
 
 				// Lane check: baseline = 0, overlay = 1
-				const isOverlay = (Y <= -(H * 1.5));
+				const isOverlay = (Y === Y_OVER);
 				const laneIdx = isOverlay ? 1 : 0;
 
 				// ── Venus-Mercury mask: too dense (every ~6 mo = ~3000 events over 2400 yr).
@@ -1536,6 +1907,12 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 				}
 
 				// -------------------------
+				// 0) YUGA: age bands + watermark
+				// -------------------------
+				drawYugaCycleBand();
+				setYugaHudButton();
+
+				// -------------------------
 				// 1) BASELINE: Saturn–Jupiter always
 				// -------------------------
 				const baseEvents = getEventsForPair("Saturn", "Jupiter");
@@ -1584,12 +1961,16 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 					}
 				}
 
-				// Cleanup unused HUD labels (prevents “ghost” labels)
+				// Cleanup unused HUD labels (prevents "ghost" labels)
+				applyProjectionVisibility("baseline", projectionState.baseline);
+				applyProjectionVisibility("overlay", projectionState.overlay);
+				applyProjectionVisibility("yuga", projectionState.yuga);
+
 				Array.from(hud.children).forEach(ch => {
 					if (ch.dataset.keep !== "1") ch.remove();
 				});
 				syncCycleProjectionHeight();
-			}
+				}
 
 			// Back-compat: older code paths still call this
 			function buildElementalCycle() {
@@ -1818,12 +2199,16 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 	// Signal that screw geometry is ready
 	window.screwReady = true;
 	window.dispatchEvent(new CustomEvent('zy:screwBuilt'));
+
+	// Expose so ui-controller can rebuild labels after --top-menu-bottom is set
+	window.rebuildConjunctionCycleBand = buildConjunctionCycleBand;
 	}
 
 		// Rebuild the cycle band when the selector changes
 	if (!window.__zyCycleBandHooked) {
 		window.__zyCycleBandHooked = true;
 		window.addEventListener("zy:cyclechange", () => {
+			window.__zyCycleHudLockedPositions = null;
 			try { buildConjunctionCycleBand(); }
 			catch (e) { console.warn("[cycle] buildConjunctionCycleBand failed", e); }
 		});

@@ -34,8 +34,11 @@
 	const bumpFwdBtn  = document.getElementById("bumpFwdBtn");
 	const scaleSelector = document.getElementById("scaleSelector");
 
-	// Extra vertical room for the overlay conjunction band (px)
-	const EXTRA_SCREW_TOP_PAD = 25;
+	// Extra vertical room for stacked conjunction bands (px)
+	// Must accommodate both bands above the screw: H*2 + GAP = 46px minimum.
+	// Using 55 to match generational page layout.
+	const EXTRA_SCREW_TOP_PAD = 55;
+	const ARCHETYPE_LABEL_Y_OFFSET = 0;
 
 	/* =========================================================
 	SPEED UNITS (knob cycles what slider “means”)
@@ -192,42 +195,61 @@
 		
 
 		function syncTimeMarkerLayout() {
-		if (!screwSVGEl) return;
+			if (!screwSVGEl) return;
 
-		const sr = screwSVGEl.getBoundingClientRect();
+			const sr = screwSVGEl.getBoundingClientRect();
 		
-		// CATHEDRAL: expose the bottom edge of the top menu so fixed overlays can sit below it
-		if (topMenu) {
-			const tr = topMenu.getBoundingClientRect();
-			document.documentElement.style.setProperty("--top-menu-bottom", `${Math.round(tr.bottom)}px`);
+			// CATHEDRAL: expose the bottom edge of the top menu so fixed overlays can sit below it
+			if (topMenu) {
+				const tr = topMenu.getBoundingClientRect();
+				document.documentElement.style.setProperty("--top-menu-bottom", `${Math.round(tr.bottom)}px`);
 
-			// CATHEDRAL: label panel bottom sits on the TIMELINE_Y (X axis at bottom of bands)
-			const scrollGroupY = CANON.SCREW_TOP_PAD + EXTRA_SCREW_TOP_PAD;
-			const xAxisY = sr.top + scrollGroupY + CANON.TIMELINE_Y;
-			const labelHeight = 180; // matches --label-height in index.html
-			const labelTop = Math.max(Math.round(tr.bottom), Math.round(xAxisY - labelHeight));
-			document.documentElement.style.setProperty("--label-top", `${labelTop}px`);
-		}
+				// CATHEDRAL: archetype box top = top of the screw body (below the element bands)
+				const scrollGroupY = CANON.SCREW_TOP_PAD + EXTRA_SCREW_TOP_PAD;
+				const screwBodyTop = sr.top + scrollGroupY;
+				const xAxisY = sr.top + scrollGroupY + CANON.TIMELINE_Y;
+				const labelTop = Math.max(Math.round(tr.bottom), Math.round(screwBodyTop));
+				// Clip the box bottom at the X-axis timeline
+				const clippedHeight = Math.max(40, Math.round(xAxisY - labelTop));
+				// Set CSS vars AND element style directly (avoids stale cascade)
+				document.documentElement.style.setProperty("--label-top", `${labelTop}px`);
+				document.documentElement.style.setProperty("--label-height", `${clippedHeight}px`);
+				if (labelSVGEl) {
+					labelSVGEl.style.top = `${labelTop}px`;
+					labelSVGEl.style.height = `${clippedHeight}px`;
+					const inner = document.getElementById("labelSVGInner");
+					if (inner) {
+						inner.setAttribute("height", String(clippedHeight));
+						inner.style.height = `${clippedHeight}px`;
+					}
+				}
+				}
 
-			// CATHEDRAL: NOW_X is the LEFT EDGE of the archetype label box (measured from DOM)
-		if (labelSVGEl) {
-			const lr = labelSVGEl.getBoundingClientRect();
-			if (lr.left > 0 && lr.left < window.innerWidth) {
-				document.documentElement.style.setProperty("--time-marker-left", `${Math.round(lr.left)}px`);
-			} else {
-				// Fallback: derive label left edge from CSS right offset + width
-				const w = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--label-width")) || 200;
-				const left = window.innerWidth - w - 20;
-				document.documentElement.style.setProperty("--time-marker-left", `${left}px`);
+				// CATHEDRAL: NOW_X is the LEFT EDGE of the archetype label box (measured from DOM)
+			if (labelSVGEl) {
+				const lr = labelSVGEl.getBoundingClientRect();
+				if (lr.left > 0 && lr.left < window.innerWidth) {
+					document.documentElement.style.setProperty("--time-marker-left", `${Math.round(lr.left)}px`);
+				} else {
+					// Fallback: derive label left edge from CSS right offset + width
+					const w = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--label-width")) || 200;
+					const left = window.innerWidth - w - 20;
+					document.documentElement.style.setProperty("--time-marker-left", `${left}px`);
+				}
 			}
-		}
 
-		// CATHEDRAL: time spine begins at the TOP of the diagonal/body field (not the menu)
-		const markerTop = Math.round(sr.top + CANON.SCREW_TOP_PAD + EXTRA_SCREW_TOP_PAD - 10);
-		document.documentElement.style.setProperty("--time-marker-top", `${markerTop}px`);
+			// CATHEDRAL: NOW marker tracks the archetype box seam, not the screw top
+			const labelTopPx = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--label-top")) || Math.round(sr.top);
+			const nowY = Math.round(labelTopPx - 10);
+			document.documentElement.style.setProperty("--time-marker-top", `${nowY}px`);
 
-		const nowY = Math.round(sr.top + CANON.SCREW_TOP_PAD + EXTRA_SCREW_TOP_PAD - 10);
-		document.documentElement.style.setProperty("--now-label-age-top", `${nowY}px`);
+			document.documentElement.style.setProperty("--now-label-age-top", `${nowY}px`);
+			}
+
+		function syncConjLaneLabels() {
+			if (typeof window.rebuildConjunctionCycleBand === "function") {
+				window.rebuildConjunctionCycleBand();
+			}
 		}
 		
 		function syncScrewSVGHeight() {
@@ -1509,6 +1531,8 @@
 								window.locationData = { lat: nearest.lat, lon: nearest.lon, tz: nearest.tz };
 								if (locationBoxInput) locationBoxInput.value = `${nearest.name}, ${nearest.country}`;
 								console.log(`[location] Auto-detected: ${nearest.name}, ${nearest.country}`);
+								// Menu grew — recompute label/box positions
+								requestAnimationFrame(() => { syncTimeMarkerLayout(); syncScrewSVGHeight(); });
 								return;
 							}
 						}
@@ -1536,6 +1560,8 @@
 						window.locationData = { lat: city.lat, lon: city.lon, tz: city.tz };
 						if (locationBoxInput) locationBoxInput.value = `${city.name}, ${city.country}`;
 						console.log(`[location] Auto-detected from timezone: ${city.name}, ${city.country}`);
+						// Menu grew — recompute label/box positions
+						requestAnimationFrame(() => { syncTimeMarkerLayout(); syncScrewSVGHeight(); });
 					} else {
 						// Last resort: use first city in database
 						const fallback = citiesData[0];
@@ -2012,11 +2038,18 @@
 	   SECTION 12 — MAIN ANIMATION LOOP
 	   ========================================================= */
 
+		let __layoutResyncDeadline = performance.now() + 3000; // re-sync layout for first 3s
+
 		function animate(t) {
 
 			if (!lastTime) lastTime = t;
 			const dt = (t - lastTime) / 1000;
 			lastTime = t;
+
+			// Re-sync layout for first few seconds to catch menu/location shifts
+			if (performance.now() < __layoutResyncDeadline) {
+				syncTimeMarkerLayout();
+			}
 
 			const v = speedSlider.value / 100;
 			if (pauseBtn) pauseBtn.classList.toggle("paused", Math.abs(v) < 0.0001);
