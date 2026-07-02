@@ -1,4 +1,4 @@
-[CORE_SYNTHESIS]
+1. Your Cosmic Weather
 
 2. Executive Summary
 This report begins with the collective weather of your birth, then narrows toward your personal natal signature. That order matters. A birth chart is not floating in empty space; it is born inside a historical season, an elemental epoch, and a longer civilizational waveform.
