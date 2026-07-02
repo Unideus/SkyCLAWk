@@ -64,26 +64,35 @@ The **unique hook**: "Your birth chart reveals mineral deficiencies. Your permac
 |---|---|---|
 | Cosmic History Report only | $19 | Existing product |
 | Permaculture Plan only | $29 | Standalone purchase |
-| **Bundle: Report + Plan** | **$33.50** | **50% off plan as add-on ($14.50 instead of $29)** |
-| Bundle vs. report alone | $14.50 more | "Add a permaculture plan to your report for $14.50 (50% off)" |
+| **Bundle from report side** | **$33.50** | **50% off plan as add-on ($14.50 instead of $29)** |
+| **Bundle from plan side** | **$38.50** | **50% off report as add-on ($9.50 instead of $19)** |
+
+### Two entry points, same 50% logic
+
+**Coming from the report ($19 entry):**
+"Add a permaculture plan for $14.50 (50% off)" → $33.50 total
+
+**Coming from the plan ($29 entry):**
+"Add the full Cosmic History Report for $9.50 (50% off)" → $38.50 total
 
 ### Rationale
 
-- 50% off the plan as a bundle add-on is a strong, clean discount that's easy to market and understand.
-- $33.50 bundle is impulse territory; the $14.50 add-on framing is the primary conversion driver.
-- The permaculture plan has higher perceived value than the report (actionable, property-specific, multi-year) — $29 standalone is defensible.
-- Protects the $19 report price floor and the $29 standalone plan price.
+- 50% off the companion product in either direction — symmetric, fair, easy to market.
+- The bundle price differs by entry point because the anchor products have different base prices ($19 vs $29). This is intentional: the discount is always on the *other* product, so the customer always feels the 50% savings relative to what they're already buying.
+- $33.50 (report-led) is impulse territory; $38.50 (plan-led) is still well under the $48 separate-purchase cost.
+- Both protect their respective standalone price floors ($19 report, $29 plan).
 
 ### Revenue projection
 
 | Scenario | Monthly volume | Avg revenue/sale | Monthly revenue |
 |---|---|---|---|
 | Report only (current target) | 80 | $19 | $1,520 |
-| 20% attach rate at $14.50 add-on | 80 reports + 16 plans | $19 + $14.50×0.2 | $1,792 |
-| 40% attach rate at $14.50 add-on | 80 reports + 32 plans | $19 + $14.50×0.4 | $2,064 |
-| Bundle at $33.50, 30% uptake | 56×$19 + 24×$33.50 | blended $23.70 | $1,896 |
+| 20% report-side attach at $14.50 | 80 reports + 16 plans | $19 + $14.50×0.2 | $1,792 |
+| 40% report-side attach at $14.50 | 80 reports + 32 plans | $19 + $14.50×0.4 | $2,064 |
+| 10 plan-led bundles at $38.50 | 10 bundles | $38.50 | $385 |
+| Combined (40% report-attach + 10 plan-led) | 80 reports + 32 + 10 | blended | $2,449 |
 
-Even a modest 20% attach rate adds ~18% to monthly revenue at no additional customer acquisition cost.
+Even modest attach rates from both directions add ~60% to monthly revenue at no additional customer acquisition cost.
 
 ---
 
@@ -178,8 +187,14 @@ Web App (free)
 Free saeculum report
     ↓
 $19 Cosmic History Report
-    ↓  ← NEW: "Add a permaculture plan for $14.50 (50% off)"
+    ↓  ← "Add a permaculture plan for $14.50 (50% off)"
 $33.50 Bundle (report + plan)
+
+   OR
+
+$29 Permaculture Plan
+    ↓  ← "Add the Cosmic History Report for $9.50 (50% off)"
+$38.50 Bundle (plan + report)
     ↓
 Email: both PDFs
     ↓
