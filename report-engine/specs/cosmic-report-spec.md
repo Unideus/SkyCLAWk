@@ -167,3 +167,72 @@ Desktop engine waitlist → $79 Phase 1 launch
 
 *Prepared by Saturn | SeaGoat Strategic Operations*
 *© 2026 Zodi-Yuga Holdings*
+
+
+---
+
+## Pipeline Implementation Notes
+
+The current report-engine pipeline (`report-engine/scripts/generate_full_report.py`) generates the full 19–20 page PDF independently of the Godot runtime. It is also mirrored in `Master Godot SkyCLAWk/scripts/generate_full_report.py` so both the web pipeline and the desktop/engine pipeline stay synchronized.
+
+### Report Structure (v40+)
+
+| Physical Page | Content |
+|---------------|---------|
+| 1 | Cover |
+| 2 | Natal chart wheel with constellation overlay (`heaven_constellations.svg`) |
+| 3 | Cosmic Snapshot card (Big 3, generation, era, key aspects) |
+| 4+ | Narrative Sections 1–11 |
+| Last 2–4 pages | Technical appendix: Houses, Planet Placements, Aspects, Sources |
+
+### Footer Convention
+
+The first narrative page is stamped **pg 3**. Snapshot and cover pages have no page numbers.
+
+### Narrative Macro System
+
+Reports are built from a shared archetype macro plus a sign-specific snippet:
+
+| Archetype | Macro | Snippet |
+|-----------|-------|---------|
+| Hero / Millennial | `prose_millennial_macro.md` | `prose_millennial_{sign}.md` |
+| Nomad / Gen X | `prose_nomad_macro_template.md` | `prose_nomad_{sign}_snippet.md` |
+| Prophet / Boomer | `prose_prophet_macro_template.md` | `prose_prophet_{sign}_snippet.md` |
+| Artist / Silent | `prose_artist_macro_template.md` | `prose_artist_{sign}_snippet.md` |
+| Prophet GenAlpha | `prose_prophet_genalpha_macro_template.md` | `prose_prophet_genalpha_{sign}_snippet.md` |
+
+The snippet must define `[CORE_SYNTHESIS]`, `[EXECUTIVE_SUMMARY_PERSONAL]`, `[EPOCHAL_WHAT_THIS_MEANS]`, `[NATAL_SIGNATURE]`, `[LIFETIME_PATTERN]`, and `[FINAL_ORIENTATION]`. The macro inserts `[CORE_SYNTHESIS]` directly under `1. Your Cosmic Weather` / `1. Su Clima Cósmico`.
+
+### Language Support
+
+- `--lang en` (default): English narrative, English appendix.
+- `--lang es`: Spanish narrative, Spanish appendix (`Casa`, `Elemento`, `Cualidad`, translated aspect names and meanings).
+
+Both use the same generator; the `houses_html` block and table labels switch per language. The `ES` dictionary is kept English-only to avoid cross-language leakage.
+
+### Timezone Support
+
+Valid `--tz` values: `EST`, `EDT`, `CST`, `CDT`, `MST`, `MDT`, `PST`, `PDT`, `HST`, `AKST`, `COT`, `IST`, `GMT`, `UTC`.
+
+### Asset Requirements
+
+- `report-engine/scripts/constellation_paths.svg` — used for chart overlay.
+- `report-engine/assets/heaven_constellations.svg` — constellation artwork source.
+- `report-engine/templates/planet-sign-interpretations.json` — planet-in-sign interpretation texts.
+
+### Verified Test Cases
+
+| Name | Birth Data | Lang | Output |
+|------|------------|------|--------|
+| Cheryl K Beggs | 1982-05-02 02:16 EDT, NAS Jacksonville, FL (30.22, -81.68) | en/es | v40+ |
+| Astrid Restrepo | 1969-08-21 13:30 COT, Yopal, Casanare, Colombia (5.34, -72.40) | en/es | v7+ |
+| Steve Malecki | 1961-04-13 09:12 CDT, Chicago, IL (41.88, -87.63) | en | current |
+| Julian Beggs | 2008-03-04 22:54 EST, Watertown, NY (43.97, -75.91) | en | current |
+| Conor McGregor | 1988-07-14 01:30 IST, Dublin, Ireland (53.35, -6.26) | en | current |
+
+### Known Limitations
+
+- Spanish reports are ~1 page longer than English due to expanded translations.
+- Planet placement interpretations in Spanish are currently suppressed; a Spanish interpretation JSON is needed to restore them.
+- Payment gating (`zodiyuga.com/cosmic-report`) and live API deployment are tracked separately.
+
