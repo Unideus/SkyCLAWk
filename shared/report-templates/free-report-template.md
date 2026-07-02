@@ -24,11 +24,14 @@ The current saeculum is anchored to the Great Conjunction of December 21, 2020 �
 
 {bornTurningDescription}
 
-### The Four Turnings of Your Lifetime
+### Where You Are Now
 
-| Age | Year | Turning |
-|-----|------|---------|
-{lifeTable}
+| | Your Birth | Today |
+|---|---|---|
+| **Turning** | {bornTurning} | {currentTurning} |
+| **Year** | {birthYear} | {currentYear} |
+
+The full life-phase table — every 20-year turning across your entire lifetime with exact conjunction years — is included in the paid Cosmic History Report.
 
 ### The Conjunction Nearest Your Birth
 
@@ -40,11 +43,23 @@ The current saeculum is anchored to the Great Conjunction of December 21, 2020 �
 
 The SkyCLAWk renders history as a repeating pattern of conjunctions, element shifts, and generational crises. Your birth year places you at a specific point on this screw — not as destiny, but as context.
 
-The tool lets you explore the full timeline: zoom from the skyclock scale through generational history down to your personal lifeline and the planting calendar. Every view is driven by the same planetary data.
+---
 
-**This is a free snapshot.** Use the SkyCLAWk to explore the full cycle — scroll through history, filter events by category, see your personal timeline, and watch the planetary wheel turn.
+### Upgrade to the Full Cosmic History Report — $19
 
-→ Explore at [zodiyuga.com/skyclock](https://zodiyuga.com/skyclock)
+This free snapshot uses your **birth year only**.
+
+The full Cosmic History Report uses your **exact birth date, time, and location** to calculate:
+
+- ✅ Full natal chart wheel with houses and constellation overlay
+- ✅ Cosmic Snapshot dashboard (Sun, Moon, Rising, Chart Ruler, Sect)
+- ✅ Planet placements and strongest major aspects
+- ✅ Saturn Return and Uranus Opposition timing
+- ✅ Personalized life-marker table with exact ages and dates
+- ✅ Elemental era analysis and Yuga / precessional wave
+- ✅ 11-section narrative + technical appendix
+
+→ Get your full report at [zodiyuga.com/cosmic-report](https://zodiyuga.com/cosmic-report)
 
 ---
 

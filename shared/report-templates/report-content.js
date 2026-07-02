@@ -235,6 +235,7 @@ const REPORT_CONTENT = {
 
     return {
       birthYear: year,
+      currentYear: 2026,
       age,
       bornTurning,
       bornTurningLabel: turningProfile.label,

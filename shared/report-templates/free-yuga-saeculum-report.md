@@ -46,13 +46,12 @@ The {generationLabel} generation ({generationArchetype} archetype) was born into
 
 ## PART 3: Your Life Path Through the Turnings
 
-Your birth in {birthYear} means your life unfolds across these saeculum phases:
+| | Your Birth | Today |
+|---|---|---|
+| **Turning** | {bornTurning} | {currentTurning} |
+| **Year** | {birthYear} | {currentYear} |
 
-| Age | Year | Turning Phase | Archetype |
-|-----|------|---------------|-----------|
-{lifePhasesTable}
-
-Each 20-year window moves you through a different public mood — from {firstTurning} in your youth to {lastTurning} in your later years.
+The full life-phase table — every 20-year turning across your entire lifetime with exact conjunction years and archetype phases — is included in the paid Cosmic History Report.
 
 ---
 
@@ -72,11 +71,23 @@ Your Yuga determines the **background frequency** of the era you live in — the
 
 Born into the {yugaName} during a {currentSaeculumTurning}, you have come into a world that is simultaneously {yugaTone}.
 
-**This report is a free preview.** Your personalized Cosmic History Report ($19) goes deeper:
-- Your full natal chart with planetary positions at your birth
-- The exact degree and house of key conjunctions
-- How your birth chart interacts with the generational cycles
-- Personalized life phase guidance based on your exact birth data (date, time, location)
+---
+
+### Upgrade to the Full Cosmic History Report — $19
+
+This free preview uses your **birth year only**.
+
+The full Cosmic History Report uses your **exact birth date, time, and location** to calculate:
+
+- ✅ Full natal chart wheel with houses and constellation overlay
+- ✅ Cosmic Snapshot dashboard (Sun, Moon, Rising, Chart Ruler, Sect)
+- ✅ Planet placements and strongest major aspects
+- ✅ Saturn Return and Uranus Opposition timing
+- ✅ Personalized life-marker table with exact ages and dates
+- ✅ Elemental era analysis and Yuga / precessional wave
+- ✅ 11-section narrative + technical appendix
+
+→ Get your full report at [zodiyuga.com/cosmic-report](https://zodiyuga.com/cosmic-report)
 
 ---
 
