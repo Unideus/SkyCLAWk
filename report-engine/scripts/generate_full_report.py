@@ -533,7 +533,7 @@ def load_narrative(archetype, sun_sign, moon_sign=None, asc_sign=None, lang="en"
 def prose_to_html(prose):
     prose = re.sub(r'\r\n?', '\n', prose)
     # Section 8 gets a page break to avoid mid-table splits
-    prose = prose.replace('8. Your Life Timeline', '<div style="page-break-before:always;"></div>\n8. Your Life Timeline')
+    # prose = prose.replace('8. Your Life Timeline', '<div style="page-break-before:always;"></div>\n8. Your Life Timeline')
     prose = re.sub(r'^(\d{1,2})\. (.+)$', r'<h2>\1. \2</h2>', prose, flags=re.MULTILINE)
     sub_headings = [
         "What this means for you", "Your Generational Role",
