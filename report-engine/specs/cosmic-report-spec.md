@@ -1,0 +1,169 @@
+# $19 Cosmic Report — Product Specification
+## The Revenue Engine That Funds the Desktop Engine
+
+**Date:** 2026-06-25
+**Version:** 1.0
+**Prepared by:** Saturn (SeaGoat Strategic Operations)
+
+---
+
+## What It Is
+
+A one-time purchase PDF report generated from the user's birth chart. Delivered via email after payment. No subscription. No account required. No recurring costs.
+
+**Price:** $19
+**Target:** 5-80 sales/month in Year 1
+**Revenue Goal:** $4,085 by December 2026
+
+---
+
+## What It Contains
+
+| Section | Content | Status |
+|---|---|---|
+| **Chart Wheel** | Planet positions, house cusps, aspect lines | ✅ Built in Godot |
+| **Planet Placements** | Each planet in sign and house, with short meaning | ⚠️ Needs writing |
+| **Aspect List** | All major aspects with orbs | ✅ Built in Godot |
+| **Your Saeculum** | What generation you were born into | ✅ Written (5 variants) |
+| **Your Elemental Era** | What elemental age you were born in | ✅ Written |
+| **Your Place on the Timeline** | Key historical conjunctions that shaped your generation | ✅ Written |
+| **Current Sky** | Where the planets are today, relative to your birth chart | ✅ Built in Godot |
+
+---
+
+## What Needs to Be Built
+
+### 1. Planet Placement Interpretations (120 entries)
+
+10 planets × 12 signs. Each entry: 2-3 sentences. Tone: informative, not mystical.
+
+| Planet | Signs | Example (Sun in Aries) |
+|---|---|---|
+| Sun | 12 | "You express yourself with directness and initiative. Your core identity is action-oriented — you lead, you begin, you ignite. The challenge is learning patience." |
+| Moon | 12 | Emotional nature, instinctive responses |
+| Mercury | 12 | Communication style, mental processing |
+| Venus | 12 | Love style, values, aesthetics |
+| Mars | 12 | Drive, anger, ambition |
+| Jupiter | 12 | Expansion, luck, growth areas |
+| Saturn | 12 | Discipline, challenges, life lessons |
+| Uranus | 12 | Rebellion, innovation, where you break free |
+| Neptune | 12 | Dreams, illusions, spiritual connection |
+| Pluto | 12 | Transformation, power, deep healing |
+
+**Total:** 120 entries × ~150 words = ~18,000 words. About 30 pages of content.
+
+**Priority:** Start with Sun, Moon, Mercury, Venus, Mars (50 entries). Add outer planets later.
+
+### 2. Aspect Interpretations (5 aspects × general meaning)
+
+| Aspect | Orb | Meaning |
+|---|---|---|
+| Conjunction (0°) | 8° | Fusion, intensity, combined energy |
+| Sextile (60°) | 6° | Opportunity, flow, natural talent |
+| Square (90°) | 6° | Tension, challenge, growth through friction |
+| Trine (120°) | 6° | Harmony, ease, natural gift |
+| Opposition (180°) | 6° | Polarity, balance, relationship dynamic |
+
+**Total:** 5 entries × ~100 words = ~500 words. Quick to write.
+
+### 3. PDF Delivery Pipeline
+
+```
+User → Web App → Stripe Checkout ($19) → Success URL → Generate PDF → Email via MailerLite
+```
+
+| Component | What It Does | Effort |
+|---|---|---|
+| Stripe product | One-time $19 purchase. No subscription. | 1 hour |
+| PDF generator | Takes birth data → renders chart wheel + text blocks → outputs PDF | 1-2 days |
+| MailerLite automation | Captures email → sends free saeculum report → upsells $19 report → delivers PDF | 1 day |
+| Web app CTAs | "Get your free preview report" + "Unlock the full Cosmic History Report" | 1 hour |
+
+### 4. Free Saeculum Report (Already Written — Needs Deployment)
+
+The content at `Company_OS/knowledge/free-saeculum-report-content.md` has 5 generation variants:
+
+| Generation | Birth Years | SJ Conjunction | Archetype |
+|---|---|---|---|
+| Boomer | 1940-1961 | 1940 Taurus | Prophet |
+| Gen X | 1962-1980 | 1961 Capricorn | Nomad |
+| Millennial | 1981-1996 | 1981 Libra | Hero |
+| Gen Z | 1997-2012 | 2000 Taurus | Artist |
+| Gen Alpha | 2013-2025 | 2020 Aquarius | ? |
+
+**Deployment:** MailerLite automation. Capture birth year → send correct variant. Simple.
+
+---
+
+## Revenue Projection
+
+| Month | Free Reports | $19 Sales | Revenue | Cumulative |
+|---|---|---|---|---|
+| July | 50 | 5 | $95 | $95 |
+| August | 100 | 10 | $190 | $285 |
+| September | 200 | 20 | $380 | $665 |
+| October | 400 | 40 | $760 | $1,425 |
+| November | 600 | 60 | $1,140 | $2,565 |
+| December | 800 | 80 | $1,520 | $4,085 |
+
+**Conversion rate assumption:** 1% of free report recipients buy the $19 report. Conservative.
+
+**Upside:** One podcast appearance → 50,000 visitors → 3% conversion to $19 report → $28,500 from one event.
+
+---
+
+## What the $19 Report Funds
+
+| Item | Cost | Funded By |
+|---|---|---|
+| Swiss Ephemeris license | $600-750 | ~40 $19 sales |
+| First contractor deposit | $3,000 | ~158 $19 sales |
+| Year 1 operating budget | $1,200-2,400 | ~95 $19 sales |
+
+**Total needed:** ~293 $19 sales to fund Year 1 completely. Target is 80/month by December.
+
+---
+
+## Immediate Action Items (Next 30 Days)
+
+| # | Task | Owner | Est. Time |
+|---|---|---|---|
+| 1 | Deploy free saeculum report as MailerLite automation | Ian | 2 hours |
+| 2 | Add "Get your free preview report" CTA to web app | Ian | 30 min |
+| 3 | Add "Join early access for the desktop engine" CTA | Ian | 30 min |
+| 4 | Create Stripe product for $19 cosmic report | Ian | 1 hour |
+| 5 | Write Sun, Moon, Mercury, Venus, Mars interpretations (50 entries) | Ian | 4-6 hours |
+| 6 | Write aspect interpretations (5 entries) | Ian | 1 hour |
+| 7 | Build PDF delivery pipeline | Developer | 1-2 days |
+| 8 | Connect MailerLite → Stripe → PDF delivery | Developer | 1 day |
+
+**Total Ian time:** ~9-11 hours to get the funnel live with basic content.
+
+---
+
+## The Funnel
+
+```
+Web App (free)
+    ↓
+"Get your free SkyCLAWk preview report" CTA
+    ↓
+Enter birth year + email
+    ↓
+Free saeculum report delivered via MailerLite
+    ↓
+Email sequence (1 email per generation)
+    ↓
+"Unlock the full Cosmic History Report — $19"
+    ↓
+Stripe checkout → PDF generated → delivered via email
+    ↓
+"Want to see the engine that creates these reports?"
+    ↓
+Desktop engine waitlist → $79 Phase 1 launch
+```
+
+---
+
+*Prepared by Saturn | SeaGoat Strategic Operations*
+*© 2026 Zodi-Yuga Holdings*

@@ -1,0 +1,129 @@
+.cosmic-report-page {
+  background: #0b1020;
+  color: #e8ecf4;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+}
+
+.report-nav {
+  display: flex;
+  gap: 18px;
+  margin-left: auto;
+  padding-right: 24px;
+}
+.report-nav a {
+  color: #9fb3d9;
+  text-decoration: none;
+  font-size: 13px;
+}
+.report-nav a:hover { color: #fff; }
+
+.report-landing {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.hero h1 {
+  font-size: 38px;
+  margin: 0 0 16px;
+  color: #fff;
+}
+.subtitle {
+  font-size: 17px;
+  color: #a8b8d8;
+  line-height: 1.55;
+  margin: 0 0 18px;
+}
+.price-tag {
+  display: inline-block;
+  background: #1a3a5c;
+  color: #ffd166;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.form-card {
+  background: #111a33;
+  border: 1px solid #25365a;
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 40px;
+}
+.form-card h2 {
+  margin: 0 0 20px;
+  font-size: 20px;
+  color: #fff;
+}
+.field-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.field-row label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: #9fb3d9;
+}
+.field-row input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #33476b;
+  background: #0b1020;
+  color: #fff;
+  font-size: 15px;
+}
+.primary-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.primary-btn:hover { background: #1d4ed8; }
+.primary-btn:disabled { background: #475569; cursor: not-allowed; }
+
+.status {
+  margin-top: 16px;
+  font-size: 14px;
+  min-height: 22px;
+}
+.status.error { color: #f87171; }
+.status.success { color: #4ade80; }
+
+.what-you-get h2 {
+  font-size: 22px;
+  margin: 0 0 16px;
+}
+.what-you-get ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.what-you-get li {
+  padding: 10px 0 10px 28px;
+  position: relative;
+  color: #b9c8e8;
+  border-bottom: 1px solid #1e2d4d;
+}
+.what-you-get li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #4ade80;
+  font-weight: 700;
+}

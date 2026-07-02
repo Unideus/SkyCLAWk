@@ -1,0 +1,168 @@
+{
+  "period": "1875-2025",
+  "description": "Outer planet conjunctions marking the macro-timeline for the $19 Cosmic History Report",
+  "pair_themes": {
+    "Jupiter-Saturn": "The 20-year saeculum pulse: generations, turnings, and the element shift from Earth to Air.",
+    "Uranus-Saturn": "The ~45-year rhythm of institutional breakthrough and reform: old structures crack, new systems are tested.",
+    "Uranus-Neptune": "The ~172-year cycle of mass consciousness and spiritual awakening: technology and myth merge or collide.",
+    "Neptune-Pluto": "The ~492-year deepest cycle: empire, myth, underground transformation, and the slow reshaping of collective imagination."
+  },
+  "conjunctions": [
+    {
+      "date": "1881-04-19",
+      "pair": "Jupiter-Saturn",
+      "separation_deg": 0.05,
+      "sign": "Taurus",
+      "element": "Earth",
+      "quality": "Fixed",
+      "lon1_deg": 33.36,
+      "lon2_deg": 33.31,
+      "notes": "Saeculum / Generation marker",
+      "historical_context": "Industrial expansion; gilded age; last Fire-era conjunction before Earth dominance"
+    },
+    {
+      "date": "1891-11-06",
+      "pair": "Neptune-Pluto",
+      "separation_deg": 0.0,
+      "sign": "Gemini",
+      "element": "Air",
+      "quality": "Mutable",
+      "lon1_deg": 69.82,
+      "lon2_deg": 69.82,
+      "notes": "Myth / empire / underground transformation",
+      "historical_context": "Industrial-mass-media world anchored; modern occult revival begins"
+    },
+    {
+      "date": "1897-06-01",
+      "pair": "Uranus-Saturn",
+      "separation_deg": 0.01,
+      "sign": "Scorpio",
+      "element": "Water",
+      "quality": "Fixed",
+      "lon1_deg": 237.88,
+      "lon2_deg": 237.89,
+      "notes": "Institutional breakthrough / reform",
+      "historical_context": "Progressive era reforms; trusts and labor regulation"
+    },
+    {
+      "date": "1901-11-29",
+      "pair": "Jupiter-Saturn",
+      "separation_deg": 0.03,
+      "sign": "Capricorn",
+      "element": "Earth",
+      "quality": "Cardinal",
+      "lon1_deg": 285.43,
+      "lon2_deg": 285.4,
+      "notes": "Saeculum / Generation marker",
+      "historical_context": "Turn of the century; imperial consolidation; rise of mass media"
+    },
+    {
+      "date": "1921-09-10",
+      "pair": "Jupiter-Saturn",
+      "separation_deg": 0.02,
+      "sign": "Virgo",
+      "element": "Earth",
+      "quality": "Mutable",
+      "lon1_deg": 177.65,
+      "lon2_deg": 177.66,
+      "notes": "Saeculum / Generation marker",
+      "historical_context": "Post-WWI reorder; roaring twenties; modernism"
+    },
+    {
+      "date": "1940-08-08",
+      "pair": "Jupiter-Saturn",
+      "separation_deg": 0.0,
+      "sign": "Taurus",
+      "element": "Earth",
+      "quality": "Fixed",
+      "lon1_deg": 45.28,
+      "lon2_deg": 45.28,
+      "notes": "Saeculum / Generation marker",
+      "historical_context": "WWII Crisis; Boomer Prophet archetype begins"
+    },
+    {
+      "date": "1942-05-04",
+      "pair": "Uranus-Saturn",
+      "separation_deg": 0.03,
+      "sign": "Gemini",
+      "element": "Air",
+      "quality": "Mutable",
+      "lon1_deg": 60.17,
+      "lon2_deg": 60.2,
+      "notes": "Institutional breakthrough / reform",
+      "historical_context": "WWII institutional mobilization; wartime command economy"
+    },
+    {
+      "date": "1961-02-19",
+      "pair": "Jupiter-Saturn",
+      "separation_deg": 0.0,
+      "sign": "Capricorn",
+      "element": "Earth",
+      "quality": "Cardinal",
+      "lon1_deg": 295.74,
+      "lon2_deg": 295.75,
+      "notes": "Saeculum / Generation marker",
+      "historical_context": "Post-war High peaks; Gen X Nomad archetype begins"
+    },
+    {
+      "date": "1981-01-01",
+      "pair": "Jupiter-Saturn",
+      "separation_deg": 0.0,
+      "sign": "Libra",
+      "element": "Air",
+      "quality": "Cardinal",
+      "lon1_deg": 189.78,
+      "lon2_deg": 189.77,
+      "notes": "Saeculum / Generation marker",
+      "historical_context": "Awakening/information age begins; Millennial Hero archetype begins"
+    },
+    {
+      "date": "1988-02-13",
+      "pair": "Uranus-Saturn",
+      "separation_deg": 0.0,
+      "sign": "Capricorn",
+      "element": "Earth",
+      "quality": "Cardinal",
+      "lon1_deg": 270.08,
+      "lon2_deg": 270.08,
+      "notes": "Institutional breakthrough / reform",
+      "historical_context": "End of Cold War; global internet infrastructure; Berlin Wall falls"
+    },
+    {
+      "date": "1993-10-25",
+      "pair": "Uranus-Neptune",
+      "separation_deg": 0.0,
+      "sign": "Capricorn",
+      "element": "Earth",
+      "quality": "Cardinal",
+      "lon1_deg": 288.63,
+      "lon2_deg": 288.63,
+      "notes": "Mass consciousness / spiritual awakening",
+      "historical_context": "World Wide Web; global markets; digital civilization; post-Cold War new world order"
+    },
+    {
+      "date": "2000-05-29",
+      "pair": "Jupiter-Saturn",
+      "separation_deg": 0.04,
+      "sign": "Taurus",
+      "element": "Earth",
+      "quality": "Fixed",
+      "lon1_deg": 52.8,
+      "lon2_deg": 52.76,
+      "notes": "Saeculum / Generation marker",
+      "historical_context": "Last Earth conjunction for ~800 years; Unraveling deepens; Gen Z Artist begins"
+    },
+    {
+      "date": "2020-12-22",
+      "pair": "Jupiter-Saturn",
+      "separation_deg": 0.03,
+      "sign": "Aquarius",
+      "element": "Air",
+      "quality": "Fixed",
+      "lon1_deg": 300.25,
+      "lon2_deg": 300.22,
+      "notes": "Saeculum / Generation marker",
+      "historical_context": "Element shift to Air; Crisis; Gen Alpha Prophet begins"
+    }
+  ]
+}

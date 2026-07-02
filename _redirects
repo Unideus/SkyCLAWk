@@ -25,6 +25,10 @@
 /auspicious/ /auspicious/index.html 200
 /auspicious/* /auspicious/:splat 200
 
+# Cosmic Report ($19 PDF landing page)
+/cosmic-report/ /cosmic-report/index.html 200
+/cosmic-report/* /cosmic-report/:splat 200
+
 # Swiss Ephemeris WASM + data files
 /ephe/* /ephe/:splat 200
 /auspicious/wasm/* /auspicious/wasm/:splat 200

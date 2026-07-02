@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Cosmic History Report — Zodiyuga</title>
+  <link rel="icon" href="../timelinetitle.webp" type="image/webp">
+  <link rel="stylesheet" href="../css/timeline.css">
+  <link rel="stylesheet" href="cosmic-report.css">
+</head>
+<body class="cosmic-report-page">
+  <div id="topMenu">
+    <div id="menuTitle">
+      <img alt="Zodiyuga" src="../timelinetitle.webp" class="menuLogo" draggable="false"/>
+    </div>
+    <nav class="report-nav">
+      <a href="/generational/">Generational Timeline</a>
+      <a href="/personal/">Personal Timeline</a>
+      <a href="/planting/">Planting</a>
+    </nav>
+  </div>
+
+  <main class="report-landing">
+    <section class="hero">
+      <h1>Your Cosmic History Report</h1>
+      <p class="subtitle">A 20-page personalized PDF showing where your natal chart sits inside generational, elemental, and long-wave civilizational cycles.</p>
+      <div class="price-tag">$19 — delivered instantly</div>
+    </section>
+
+    <section class="form-card">
+      <h2>Enter your birth details</h2>
+      <form id="reportForm">
+        <div class="field-row">
+          <label>
+            Name
+            <input type="text" id="name" name="name" placeholder="First Last" required/>
+          </label>
+        </div>
+        <div class="field-row">
+          <label>
+            Birth Date
+            <input type="date" id="birthDate" name="birthDate" required/>
+          </label>
+          <label>
+            Birth Time
+            <input type="time" id="birthTime" name="birthTime" value="12:00" step="60" required/>
+          </label>
+        </div>
+        <div class="field-row">
+          <label>
+            Birth Location
+            <input type="text" id="location" name="location" placeholder="City, State/Country" required/>
+          </label>
+        </div>
+        <div class="field-row">
+          <label>
+            Latitude
+            <input type="number" id="lat" name="lat" step="0.01" placeholder="e.g. 30.22" required/>
+          </label>
+          <label>
+            Longitude
+            <input type="number" id="lon" name="lon" step="0.01" placeholder="e.g. -81.68" required/>
+          </label>
+        </div>
+        <div class="field-row">
+          <label>
+            Timezone offset (hours from UTC)
+            <input type="number" id="tzOffset" name="tzOffset" step="0.5" placeholder="e.g. -4" required/>
+          </label>
+        </div>
+        <button type="submit" id="generateBtn" class="primary-btn">Generate & Download Sample PDF</button>
+      </form>
+      <div id="status" class="status"></div>
+    </section>
+
+    <section class="what-you-get">
+      <h2>What you receive</h2>
+      <ul>
+        <li>Custom cover page with your birth data</li>
+        <li>Full natal chart wheel (Whole Sign houses)</li>
+        <li>Cosmic Snapshot dashboard: Sun, Moon, Rising, generation, elemental era, yuga position</li>
+        <li>10+ page narrative: saeculum, Saturn-Jupiter timeline, elemental shift, yuga wave, life phases</li>
+        <li>Appendix with glossary, planet placements, major aspects, and house engine</li>
+      </ul>
+    </section>
+  </main>
+
+  <script type="module" src="cosmic-report.js"></script>
+</body>
+</html>

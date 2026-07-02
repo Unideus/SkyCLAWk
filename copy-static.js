@@ -109,6 +109,19 @@ if (existsSync(wheelSrc)) {
     console.log('Copied: wheel scripts and CSS')
 }
 
+// Copy cosmic-report standalone page assets (non-module scripts/CSS)
+const cosmicSrc = resolve(root, 'cosmic-report')
+const cosmicDst = resolve(dist, 'cosmic-report')
+if (existsSync(cosmicSrc)) {
+    mkdirSync(cosmicDst, { recursive: true })
+    for (const f of ['cosmic-report.js', 'cosmic-report.css']) {
+        const src = resolve(cosmicSrc, f)
+        const dst = resolve(cosmicDst, f)
+        if (existsSync(src)) cpSync(src, dst)
+    }
+    console.log('Copied: cosmic-report scripts and CSS')
+}
+
 // Copy auspicious WASM + public assets
 const ausPublicSrc = resolve(root, 'auspicious/public')
 const ausPublicDst = resolve(dist, 'auspicious')
