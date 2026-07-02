@@ -1619,11 +1619,11 @@ def main():
     parser.add_argument("--location", default="NAS Jacksonville, Florida")
     parser.add_argument("--name", default="", help="Recipient name on cover")
     parser.add_argument("--output", default="cosmic_history_report.pdf")
-    parser.add_argument("--tz", default="EDT", choices=["EST","EDT","CST","CDT","MST","MDT","PST","PDT","HST","AKST","COT"])
+    parser.add_argument("--tz", default="EDT", choices=["EST","EDT","CST","CDT","MST","MDT","PST","PDT","HST","AKST","COT","IST","GMT","UTC"])
     parser.add_argument("--lang", default="en", choices=["en","es"], help="Output language")
     args = parser.parse_args()
 
-    tz_offsets = {"EST":5,"EDT":4,"CST":6,"CDT":5,"MST":7,"MDT":6,"PST":8,"PDT":7,"AKST":9,"HST":10,"COT":5}
+    tz_offsets = {"EST":5,"EDT":4,"CST":6,"CDT":5,"MST":7,"MDT":6,"PST":8,"PDT":7,"AKST":9,"HST":10,"COT":5,"IST":1,"GMT":0,"UTC":0}
     tz_offset = tz_offsets[args.tz]
 
     months_en = ['January','February','March','April','May','June','July','August','September','October','November','December']
