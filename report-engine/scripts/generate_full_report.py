@@ -417,22 +417,7 @@ ES = {
     "ascendant": "Ascendant", "midheaven": "Midheaven",
     "aspects_title": "Strongest Major Aspects by Orb",
     "th_planets": "Planets", "th_aspect": "Aspect", "th_orb": "Orb",
-    "houses_title": "The Zodiyuga SkyClock House Engine",
-    "houses_intro": "The twelve houses are the structural compartments of the natal chart — each one a systemic arena where planetary energy is routed and conditioned. This appendix maps the architectural function of each house in the Zodiyuga SkyClock framework.",
-    "houses": [
-        ("House 1 — The Helm & Structural Interface", "Life Domain: The Localized Complexion; the physical engine and primary interface through which the natal wave meets the world.", "This sector governs unmediated action, baseline vitality, and the orientation of the self-system. Planets filtering through the 1st House condition the native's primary operational stance and establish the visible baseline of their life path."),
-        ("House 2 — Resource Velocity & Sustenance Protocol", "Life Domain: Asset Allocation; the material assets, physical security mechanics, and personal liquid infrastructure.", "This sector governs survival metrics, revenue mechanics, and the acquisition of capital or physical tools. It dictates how energy is consolidated, values are quantified, and material stability is generated to support the structural engine of the 1st House."),
-        ("House 3 — Localized Networks & Infrastructure", "Life Domain: Immediate Exchange; local logistics, short-range data routing, and immediate communication protocols.", "This sector governs technical processing, early educational conditioning, siblings, and localized transport infrastructure. It maps how the native gathers, translates, and formats immediate data streams before scaling them into macro frameworks."),
-        ("House 4 — The Private Matrix & Bedrock Foundation", "Life Domain: The Subterranean Root; ancestral anchors, private security baselines, and domestic physical architecture.", "Grounding at the bottom of the chart, this sector dictates the private foundation, home life, and early parental landscape. It represents the quiet, interior laboratory where the native comports with history and builds the deep emotional reserves required to sustain external public pressure."),
-        ("House 5 — Generative Projection & Creative Output", "Life Domain: Creative Risk; expressive fluidity, speculative ventures, and individual vital output.", "This sector governs children, creative authorship, pleasure dynamics, and tactical speculation. It represents the specific arena where raw individual intelligence projects itself outward to leave a distinct, non-standardized mark on the environment."),
-        ("House 6 — Systematic Operation & Functional Protocol", "Life Domain: Maintenance Mechanics; daily labor, somatic conditioning, and functional optimization.", "This sector governs the unglamorous, iterative processing loops required to keep a system functional - day-to-day work, physical health protocols, routines, and service tasks. It maps where the native manages friction, handles service roles, and refines mechanical skills."),
-        ("House 7 — Relational Equilibrium & The External Interface", "Life Domain: The Relational Intersect; contractual partnerships, serious alliances, and open mirrors.", "Situated directly opposite the Ascendant, this sector maps the primary arena of the Other. It governs the strategic negotiations, legal boundaries, and interpersonal dynamics that challenge individual autonomy and force systemic balance."),
-        ("House 8 — Systemic Processing & Structural Composting", "Life Domain: Shared Resource Dynamics; institutional entanglements, shared liabilities, and transformational crisis.", "This sector manages complex financial systems, legacies, taxes, and deep psychological or physical transformations. It acts as the system's recycling plant - where old forms are chemically or financially decomposed to clear space for systemic upgrades."),
-        ("House 9 — Civilizational Paradigms & Higher Architecture", "Life Domain: Macro Expansion; epistemological frameworks, higher learning, law, and long-range exploration.", "This sector handles the structural code of civilization - legal systems, universities, philosophies, and global travel infrastructure. Planets here dictate how the native interacts with abstract mental models, synthesizes macro data, and conceptualizes worldviews."),
-        ("House 10 — The Midheaven Apex & Public Sovereignty", "Life Domain: Public Architecture; professional trajectory, social status, and executive authority.", "The highest point of visible authority in the system. This sector governs professional reputation, leadership responsibilities, and visible legacy. It reveals how the native assumes a sovereign role within institutional hierarchies or public systems."),
-        ("House 11 — Distributed Networks & Systemic Alliances", "Life Domain: Collective Protocols; alliance tracking, peer groups, ideological networks, and collaborative structures.", "This sector governs social movements, business associations, and distributed horizontal networks. It maps how the native coordinates with like-minded collectives to build alternative infrastructure and prospective civilizational agendas."),
-        ("House 12 — The Institutional Vault & Invisible Currents", "Life Domain: Unconscious Processing; systemic blind spots, institutional containment, and foundational isolation.", "The back-stage processing space. This sector handles matters hidden from public view - prisons, hospitals, deep subconscious patterns, and karmic or ancestral currents. It represents the final frontier of the cycle where individual identity dissolves back into the collective sea."),
-    ],
+        "houses": [],
     "footer1": "Generated by Zodiyuga SkyClock using the Swiss Ephemeris (DE440) | zodiyuga.com",
     "footer2": "This report is calibrated strictly for educational, structural, and research integration.",
     "page_of": "Page {n} of {total}",
@@ -445,6 +430,7 @@ ES_PLANET_NAMES = {
     "Sun": "Sol", "Moon": "Luna", "Mercury": "Mercurio", "Venus": "Venus",
     "Mars": "Marte", "Jupiter": "Júpiter", "Saturn": "Saturno",
     "Uranus": "Urano", "Neptune": "Neptuno", "Pluto": "Plutón",
+    "N.Node": "N.Nodo",
 }
 ES_ASPECT_MEANINGS = {
     "Conjunction": "Fusión, intensidad, energía combinada",
@@ -1172,7 +1158,7 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
         p_qual = ES_QUALITIES.get(p['quality'], p['quality']) if lang == "es" else p['quality']
         h_num = planet_houses.get(p['name'], '')
         h_label = f"Casa {h_num}" if lang == "es" else f"House {h_num}"
-        interp = p.get('interpretation', '')
+        interp = p.get('interpretation', '') if lang != 'es' else ''
         planet_rows += f"""
         <tr>
             <td style="font-size:14px;text-align:center;" class="astroglyph">{p['glyph']}</td>
@@ -1211,11 +1197,13 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     for p1, p2, d, name, orb, target, meaning, glyph in aspects[:10]:
         p1_name = ES_PLANET_NAMES.get(p1['name'], p1['name']) if lang == "es" else p1['name']
         p2_name = ES_PLANET_NAMES.get(p2['name'], p2['name']) if lang == "es" else p2['name']
+        asp_name_es = {"Conjunction":"Conjunción","Sextile":"Sextil","Square":"Cuadratura","Trine":"Trígono","Opposition":"Oposición"}.get(name, name)
+        asp_name = asp_name_es if lang == "es" else name
         asp_meaning = ES_ASPECT_MEANINGS.get(name, meaning) if lang == "es" else meaning
         aspect_rows += f"""
         <tr>
             <td style="font-size:16px;text-align:center;" class="astroglyph">{p1['glyph']} {glyph} {p2['glyph']}</td>
-            <td>{p1_name} {name} {p2_name}</td>
+            <td>{p1_name} {asp_name} {p2_name}</td>
             <td>{orb:.1f}°</td>
             <td>{asp_meaning}</td>
         </tr>"""
@@ -1373,6 +1361,37 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
 </div>
 """
 
+    # ── Language-specific houses HTML ──
+    english_houses = [
+        ("House 1 — The Helm & Structural Interface", "Life Domain: The Localized Complexion; the physical engine and primary interface through which the natal wave meets the world.", "This sector governs unmediated action, baseline vitality, and the orientation of the self-system. Planets filtering through the 1st House condition the native's primary operational stance and establish the visible baseline of their life path."),
+        ("House 2 — Resource Velocity & Sustenance Protocol", "Life Domain: Asset Allocation; the material assets, physical security mechanics, and personal liquid infrastructure.", "This sector governs survival metrics, revenue mechanics, and the acquisition of capital or physical tools. It dictates how energy is consolidated, values are quantified, and material stability is generated to support the structural engine of the 1st House."),
+        ("House 3 — Localized Networks & Infrastructure", "Life Domain: Immediate Exchange; local logistics, short-range data routing, and immediate communication protocols.", "This sector governs technical processing, early educational conditioning, siblings, and localized transport infrastructure. It maps how the native gathers, translates, and formats immediate data streams before scaling them into macro frameworks."),
+        ("House 4 — The Private Matrix & Bedrock Foundation", "Life Domain: The Subterranean Root; ancestral anchors, private security baselines, and domestic physical architecture.", "Grounding at the bottom of the chart, this sector dictates the private foundation, home life, and early parental landscape. It represents the quiet, interior laboratory where the native comports with history and builds the deep emotional reserves required to sustain external public pressure."),
+        ("House 5 — Generative Projection & Creative Output", "Life Domain: Creative Risk; expressive fluidity, speculative ventures, and individual vital output.", "This sector governs children, creative authorship, pleasure dynamics, and tactical speculation. It represents the specific arena where raw individual intelligence projects itself outward to leave a distinct, non-standardized mark on the environment."),
+        ("House 6 — Systematic Operation & Functional Protocol", "Life Domain: Maintenance Mechanics; daily labor, somatic conditioning, and functional optimization.", "This sector governs the unglamorous, iterative processing loops required to keep a system functional - day-to-day work, physical health protocols, routines, and service tasks. It maps where the native manages friction, handles service roles, and refines mechanical skills."),
+        ("House 7 — Relational Equilibrium & The External Interface", "Life Domain: The Relational Intersect; contractual partnerships, serious alliances, and open mirrors.", "Situated directly opposite the Ascendant, this sector maps the primary arena of the Other. It governs the strategic negotiations, legal boundaries, and interpersonal dynamics that challenge individual autonomy and force systemic balance."),
+        ("House 8 — Systemic Processing & Structural Composting", "Life Domain: Shared Resource Dynamics; institutional entanglements, shared liabilities, and transformational crisis.", "This sector manages complex financial systems, legacies, taxes, and deep psychological or physical transformations. It acts as the system's recycling plant - where old forms are chemically or financially decomposed to clear space for systemic upgrades."),
+        ("House 9 — Civilizational Paradigms & Higher Architecture", "Life Domain: Macro Expansion; epistemological frameworks, higher learning, law, and long-range exploration.", "This sector handles the structural code of civilization - legal systems, universities, philosophies, and global travel infrastructure. Planets here dictate how the native interacts with abstract mental models, synthesizes macro data, and conceptualizes worldviews."),
+        ("House 10 — The Midheaven Apex & Public Sovereignty", "Life Domain: Public Architecture; professional trajectory, social status, and executive authority.", "The highest point of visible authority in the system. This sector governs professional reputation, leadership responsibilities, and visible legacy. It reveals how the native assumes a sovereign role within institutional hierarchies or public systems."),
+        ("House 11 — Distributed Networks & Systemic Alliances", "Life Domain: Collective Protocols; alliance tracking, peer groups, ideological networks, and collaborative structures.", "This sector governs social movements, business associations, and distributed horizontal networks. It maps how the native coordinates with like-minded collectives to build alternative infrastructure and prospective civilizational agendas."),
+        ("House 12 — The Institutional Vault & Invisible Currents", "Life Domain: Unconscious Processing; systemic blind spots, institutional containment, and foundational isolation.", "The back-stage processing space. This sector handles matters hidden from public view - prisons, hospitals, deep subconscious patterns, and karmic or ancestral currents. It represents the final frontier of the cycle where individual identity dissolves back into the collective sea."),
+    ]
+    spanish_houses = [
+        ("Casa I — El Timón y la Interfaz Estructural", "Dominio Vital: El Cutis Localizado; el motor físico y la interfaz primaria a través de la cual la onda natal encuentra el mundo.", "Este sector rige la acción inmediata, la vitalidad basal y la orientación del sistema del yo. Los planetas que filtran a través de la Casa I condicionan la postura operativa primaria del nativo y establecen la línea de base visible de su sendero vital."),
+        ("Casa II — Velocidad de Recursos y Protocolo de Sustento", "Dominio Vital: Asignación de Activos; los activos materiales, las mecánicas de seguridad física y la infraestructura líquida personal.", "Este sector rige las métricas de supervivencia, las mecánicas de ingreso y la adquisición de capital o herramientas físicas. Dicta cómo se consolida la energía, se cuantifican los valores y se genera estabilidad material para sostener el motor estructural de la Casa I."),
+        ("Casa III — Redes Localizadas e Infraestructura", "Dominio Vital: Intercambio Inmediato; la logística local, el enrutamiento de datos de corto alcance y los protocolos de comunicación inmediata.", "Este sector rige el procesamiento técnico, el condicionamiento educativo temprano, los hermanos y la infraestructura de transporte localizado. Mapea cómo el nativo recopila, traduce y formatea flujos de datos inmediatos antes de escalarlos a marcos macro."),
+        ("Casa IV — La Matriz Privada y el Cimiento Basal", "Dominio Vital: La Raíz Subterránea; anclajes ancestrales, líneas de base de seguridad privada y la arquitectura física doméstica.", "Arraigado en el fondo de la carta, este sector dicta la base privada, la vida hogareña y el paisaje parental temprano. Representa el laboratorio interior y silencioso donde el nativo se comporta con la historia y construye las reservas emocionales profundas requeridas para sostener la presión pública externa."),
+        ("Casa V — Proyección Generativa y Producción Creativa", "Dominio Vital: Riesgo Creativo; fluidez expresiva, empresas especulativas y la producción vital individual.", "Este sector rige los hijos, la autoría creativa, las dinámicas de placer y la especulación táctica. Representa la arena específica donde la inteligencia individual cruda se proyecta hacia afuera para dejar una marca distintiva y no estandarizada en el entorno."),
+        ("Casa VI — Operación Sistemática y Protocolo Funcional", "Dominio Vital: Mecánicas de Mantenimiento; el trabajo diario, el condicionamiento somático y la optimización funcional.", "Este sector rige los circuitos iterativos poco glamorosos requeridos para mantener un sistema funcional: trabajo cotidiano, protocolos de salud física, rutinas y tareas de servicio. Mapea dónde el nativo gestiona la fricción, desempeña roles de servicio y refina habilidades mecánicas."),
+        ("Casa VII — Equilibrio Relacional y la Interfaz Externa", "Dominio Vital: La Intersección Relacional; asociaciones contractuales, alianzas serias y espejos abiertos.", "Situado directamente opuesto al Ascendente, este sector mapea la arena primaria del Otro. Rige las negociaciones estratégicas, los límites legales y las dinámicas interpersonales que desafían la autonomía individual y fuerzan el equilibrio sistémico."),
+        ("Casa VIII — Procesamiento Sistemático y Compostaje Estructural", "Dominio Vital: Dinámicas de Recursos Compartidos; enredos institucionales, pasivos compartidos y crisis transformacionales.", "Este sector gestiona sistemas financieros complejos, legados, impuestos y transformaciones psicológicas o físicas profundas. Actúa como la planta de reciclaje del sistema, donde las formas viejas se descomponen química o financieramente para limpiar espacio para actualizaciones sistémicas."),
+        ("Casa IX — Paradigmas Civilizacionales y Arquitectura Superior", "Dominio Vital: Expansión Macro; marcos epistemológicos, aprendizaje superior, ley y exploración de largo alcance.", "Este sector maneja el código estructural de la civilización: sistemas legales, universidades, filosofías e infraestructura de viajes globales. Los planetas aquí dictan cómo el nativo interactúa con modelos mentales abstractos, sintetiza datos macro y conceptualiza cosmovisiones."),
+        ("Casa X — El Apice del Medio Cielo y la Soberanía Pública", "Dominio Vital: Arquitectura Pública; trayectoria profesional, estatus social y autoridad ejecutiva.", "El punto más alto de autoridad visible en el sistema. Este sector rige la reputación profesional, las responsabilidades de liderazgo y el legado visible. Revela cómo el nativo asume un rol soberano dentro de jerarquías institucionales o sistemas públicos."),
+        ("Casa XI — Redes Distribuidas y Alianzas Sistémicas", "Dominio Vital: Protocolos Colectivos; seguimiento de alianzas, grupos de pares, redes ideológicas y estructuras colaborativas.", "Este sector rige movimientos sociales, asociaciones comerciales y redes horizontales distribuidas. Mapea cómo el nativo se coordina con colectivos afines para construir infraestructura alternativa y agendas civilizacionales prospectivas."),
+        ("Casa XII — La Bóveda Institucional y las Corrientes Invisibles", "Dominio Vital: Procesamiento Inconsciente; puntos ciegos sistémicos, contención institucional y aislamiento fundamental.", "El espacio de procesamiento entre bastidores. Este sector maneja asuntos ocultos a la vista pública: prisiones, hospitales, patrones subconscientes profundos y corrientes kármicas o ancestrales. Representa la frontera final del ciclo donde la identidad individual se disuelve de nuevo en el mar colectivo."),
+    ]
+    houses_html = ''.join(f'<p><strong>{t}</strong><br><em>{a}</em><br>{d}</p>' for t, a, d in (spanish_houses if lang == 'es' else english_houses))
+
     # ── Assemble HTML ──
     if lang == "es":
         html = f"""<!DOCTYPE html>
@@ -1419,8 +1438,8 @@ thead {{ display: table-header-group; }}
 {narrative_html}
 
 <!-- APPENDIX -->
-<h1 style="page-break-before:always;">{ES['appendix_title']}</h1>
-<p>{ES['appendix_intro']}</p>
+<h1 style="page-break-before:always;">12. Apéndice</h1>
+<p>El apéndice mantiene el material técnico disponible sin forzar al lector a decodificarlo antes de recibir el valor principal del informe.</p>
 
 <h2>{ES['outer_planets']}</h2>
 <p>{ES['outer_planets_intro']}</p>
@@ -1431,21 +1450,19 @@ thead {{ display: table-header-group; }}
 <h2 style="page-break-before:always;">{ES['glossary_title']}</h2>
 {''.join(f'<p><strong>{t}</strong> {d}</p>' for t, d in ES['glossary'])}
 
-{cheat_sheet}
+<h2 style="page-break-before:always;">El Motor de Casas del SkyClock Zodiyuga</h2>
+<p>Las doce casas son los compartimentos estructurales de la carta natal — cada una una arena sistémica donde la energía planetaria es enrutada y condicionada. Este apéndice mapea la función arquitectónica de cada casa en el marco Zodiyuga SkyClock.</p>
+{houses_html}
 
-<h2 style="page-break-before:always;">{ES['houses_title']}</h2>
-<p>{ES['houses_intro']}</p>
-{''.join(f'<p><strong>{t}</strong><br><em>{a}</em><br>{d}</p>' for t, a, d in ES['houses'])}
-
-<h2 style="page-break-before:always;">{ES['planet_placements']}</h2>
+<h2 style="page-break-before:always;">Posiciones Planetarias</h2>
 <table>
-<tr><th></th><th>{ES['th_planet']}</th><th>{ES['th_position']}</th><th>{ES['th_house']}</th><th>{ES['th_element']}</th><th>{ES['th_quality']}</th></tr>
+<tr><th></th><th>Planeta</th><th>Posición</th><th>Casa</th><th>Elemento</th><th>Cualidad</th></tr>
 {planet_rows}
 </table>
 
-<h2 style="page-break-before:always;">{ES['aspects_title']}</h2>
+<h2 style="page-break-before:always;">Aspectos Mayores Más Fuertes por Orbe</h2>
 <table>
-<tr><th>{ES['th_planets']}</th><th>{ES['th_aspect']}</th><th>{ES['th_orb']}</th><th>{ES['th_meaning']}</th></tr>
+<tr><th>Planetas</th><th>Aspecto</th><th>Orbe</th><th>{ES['th_meaning']}</th></tr>
 {aspect_rows}
 </table>
 
@@ -1549,7 +1566,7 @@ thead {{ display: table-header-group; }}
 
 <h2 style="page-break-before:always;">The Zodiyuga SkyClock House Engine</h2>
 <p>The twelve houses are the structural compartments of the natal chart — each one a systemic arena where planetary energy is routed and conditioned. This appendix maps the architectural function of each house in the Zodiyuga SkyClock framework.</p>
-{''.join(f'<p><strong>{t}</strong><br><em>{a}</em><br>{d}</p>' for t, a, d in ES['houses'])}
+{houses_html}
 
 <h2 style="page-break-before:always;">Planet Placements</h2>
 <table>
