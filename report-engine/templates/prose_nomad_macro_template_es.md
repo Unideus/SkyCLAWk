@@ -1,5 +1,7 @@
 1. Su Clima Cósmico
 
+[CORE_SYNTHESIS]
+
 2. Resumen Ejecutivo
 Este informe comienza con el clima colectivo de su nacimiento, luego se estrecha hacia su firma natal personal. Ese orden importa. Una carta natal no flota en un espacio vacío; nace dentro de una estación histórica, una época elemental y una onda civilizacional más larga.
 
