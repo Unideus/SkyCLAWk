@@ -64,26 +64,26 @@ The **unique hook**: "Your birth chart reveals mineral deficiencies. Your permac
 |---|---|---|
 | Cosmic History Report only | $19 | Existing product |
 | Permaculture Plan only | $29 | Standalone purchase |
-| **Bundle: Report + Plan** | **$39** | **$9 discount vs. separate purchase** |
-| Bundle vs. report alone | $20 more | "Add a permaculture plan to your report for $20" |
+| **Bundle: Report + Plan** | **$33.50** | **50% off plan as add-on ($14.50 instead of $29)** |
+| Bundle vs. report alone | $14.50 more | "Add a permaculture plan to your report for $14.50 (50% off)" |
 
 ### Rationale
 
-- The bundle discount ($9 off) incentivizes the upsell without degrading the $19 report's price floor.
-- $39 bundle is still impulse-territory for a personalized PDF product.
+- 50% off the plan as a bundle add-on is a strong, clean discount that's easy to market and understand.
+- $33.50 bundle is impulse territory; the $14.50 add-on framing is the primary conversion driver.
 - The permaculture plan has higher perceived value than the report (actionable, property-specific, multi-year) — $29 standalone is defensible.
-- "Add for $20" framing at checkout is the primary conversion driver.
+- Protects the $19 report price floor and the $29 standalone plan price.
 
 ### Revenue projection
 
 | Scenario | Monthly volume | Avg revenue/sale | Monthly revenue |
 |---|---|---|---|
 | Report only (current target) | 80 | $19 | $1,520 |
-| 20% attach rate at $20 add-on | 80 reports + 16 plans | $19 + $20×0.2 | $1,840 |
-| 40% attach rate at $20 add-on | 80 reports + 32 plans | $19 + $20×0.4 | $2,160 |
-| Bundle at $39, 30% uptake | 56×$19 + 24×$39 | blended $25.30 | $2,024 |
+| 20% attach rate at $14.50 add-on | 80 reports + 16 plans | $19 + $14.50×0.2 | $1,792 |
+| 40% attach rate at $14.50 add-on | 80 reports + 32 plans | $19 + $14.50×0.4 | $2,064 |
+| Bundle at $33.50, 30% uptake | 56×$19 + 24×$33.50 | blended $23.70 | $1,896 |
 
-Even a modest 20% attach rate adds ~21% to monthly revenue at no additional customer acquisition cost.
+Even a modest 20% attach rate adds ~18% to monthly revenue at no additional customer acquisition cost.
 
 ---
 
@@ -178,8 +178,8 @@ Web App (free)
 Free saeculum report
     ↓
 $19 Cosmic History Report
-    ↓  ← NEW: "Add a permaculture plan for $20"
-$39 Bundle (report + plan)
+    ↓  ← NEW: "Add a permaculture plan for $14.50 (50% off)"
+$33.50 Bundle (report + plan)
     ↓
 Email: both PDFs
     ↓
