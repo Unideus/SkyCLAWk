@@ -173,6 +173,18 @@
       gap: 12px;
     }
 
+    .inline-control-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 112px;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .inline-control-row .field input[type="number"] {
+      padding: 10px 10px;
+      min-height: 42px;
+    }
+
     .wave-box {
       margin-top: 10px;
       background: rgba(8, 11, 18, 0.88);
@@ -379,7 +391,13 @@
           <h2 class="section-title">Audio and Waveform</h2>
           <div class="audio-stack">
             <div class="button-row">
-              <button id="toneToggle" class="toggle">Tone: Off</button>
+              <div class="inline-control-row" style="width:100%;">
+                <button id="toneToggle" class="toggle">Tone: Off</button>
+                <div class="field">
+                  <label for="volumeInput">Volume</label>
+                  <input id="volumeInput" type="number" min="0" max="1" step="0.01" value="0.15">
+                </div>
+              </div>
             </div>
             <div class="wave-box">
               <canvas id="waveCanvas" width="236" height="86"></canvas>
@@ -399,19 +417,15 @@
         </div>
         <div class="control-row">
           <div class="field">
-            <label for="volumeInput">Volume</label>
-            <input id="volumeInput" type="number" min="0" max="1" step="0.01" value="0.15">
-          </div>
-          <div class="field">
             <label for="centsInput">Cents</label>
             <input id="centsInput" type="number" min="-50" max="50" step="1" value="0">
           </div>
-        </div>
-        <div class="control-row" style="margin-top: 12px;">
           <div class="field">
             <label for="harmonicsInput">Harmonics</label>
             <input id="harmonicsInput" type="number" min="0" max="1" step="0.05" value="0">
           </div>
+        </div>
+        <div class="control-row" style="margin-top: 12px;">
           <div class="field">
             <label>Color</label>
             <div id="colorSwatch" class="swatch"></div>
@@ -1045,7 +1059,9 @@
       dom.freqSliderValue.textContent = currentHz.toFixed(1);
       dom.noteDisplay.textContent = note.fullName + centsLabel;
       dom.wavelengthDisplay.textContent = corr.wavelengthNm.toFixed(0) + " nm";
-      dom.modeDisplay.textContent = animatedMode ? animatedMode.label :
+      dom.modeDisplay.textContent = animatedMode
+        ? animatedMode.label + " · " + currentHz.toFixed(2) + " Hz"
+        :
         (plateShape === "square"
           ? "Square: n=" + corr.squareModes.n.toFixed(1) + ", m=" + corr.squareModes.m.toFixed(1)
           : "Round: order=" + corr.roundModes.order + ", k=" + corr.roundModes.k.toFixed(3));
