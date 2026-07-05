@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cymatic Correspondence Lab</title>
+  <script>p5.disableFriendlyErrors = true;</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/addons/p5.sound.min.js"></script>
+  <style>
+    :root {
+      --bg: #05060a;
+      --panel: rgba(11, 15, 24, 0.92);
+      --panel-border: rgba(173, 142, 94, 0.28);
+      --plate-edge: rgba(176, 147, 98, 0.55);
+      --muted: rgba(164, 173, 190, 0.7);
+      --text: #edf1fb;
+      --gold: #d8b56a;
+      --gold-soft: rgba(216, 181, 106, 0.18);
+      --active: #8dd1ff;
+      --active-soft: rgba(141, 209, 255, 0.2);
+      --good: #90d59a;
+      --button: rgba(24, 30, 42, 0.92);
+      --button-hover: rgba(32, 40, 58, 0.96);
+      --field: rgba(15, 21, 31, 0.96);
+      --shadow: rgba(0, 0, 0, 0.38);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(44, 71, 104, 0.22), transparent 28%),
+        radial-gradient(circle at 84% 16%, rgba(96, 66, 28, 0.18), transparent 26%),
+        linear-gradient(180deg, #06070b 0%, #090d16 100%);
+      color: var(--text);
+      font-family: "Trebuchet MS", "Gill Sans", sans-serif;
+      overflow: hidden;
+    }
+
+    #app {
+      position: relative;
+      min-height: 100vh;
+    }
+
+    #app > canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw !important;
+      height: 100vh !important;
+      display: block;
+      z-index: 1;
+    }
+
+    #panel {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      bottom: 24px;
+      width: min(620px, calc(100vw - 48px));
+      padding: 20px 20px 18px;
+      border: 1px solid var(--panel-border);
+      border-radius: 24px;
+      background: var(--panel);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 18px 50px var(--shadow);
+      overflow: auto;
+      z-index: 20;
+    }
+
+    #panel::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    #panel::-webkit-scrollbar-thumb {
+      background: rgba(173, 142, 94, 0.24);
+      border-radius: 999px;
+    }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      font-size: 11px;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: rgba(216, 181, 106, 0.82);
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: clamp(22px, 2vw, 28px);
+      line-height: 1.05;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+      color: #f4e5c0;
+    }
+
+    .subhead {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 250px;
+      gap: 18px;
+      align-items: start;
+      margin-bottom: 16px;
+    }
+
+    .readout-card,
+    .audio-card,
+    .section-card {
+      padding: 16px;
+      background: rgba(13, 18, 27, 0.88);
+      border: 1px solid rgba(173, 142, 94, 0.16);
+      border-radius: 18px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    }
+
+    .hz-display {
+      font-size: clamp(26px, 2.8vw, 34px);
+      line-height: 1;
+      font-weight: 700;
+      margin: 0 0 8px;
+      color: #f4f6fc;
+    }
+
+    .note-display {
+      margin: 0 0 10px;
+      font-size: 22px;
+      color: #dbe6ff;
+    }
+
+    .microcopy {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .detail-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+      font-size: 14px;
+    }
+
+    .detail {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .detail span:first-child {
+      color: rgba(178, 188, 205, 0.76);
+    }
+
+    .detail strong {
+      text-align: right;
+      font-weight: 600;
+      color: #eef3ff;
+    }
+
+    .audio-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .wave-box {
+      margin-top: 10px;
+      background: rgba(8, 11, 18, 0.88);
+      border-radius: 14px;
+      border: 1px solid rgba(173, 142, 94, 0.12);
+      padding: 8px;
+    }
+
+    #waveCanvas {
+      width: 100%;
+      height: 86px;
+      display: block;
+      border-radius: 10px;
+      background: #080b12;
+    }
+
+    .section-title {
+      margin: 0 0 10px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: rgba(216, 181, 106, 0.72);
+    }
+
+    .slider-block {
+      margin-bottom: 16px;
+    }
+
+    .slider-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .slider-top label {
+      font-size: 14px;
+      color: #eef3ff;
+    }
+
+    .slider-top .value {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #c8a662;
+      cursor: pointer;
+    }
+
+    .control-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 12px;
+      color: rgba(178, 188, 205, 0.84);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .field input[type="number"] {
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(173, 142, 94, 0.18);
+      background: var(--field);
+      color: #eef3ff;
+      font: inherit;
+    }
+
+    .field input[type="number"]:focus,
+    .toggle:focus,
+    .chip:focus {
+      outline: 2px solid rgba(141, 209, 255, 0.35);
+      outline-offset: 1px;
+    }
+
+    .button-row,
+    .chip-grid,
+    .planet-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .toggle,
+    .chip {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(173, 142, 94, 0.18);
+      background: var(--button);
+      color: #edf1fb;
+      font: inherit;
+      cursor: pointer;
+      transition: background 120ms ease, border-color 120ms ease, transform 120ms ease, color 120ms ease;
+    }
+
+    .toggle:hover,
+    .chip:hover {
+      background: var(--button-hover);
+      border-color: rgba(216, 181, 106, 0.34);
+      transform: translateY(-1px);
+    }
+
+    .toggle.active,
+    .chip.active {
+      background: linear-gradient(180deg, rgba(34, 54, 78, 0.98), rgba(24, 39, 58, 0.98));
+      border-color: rgba(141, 209, 255, 0.45);
+      color: #ebf7ff;
+      box-shadow: inset 0 0 0 1px rgba(141, 209, 255, 0.08);
+    }
+
+    .toggle.good {
+      border-color: rgba(144, 213, 154, 0.22);
+    }
+
+    .toggle.good.active {
+      background: linear-gradient(180deg, rgba(38, 66, 43, 0.98), rgba(28, 50, 33, 0.98));
+      border-color: rgba(144, 213, 154, 0.42);
+    }
+
+    .planet-grid .chip {
+      min-width: 90px;
+    }
+
+    .swatch-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 78px;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .swatch {
+      height: 54px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      background: linear-gradient(135deg, #fff, #ccc);
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: rgba(178, 188, 205, 0.68);
+    }
+
+    @media (max-width: 1180px) {
+      body {
+        overflow: auto;
+      }
+
+      #panel {
+        position: relative;
+        top: auto;
+        right: auto;
+        bottom: auto;
+        width: auto;
+        margin: 20px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .top-grid,
+      .control-row,
+      .swatch-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside id="panel">
+      <p class="eyebrow">Visible Sound Explorer</p>
+      <h1>Cymatic Correspondence Lab</h1>
+      <p class="subhead">Square and round plate explorer with tone, note, waveform, color, sacred geometry, solfeggio, and planetary presets.</p>
+
+      <div class="top-grid">
+        <section class="readout-card">
+          <div id="freqDisplay" class="hz-display">528.00 Hz</div>
+          <p id="noteDisplay" class="note-display">C5</p>
+          <p class="microcopy">Mode and color correspondence update live as frequency changes.</p>
+          <div class="detail-list">
+            <div class="detail"><span>Wavelength</span><strong id="wavelengthDisplay">568 nm</strong></div>
+            <div class="detail"><span>Mode</span><strong id="modeDisplay">Square: n=3.0, m=5.0</strong></div>
+            <div class="detail"><span>Solfeggio</span><strong id="solfeggioDisplay">Transformation / DNA Repair</strong></div>
+            <div class="detail"><span>Reference</span><strong id="referenceDisplay">A4 = 432 Hz</strong></div>
+          </div>
+        </section>
+
+        <section class="audio-card">
+          <h2 class="section-title">Audio and Waveform</h2>
+          <div class="audio-stack">
+            <div class="button-row">
+              <button id="toneToggle" class="toggle">Tone: Off</button>
+            </div>
+            <div class="wave-box">
+              <canvas id="waveCanvas" width="236" height="86"></canvas>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="section-card">
+        <h2 class="section-title">Frequency</h2>
+        <div class="slider-block">
+          <div class="slider-top">
+            <label for="freqSlider">Frequency (Hz)</label>
+            <span id="freqSliderValue" class="value">528.0</span>
+          </div>
+          <input id="freqSlider" type="range" min="20" max="2000" step="0.1" value="528">
+        </div>
+        <div class="control-row">
+          <div class="field">
+            <label for="volumeInput">Volume</label>
+            <input id="volumeInput" type="number" min="0" max="1" step="0.01" value="0.15">
+          </div>
+          <div class="field">
+            <label for="centsInput">Cents</label>
+            <input id="centsInput" type="number" min="-50" max="50" step="1" value="0">
+          </div>
+        </div>
+        <div class="control-row" style="margin-top: 12px;">
+          <div class="field">
+            <label for="harmonicsInput">Harmonics</label>
+            <input id="harmonicsInput" type="number" min="0" max="1" step="0.05" value="0">
+          </div>
+          <div class="field">
+            <label>Color</label>
+            <div id="colorSwatch" class="swatch"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2 class="section-title">Plate and Reference</h2>
+        <div class="button-row">
+          <button id="plateToggle" class="toggle active">Square Plate</button>
+          <button id="referenceToggle" class="toggle">A4 = 432 Hz</button>
+          <button id="cycleToggle" class="toggle">Cycle Modes: Off</button>
+        </div>
+        <p class="footer-note">Mode cycling mirrors the Godot lab: square plate cycles through integer Chladni pairs, round plate cycles through Bessel-root families.</p>
+      </section>
+
+      <section class="section-card">
+        <h2 class="section-title">Solfeggio Presets</h2>
+        <div id="solfeggioButtons" class="chip-grid"></div>
+      </section>
+
+      <section class="section-card">
+        <h2 class="section-title">Sacred Geometry Overlay</h2>
+        <div class="slider-block">
+          <div class="slider-top">
+            <label for="geometryScaleSlider">Geometry Scale</label>
+            <span id="geometryScaleValue" class="value">1.00x</span>
+          </div>
+          <input id="geometryScaleSlider" type="range" min="0.3" max="2.5" step="0.01" value="1">
+        </div>
+        <div id="geometryButtons" class="chip-grid"></div>
+      </section>
+
+      <section class="section-card">
+        <h2 class="section-title">Planetary Frequencies</h2>
+        <div id="planetButtons" class="planet-grid"></div>
+      </section>
+    </aside>
+  </div>
+
+  <script>
+    const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    const SOLFEGGIO = {
+      396: "Liberating Guilt/Fear",
+      417: "Undoing Situations / Facilitating Change",
+      528: "Transformation / DNA Repair",
+      639: "Connecting / Relationships",
+      741: "Expression / Solutions",
+      852: "Awakening Intuition",
+      963: "Nervous System / Higher Energy"
+    };
+    const PLANETARY_FREQ = {
+      Sun: 122.41,
+      Moon: 113.72,
+      Mercury: 141.18,
+      Venus: 110.65,
+      Earth: 136.10,
+      Mars: 144.71,
+      Jupiter: 183.61,
+      Saturn: 147.83,
+      Uranus: 103.68,
+      Neptune: 105.71,
+      Pluto: 140.49
+    };
+    const BESSEL_ZEROS = {
+      0: [2.405, 5.520, 8.654, 11.792, 14.931, 18.071, 21.212, 24.353, 27.494, 30.635],
+      1: [3.832, 7.016, 10.173, 13.324, 16.471, 19.616, 22.760, 25.904, 29.047, 32.190],
+      2: [5.136, 8.417, 11.620, 14.796, 17.960, 21.117, 24.270, 27.421, 30.571, 33.716],
+      3: [6.380, 9.761, 13.015, 16.223, 19.409, 22.583, 25.748, 28.908, 32.065, 35.219],
+      4: [7.588, 10.711, 13.846, 16.966, 20.078, 23.182, 26.281, 29.376, 32.467, 35.556],
+      5: [8.771, 11.841, 14.918, 17.982, 21.040, 24.093, 27.142, 30.188, 33.231, 36.273]
+    };
+    const GEOMETRY_MODES = [
+      { id: "none", label: "Overlay Off" },
+      { id: "flower", label: "Flower of Life" },
+      { id: "vesica", label: "Vesica Piscis" },
+      { id: "metatron", label: "Metatron" }
+    ];
+
+    let currentHz = 528.0;
+    let plateShape = "square";
+    let referencePitch = 432.0;
+    let animating = false;
+    let animModeIdx = 0;
+    let animTimer = 0.0;
+    let geometryMode = "none";
+    let geometryScale = 1.0;
+    let selectedPlanet = "";
+    let centsOffset = 0.0;
+    let harmonics = 0.0;
+    let volume = 0.15;
+    let toneOn = false;
+    let plateBounds = { x: 24, y: 24, size: 560 };
+    let panelRect = { left: window.innerWidth - 640, top: 24 };
+    let squareCycleModes = [];
+    let wavePhase = 0.0;
+    let waveformCtx = null;
+    let waveformCanvas = null;
+    let oscillators = [];
+    let harmonicOscillators = [];
+
+    const dom = {};
+
+    function buildSquareCycleModes() {
+      squareCycleModes = [];
+      for (let n = 1; n < 8; n += 1) {
+        for (let m = 1; m < 8; m += 1) {
+          if (n < m) {
+            squareCycleModes.push([n, m]);
+          }
+        }
+      }
+    }
+
+    function frequencyToNote(hz) {
+      const midiFloat = 69 + 12 * Math.log2(hz / referencePitch);
+      const midiRounded = Math.round(midiFloat);
+      const cents = (midiFloat - midiRounded) * 100;
+      let noteIdx = midiRounded % 12;
+      if (noteIdx < 0) {
+        noteIdx += 12;
+      }
+      const octave = Math.floor(midiRounded / 12) - 1;
+      return {
+        noteName: NOTE_NAMES[noteIdx],
+        octave,
+        midiNote: midiRounded,
+        centsOffset: cents,
+        fullName: NOTE_NAMES[noteIdx] + octave
+      };
+    }
+
+    function smoothstep(edge0, edge1, x) {
+      const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+      return t * t * (3 - 2 * t);
+    }
+
+    function frequencyToWavelengthNm(hz) {
+      if (hz <= 0) {
+        return 700.0;
+      }
+      let f = hz;
+      while (f < 430e12) {
+        f *= 2.0;
+      }
+      return 3e17 / f;
+    }
+
+    function wavelengthToColor(nm) {
+      let value = nm;
+      if (value < 380.0) {
+        value = 380.0 + (380.0 - value);
+      }
+      if (value > 780.0) {
+        value = 780.0 - (value - 780.0);
+      }
+      value = constrain(value, 380.0, 780.0);
+      let r = 0.0;
+      let g = 0.0;
+      let b = 0.0;
+
+      if (value >= 380.0 && value < 440.0) {
+        r = -(value - 440.0) / (440.0 - 380.0);
+        b = 1.0;
+      } else if (value >= 440.0 && value < 490.0) {
+        g = (value - 440.0) / (490.0 - 440.0);
+        b = 1.0;
+      } else if (value >= 490.0 && value < 510.0) {
+        g = 1.0;
+        b = -(value - 510.0) / (510.0 - 490.0);
+      } else if (value >= 510.0 && value < 580.0) {
+        r = (value - 510.0) / (580.0 - 510.0);
+        g = 1.0;
+      } else if (value >= 580.0 && value < 645.0) {
+        r = 1.0;
+        g = -(value - 645.0) / (645.0 - 580.0);
+      } else if (value >= 645.0 && value <= 780.0) {
+        r = 1.0;
+      }
+
+      let intensity = 1.0;
+      if (value >= 380.0 && value < 420.0) {
+        intensity = 0.3 + 0.7 * (value - 380.0) / (420.0 - 380.0);
+      } else if (value >= 700.0 && value <= 780.0) {
+        intensity = 0.3 + 0.7 * (780.0 - value) / (780.0 - 700.0);
+      }
+
+      r = Math.pow(r * intensity, 0.8);
+      g = Math.pow(g * intensity, 0.8);
+      b = Math.pow(b * intensity, 0.8);
+
+      return {
+        r: constrain(r, 0, 1),
+        g: constrain(g, 0, 1),
+        b: constrain(b, 0, 1)
+      };
+    }
+
+    function frequencyToSquareModes(hz) {
+      let normalized = (Math.log(Math.max(hz, 1.0)) - Math.log(20.0)) / (Math.log(2000.0) - Math.log(20.0));
+      normalized = constrain(normalized, 0.0, 1.0);
+      const maxComplexity = 8.0;
+      const targetComplexity = Math.sqrt(2.0) + normalized * (maxComplexity - Math.sqrt(2.0));
+      let bestN = 1;
+      let bestM = 1;
+      let bestDist = 999.0;
+      let nextN = 1;
+      let nextM = 1;
+      let nextDist = 999.0;
+
+      for (let n = 1; n < 8; n += 1) {
+        for (let m = 1; m < 8; m += 1) {
+          if (n >= m) {
+            continue;
+          }
+          const complexity = Math.sqrt(n * n + m * m);
+          const dist = Math.abs(complexity - targetComplexity);
+          if (dist < bestDist) {
+            nextDist = bestDist;
+            nextN = bestN;
+            nextM = bestM;
+            bestDist = dist;
+            bestN = n;
+            bestM = m;
+          } else if (dist < nextDist) {
+            nextDist = dist;
+            nextN = n;
+            nextM = m;
+          }
+        }
+      }
+
+      let blend = 0.0;
+      if (bestDist > 0.001) {
+        blend = bestDist / (bestDist + nextDist);
+      }
+      blend = smoothstep(0.3, 0.7, blend);
+      return {
+        n: lerp(bestN, nextN, blend),
+        m: lerp(bestM, nextM, blend)
+      };
+    }
+
+    function frequencyToRoundModes(hz) {
+      let normalized = (Math.log(Math.max(hz, 1.0)) - Math.log(20.0)) / (Math.log(2000.0) - Math.log(20.0));
+      normalized = constrain(normalized, 0.0, 1.0);
+      const targetOrder = normalized * 4.0;
+      const orderLo = constrain(Math.floor(targetOrder), 0, 3);
+      const orderHi = orderLo + 1;
+      const orderFrac = targetOrder - orderLo;
+      const zeroIdx = Math.floor(orderFrac * 4.0) % 4;
+      const zerosLo = BESSEL_ZEROS[orderLo] || BESSEL_ZEROS[0];
+      const zerosHi = BESSEL_ZEROS[orderHi] || BESSEL_ZEROS[0];
+      const kLo = zerosLo[zeroIdx];
+      const kHi = zerosHi[zeroIdx];
+      const blend = smoothstep(0.3, 0.7, orderFrac - Math.floor(orderFrac * 4.0) / 4.0);
+      const order = blend < 0.5 ? orderLo : orderHi;
+      return {
+        order,
+        k: lerp(kLo, kHi, blend)
+      };
+    }
+
+    function getCorrespondence(hz) {
+      const note = frequencyToNote(hz);
+      const wavelength = frequencyToWavelengthNm(hz);
+      const color = wavelengthToColor(wavelength);
+      const squareModes = frequencyToSquareModes(hz);
+      const roundModes = frequencyToRoundModes(hz);
+      let solfeggioName = "";
+      Object.keys(SOLFEGGIO).forEach((key) => {
+        if (!solfeggioName && Math.abs(hz - Number(key)) < 0.5) {
+          solfeggioName = SOLFEGGIO[key];
+        }
+      });
+      return {
+        frequencyHz: hz,
+        note,
+        wavelengthNm: wavelength,
+        color,
+        squareModes,
+        roundModes,
+        solfeggioName,
+        referencePitch
+      };
+    }
+
+    function besselJ0(x) {
+      const ax = Math.abs(x);
+      if (ax < 8.0) {
+        const y = x * x;
+        const ans1 = 57568490574.0 + y * (-13362590354.0 + y * (651619640.7
+          + y * (-11214424.18 + y * (77392.33017 + y * (-184.9052456)))));
+        const ans2 = 57568490411.0 + y * (1029532985.0 + y * (9494680.718
+          + y * (59272.64853 + y * (267.8532712 + y))));
+        return ans1 / ans2;
+      }
+      const z = 8.0 / ax;
+      const y = z * z;
+      const xx = ax - 0.785398164;
+      const ans1 = 1.0 + y * (-0.1098628627e-2 + y * (0.2734510407e-4
+        + y * (-0.2073370639e-5 + y * 0.2093887211e-6)));
+      const ans2 = -0.1562499995e-1 + y * (0.1430488765e-3
+        + y * (-0.6911147651e-5 + y * (0.7621095161e-6 - y * 0.934935152e-7)));
+      return Math.sqrt(0.636619772 / ax) * (Math.cos(xx) * ans1 - z * Math.sin(xx) * ans2);
+    }
+
+    function besselJ1(x) {
+      const ax = Math.abs(x);
+      if (ax < 8.0) {
+        const y = x * x;
+        const ans1 = x * (72362614232.0 + y * (-7895059235.0 + y * (242396853.1
+          + y * (-2972611.439 + y * (15704.48260 + y * (-30.16036606))))));
+        const ans2 = 144725228442.0 + y * (2300535178.0 + y * (18583304.74
+          + y * (99447.43394 + y * (376.9991397 + y))));
+        return ans1 / ans2;
+      }
+      const z = 8.0 / ax;
+      const y = z * z;
+      const xx = ax - 2.356194491;
+      const ans1 = 1.0 + y * (0.183105e-2 + y * (-0.3516396496e-4
+        + y * (0.2457520174e-5 + y * (-0.240337019e-6))));
+      const ans2 = 0.04687499995 + y * (-0.2002690873e-3
+        + y * (0.8449239092e-5 + y * (-0.88228987e-6 + y * 0.105787412e-6)));
+      return Math.sqrt(0.636619772 / ax) * (Math.cos(xx) * ans1 - z * Math.sin(xx) * ans2) * Math.sign(x || 1);
+    }
+
+    function besselJn(n, x) {
+      if (n === 0) {
+        return besselJ0(x);
+      }
+      if (n === 1) {
+        return besselJ1(x);
+      }
+      if (Math.abs(x) < 0.001) {
+        return 0.0;
+      }
+      let j0 = besselJ0(x);
+      let j1 = besselJ1(x);
+      let jn = 0.0;
+      for (let i = 2; i <= n; i += 1) {
+        jn = (2.0 * (i - 1) / Math.max(x, 0.0001)) * j1 - j0;
+        j0 = j1;
+        j1 = jn;
+      }
+      return jn;
+    }
+
+    function getAnimatedMode(corr) {
+      if (!animating) {
+        return null;
+      }
+      if (plateShape === "round") {
+        const order = Math.floor(animModeIdx / 4);
+        const zeroIdx = animModeIdx % 4;
+        const zeros = BESSEL_ZEROS[order] || [2.405];
+        return {
+          kind: "round",
+          order,
+          k: zeros[Math.min(zeroIdx, zeros.length - 1)],
+          label: "Round: order=" + order + ", k=" + zeros[Math.min(zeroIdx, zeros.length - 1)].toFixed(3) + " (cycling)"
+        };
+      }
+      const idx = animModeIdx % squareCycleModes.length;
+      const pair = squareCycleModes[idx];
+      return {
+        kind: "square",
+        n: pair[0],
+        m: pair[1],
+        label: "Square: n=" + pair[0] + ", m=" + pair[1] + " (cycling)"
+      };
+    }
+
+    function colorStyle(colorObj, alpha = 1.0) {
+      return "rgba(" +
+        Math.round(colorObj.r * 255) + "," +
+        Math.round(colorObj.g * 255) + "," +
+        Math.round(colorObj.b * 255) + "," +
+        alpha + ")";
+    }
+
+    function renderSquarePlate(bounds, corr, overrideMode) {
+      const size = bounds.size;
+      const x0 = bounds.x;
+      const y0 = bounds.y;
+      const mode = overrideMode && overrideMode.kind === "square" ? overrideMode : { n: corr.squareModes.n, m: corr.squareModes.m };
+      const cell = Math.max(2, Math.floor(size / 300));
+      const colorObj = corr.color;
+      const sandColor = {
+        r: Math.max(0.62, colorObj.r * 0.7 + 0.25),
+        g: Math.max(0.55, colorObj.g * 0.65 + 0.22),
+        b: Math.max(0.48, colorObj.b * 0.55 + 0.18)
+      };
+      const lineWidth = 0.055;
+
+      noStroke();
+      fill(0, 0, 0, 48);
+      rect(x0 + 8, y0 + 8, size, size, 18);
+      fill(9, 12, 20, 240);
+      rect(x0, y0, size, size, 18);
+
+      for (let i = 0; i <= size; i += cell) {
+        for (let j = 0; j <= size; j += cell) {
+          const u = i / size;
+          const v = j / size;
+          const xx = (u - 0.5) * 2.0;
+          const yy = (v - 0.5) * 2.0;
+          const z = Math.cos(mode.n * Math.PI * xx) * Math.cos(mode.m * Math.PI * yy) -
+            Math.cos(mode.m * Math.PI * xx) * Math.cos(mode.n * Math.PI * yy);
+          const absZ = Math.abs(z);
+          const sand = 1.0 - smoothstep(0.0, lineWidth, absZ);
+          if (sand > 0.02) {
+            const glow = 1.0 - smoothstep(0.0, lineWidth * 4.0, absZ);
+            const alpha = 50 + sand * 160 + glow * 20;
+            fill(
+              sandColor.r * 255 + glow * 18,
+              sandColor.g * 255 + glow * 10,
+              sandColor.b * 255 + glow * 5,
+              alpha
+            );
+            rect(x0 + i, y0 + j, cell + 0.6, cell + 0.6);
+          }
+        }
+      }
+
+      noFill();
+      stroke(156, 130, 82, 160);
+      strokeWeight(2);
+      rect(x0, y0, size, size, 18);
+      stroke(201, 173, 117, 26);
+      rect(x0 + 4, y0 + 4, size - 8, size - 8, 14);
+    }
+
+    function renderRoundPlate(bounds, corr, overrideMode) {
+      const size = bounds.size;
+      const x0 = bounds.x;
+      const y0 = bounds.y;
+      const mode = overrideMode && overrideMode.kind === "round" ? overrideMode : { order: corr.roundModes.order, k: corr.roundModes.k };
+      const cell = Math.max(2, Math.floor(size / 320));
+      const colorObj = corr.color;
+      const sandColor = {
+        r: Math.max(0.62, colorObj.r * 0.7 + 0.25),
+        g: Math.max(0.55, colorObj.g * 0.65 + 0.22),
+        b: Math.max(0.48, colorObj.b * 0.55 + 0.18)
+      };
+      const centerX = x0 + size / 2;
+      const centerY = y0 + size / 2;
+      const radius = size / 2;
+      const lineWidth = 0.05;
+
+      noStroke();
+      fill(0, 0, 0, 48);
+      circle(centerX + 8, centerY + 8, size);
+      fill(9, 12, 20, 240);
+      circle(centerX, centerY, size);
+
+      for (let i = 0; i <= size; i += cell) {
+        for (let j = 0; j <= size; j += cell) {
+          const px = x0 + i;
+          const py = y0 + j;
+          const xx = (px - centerX) / radius;
+          const yy = (py - centerY) / radius;
+          const r = Math.sqrt(xx * xx + yy * yy);
+          if (r > 1.0) {
+            continue;
+          }
+          const theta = Math.atan2(yy, xx);
+          const z = besselJn(mode.order, mode.k * r) * Math.cos(mode.order * theta);
+          const absZ = Math.abs(z);
+          const sand = 1.0 - smoothstep(0.0, lineWidth, absZ);
+          if (sand > 0.02) {
+            const glow = 1.0 - smoothstep(0.0, lineWidth * 4.0, absZ);
+            const alpha = 50 + sand * 160 + glow * 20;
+            fill(
+              sandColor.r * 255 + glow * 18,
+              sandColor.g * 255 + glow * 10,
+              sandColor.b * 255 + glow * 5,
+              alpha
+            );
+            rect(px, py, cell + 0.6, cell + 0.6);
+          }
+        }
+      }
+
+      noFill();
+      stroke(156, 130, 82, 160);
+      strokeWeight(2);
+      circle(centerX, centerY, size);
+      stroke(201, 173, 117, 26);
+      circle(centerX, centerY, size - 8);
+    }
+
+    function drawOverlay(bounds) {
+      if (geometryMode === "none") {
+        return;
+      }
+      push();
+      translate(bounds.x + bounds.size * 0.5, bounds.y + bounds.size * 0.5);
+      scale(geometryScale);
+      translate(-bounds.size * 0.5, -bounds.size * 0.5);
+      stroke(216, 181, 106, 92);
+      strokeWeight(1.4);
+      noFill();
+      if (geometryMode === "flower") {
+        drawFlowerOfLife(bounds.size);
+      } else if (geometryMode === "vesica") {
+        drawVesica(bounds.size);
+      } else if (geometryMode === "metatron") {
+        drawMetatron(bounds.size);
+      }
+      pop();
+    }
+
+    function drawFlowerOfLife(size) {
+      const cx = size * 0.5;
+      const cy = size * 0.5;
+      const r = size * 0.075;
+      circle(cx, cy, r * 2);
+      for (let i = 0; i < 6; i += 1) {
+        const a = i * TWO_PI / 6;
+        circle(cx + Math.cos(a) * r, cy + Math.sin(a) * r, r * 2);
+      }
+      const d2 = r * Math.sqrt(3);
+      for (let i = 0; i < 6; i += 1) {
+        const a = i * TWO_PI / 6 + Math.PI / 6;
+        circle(cx + Math.cos(a) * d2, cy + Math.sin(a) * d2, r * 2);
+      }
+      for (let i = 0; i < 6; i += 1) {
+        const a = i * TWO_PI / 6;
+        circle(cx + Math.cos(a) * 2 * r, cy + Math.sin(a) * 2 * r, r * 2);
+      }
+      circle(cx, cy, r * 6);
+    }
+
+    function drawVesica(size) {
+      const cx = size * 0.5;
+      const cy = size * 0.5;
+      const r = size * 0.2;
+      const sep = r;
+      circle(cx - sep * 0.5, cy, r * 2);
+      circle(cx + sep * 0.5, cy, r * 2);
+      circle(cx, cy, r * 3);
+    }
+
+    function drawMetatron(size) {
+      const cx = size * 0.5;
+      const cy = size * 0.5;
+      const r = size * 0.06;
+      const centers = [{ x: cx, y: cy }];
+      for (let i = 0; i < 6; i += 1) {
+        const a = i * TWO_PI / 6;
+        centers.push({ x: cx + Math.cos(a) * 2 * r, y: cy + Math.sin(a) * 2 * r });
+      }
+      for (let i = 0; i < 6; i += 1) {
+        const a = i * TWO_PI / 6 + Math.PI / 6;
+        centers.push({ x: cx + Math.cos(a) * 4 * r, y: cy + Math.sin(a) * 4 * r });
+      }
+      centers.forEach((point) => {
+        circle(point.x, point.y, r * 2);
+      });
+      for (let i = 0; i < centers.length; i += 1) {
+        for (let j = i + 1; j < centers.length; j += 1) {
+          line(centers[i].x, centers[i].y, centers[j].x, centers[j].y);
+        }
+      }
+    }
+
+    function updatePanelLayout() {
+      const panel = document.getElementById("panel");
+      const rect = panel.getBoundingClientRect();
+      panelRect = rect;
+      const mobile = window.innerWidth <= 1180;
+      const margin = mobile ? 20 : 24;
+      const verticalOffset = mobile ? rect.bottom + 18 : margin;
+      const availableWidth = mobile ? window.innerWidth - margin * 2 : rect.left - margin * 2;
+      const availableHeight = mobile ? Math.max(260, window.innerHeight - verticalOffset - margin) : window.innerHeight - margin * 2;
+      const size = Math.max(260, Math.min(availableWidth, availableHeight));
+      plateBounds = {
+        x: margin,
+        y: verticalOffset,
+        size
+      };
+    }
+
+    function resizeWaveformCanvas() {
+      if (!waveformCanvas) {
+        return;
+      }
+      const width = Math.max(180, Math.floor(waveformCanvas.clientWidth * window.devicePixelRatio));
+      const height = Math.max(72, Math.floor(waveformCanvas.clientHeight * window.devicePixelRatio));
+      waveformCanvas.width = width;
+      waveformCanvas.height = height;
+    }
+
+    function updateControlStates() {
+      dom.plateToggle.textContent = plateShape === "square" ? "Square Plate" : "Round Plate";
+      dom.plateToggle.classList.toggle("active", plateShape === "square");
+      dom.referenceToggle.textContent = referencePitch === 432 ? "A4 = 432 Hz" : "A4 = 440 Hz";
+      dom.referenceToggle.classList.toggle("active", referencePitch === 440);
+      dom.cycleToggle.textContent = "Cycle Modes: " + (animating ? "On" : "Off");
+      dom.cycleToggle.classList.toggle("active", animating);
+      dom.toneToggle.textContent = "Tone: " + (toneOn ? "On" : "Off");
+      dom.toneToggle.classList.toggle("active", toneOn);
+      dom.toneToggle.classList.toggle("good", toneOn);
+    }
+
+    function updatePresetHighlights() {
+      document.querySelectorAll("[data-solfeggio]").forEach((button) => {
+        const value = Number(button.dataset.solfeggio);
+        button.classList.toggle("active", Math.abs(currentHz - value) < 0.5);
+      });
+      document.querySelectorAll("[data-geometry]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.geometry === geometryMode);
+      });
+      document.querySelectorAll("[data-planet]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.planet === selectedPlanet);
+      });
+    }
+
+    function updateReadouts() {
+      const corr = getCorrespondence(currentHz);
+      const animatedMode = getAnimatedMode(corr);
+      const note = corr.note;
+      let centsLabel = "";
+      if (Math.abs(note.centsOffset) > 0.5) {
+        centsLabel = " (" + (note.centsOffset >= 0 ? "+" : "") + note.centsOffset.toFixed(1) + "c)";
+      }
+
+      dom.freqDisplay.textContent = currentHz.toFixed(2) + " Hz";
+      dom.freqSliderValue.textContent = currentHz.toFixed(1);
+      dom.noteDisplay.textContent = note.fullName + centsLabel;
+      dom.wavelengthDisplay.textContent = corr.wavelengthNm.toFixed(0) + " nm";
+      dom.modeDisplay.textContent = animatedMode ? animatedMode.label :
+        (plateShape === "square"
+          ? "Square: n=" + corr.squareModes.n.toFixed(1) + ", m=" + corr.squareModes.m.toFixed(1)
+          : "Round: order=" + corr.roundModes.order + ", k=" + corr.roundModes.k.toFixed(3));
+      dom.solfeggioDisplay.textContent = corr.solfeggioName || "-";
+      dom.referenceDisplay.textContent = "A4 = " + referencePitch.toFixed(0) + " Hz";
+      dom.colorSwatch.style.background = "linear-gradient(135deg, " + colorStyle(corr.color, 1) + ", rgba(255,255,255,0.16))";
+      dom.geometryScaleValue.textContent = geometryScale.toFixed(2) + "x";
+      updatePresetHighlights();
+      updateControlStates();
+    }
+
+    function setFrequency(hz, preservePlanet = false) {
+      currentHz = constrain(Number(hz), 20, 2000);
+      dom.freqSlider.value = currentHz;
+      if (!preservePlanet) {
+        selectedPlanet = "";
+      }
+      updateReadouts();
+      updateAudioState();
+    }
+
+    function togglePlateShape() {
+      plateShape = plateShape === "square" ? "round" : "square";
+      updateReadouts();
+    }
+
+    function toggleReferencePitch() {
+      referencePitch = referencePitch === 432 ? 440 : 432;
+      updateReadouts();
+    }
+
+    function toggleModeCycle() {
+      animating = !animating;
+      if (animating) {
+        animModeIdx = 0;
+        animTimer = 0;
+      }
+      updateReadouts();
+    }
+
+    function setGeometryMode(mode) {
+      geometryMode = mode;
+      updateReadouts();
+    }
+
+    function setPlanet(name) {
+      selectedPlanet = name;
+      setFrequency(PLANETARY_FREQ[name], true);
+      updateReadouts();
+    }
+
+    function getToneFrequency() {
+      return currentHz * Math.pow(2, centsOffset / 1200.0);
+    }
+
+    function createToneBank() {
+      oscillators = [new p5.Oscillator("sine")];
+      for (let h = 2; h <= 8; h += 1) {
+        harmonicOscillators.push(new p5.Oscillator("sine"));
+      }
+      oscillators.concat(harmonicOscillators).forEach((oscillator) => {
+        oscillator.amp(0, 0.01);
+        oscillator.start();
+      });
+    }
+
+    function stopToneBank() {
+      oscillators.concat(harmonicOscillators).forEach((oscillator) => {
+        try {
+          oscillator.stop();
+          oscillator.dispose();
+        } catch (error) {
+          console.warn(error);
+        }
+      });
+      oscillators = [];
+      harmonicOscillators = [];
+    }
+
+    function updateAudioState() {
+      if (!toneOn) {
+        return;
+      }
+      const baseHz = getToneFrequency();
+      if (!oscillators.length) {
+        return;
+      }
+      oscillators[0].freq(baseHz);
+      const baseAmp = volume * (1.0 - 0.35 * harmonics);
+      oscillators[0].amp(baseAmp, 0.05);
+      harmonicOscillators.forEach((oscillator, index) => {
+        const harmonicNumber = index + 2;
+        oscillator.freq(baseHz * harmonicNumber);
+        const harmonicAmp = volume * harmonics * 0.28 / harmonicNumber;
+        oscillator.amp(harmonicAmp, 0.05);
+      });
+    }
+
+    function toggleTone() {
+      if (toneOn) {
+        toneOn = false;
+        stopToneBank();
+        updateControlStates();
+        return;
+      }
+      userStartAudio();
+      if (!oscillators.length) {
+        createToneBank();
+      }
+      toneOn = true;
+      updateAudioState();
+      updateControlStates();
+    }
+
+    function drawWaveform(deltaSeconds) {
+      if (!waveformCtx || !waveformCanvas) {
+        return;
+      }
+      wavePhase += deltaSeconds * 3.0;
+      const ctx = waveformCtx;
+      const w = waveformCanvas.width;
+      const h = waveformCanvas.height;
+      const mid = h * 0.5;
+      const amp = mid * constrain(volume * 4.0, 0.1, 0.85);
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#080b12";
+      ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = "rgba(76, 86, 103, 0.85)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, mid);
+      ctx.lineTo(w, mid);
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(31, 38, 53, 0.9)";
+      for (let i = 1; i < 4; i += 1) {
+        const gx = w * i / 4;
+        ctx.beginPath();
+        ctx.moveTo(gx, 4);
+        ctx.lineTo(gx, h - 4);
+        ctx.stroke();
+      }
+      [mid - amp, mid + amp].forEach((yy) => {
+        ctx.beginPath();
+        ctx.moveTo(0, yy);
+        ctx.lineTo(w, yy);
+        ctx.stroke();
+      });
+
+      let norm = (Math.log(Math.max(currentHz, 1.0)) - Math.log(20.0)) / (Math.log(2000.0) - Math.log(20.0));
+      norm = constrain(norm, 0.0, 1.0);
+      const cycles = 1.5 + norm * 10.5;
+
+      ctx.strokeStyle = "rgba(118, 204, 255, 0.95)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < w; i += 1) {
+        const t = i / (w - 1);
+        const y = mid + Math.sin(t * TWO_PI * cycles + wavePhase) * amp;
+        if (i === 0) {
+          ctx.moveTo(i, y);
+        } else {
+          ctx.lineTo(i, y);
+        }
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(146, 157, 176, 0.92)";
+      ctx.font = "11px Trebuchet MS";
+      ctx.fillText("Amp", 6, 13);
+      ctx.fillText("0", 6, h - 6);
+      const hzText = currentHz.toFixed(1) + " Hz";
+      const hzWidth = ctx.measureText(hzText).width;
+      ctx.fillText(hzText, w - hzWidth - 6, h - 6);
+      const ampText = volume.toFixed(2);
+      const ampWidth = ctx.measureText(ampText).width;
+      ctx.fillText(ampText, w - ampWidth - 6, 13);
+    }
+
+    function buildButtonSet(container, entries, dataName, onClick) {
+      entries.forEach((entry) => {
+        const button = document.createElement("button");
+        button.className = "chip";
+        button.textContent = entry.label;
+        button.dataset[dataName] = entry.id;
+        button.addEventListener("click", () => onClick(entry.id));
+        container.appendChild(button);
+      });
+    }
+
+    function buildPlanetButtons() {
+      Object.keys(PLANETARY_FREQ).forEach((planet) => {
+        const button = document.createElement("button");
+        button.className = "chip";
+        button.textContent = planet;
+        button.dataset.planet = planet;
+        button.addEventListener("click", () => setPlanet(planet));
+        dom.planetButtons.appendChild(button);
+      });
+    }
+
+    function buildSolfeggioButtons() {
+      Object.keys(SOLFEGGIO).forEach((key) => {
+        const button = document.createElement("button");
+        button.className = "chip";
+        button.textContent = key;
+        button.dataset.solfeggio = key;
+        button.addEventListener("click", () => setFrequency(Number(key)));
+        dom.solfeggioButtons.appendChild(button);
+      });
+    }
+
+    function setupDom() {
+      [
+        "freqDisplay",
+        "noteDisplay",
+        "wavelengthDisplay",
+        "modeDisplay",
+        "solfeggioDisplay",
+        "referenceDisplay",
+        "freqSliderValue",
+        "freqSlider",
+        "volumeInput",
+        "centsInput",
+        "harmonicsInput",
+        "colorSwatch",
+        "geometryScaleSlider",
+        "geometryScaleValue",
+        "toneToggle",
+        "plateToggle",
+        "referenceToggle",
+        "cycleToggle",
+        "solfeggioButtons",
+        "geometryButtons",
+        "planetButtons"
+      ].forEach((id) => {
+        dom[id] = document.getElementById(id);
+      });
+
+      waveformCanvas = document.getElementById("waveCanvas");
+      waveformCtx = waveformCanvas.getContext("2d");
+      resizeWaveformCanvas();
+
+      dom.freqSlider.addEventListener("input", (event) => setFrequency(event.target.value));
+      dom.volumeInput.addEventListener("change", (event) => {
+        volume = constrain(Number(event.target.value), 0, 1);
+        dom.volumeInput.value = volume.toFixed(2);
+        updateAudioState();
+      });
+      dom.centsInput.addEventListener("change", (event) => {
+        centsOffset = constrain(Number(event.target.value), -50, 50);
+        dom.centsInput.value = centsOffset.toFixed(0);
+        updateAudioState();
+      });
+      dom.harmonicsInput.addEventListener("change", (event) => {
+        harmonics = constrain(Number(event.target.value), 0, 1);
+        dom.harmonicsInput.value = harmonics.toFixed(2).replace(/0+$/, "").replace(/\.$/, "") || "0";
+        updateAudioState();
+      });
+      dom.geometryScaleSlider.addEventListener("input", (event) => {
+        geometryScale = constrain(Number(event.target.value), 0.3, 2.5);
+        updateReadouts();
+      });
+      dom.toneToggle.addEventListener("click", toggleTone);
+      dom.plateToggle.addEventListener("click", togglePlateShape);
+      dom.referenceToggle.addEventListener("click", toggleReferencePitch);
+      dom.cycleToggle.addEventListener("click", toggleModeCycle);
+
+      buildSolfeggioButtons();
+      buildButtonSet(dom.geometryButtons, GEOMETRY_MODES, "geometry", setGeometryMode);
+      buildPlanetButtons();
+    }
+
+    function setup() {
+      const canvas = createCanvas(window.innerWidth, window.innerHeight);
+      canvas.parent("app");
+      pixelDensity(1);
+      buildSquareCycleModes();
+      setupDom();
+      updatePanelLayout();
+      updateReadouts();
+      updateControlStates();
+    }
+
+    function windowResized() {
+      resizeCanvas(window.innerWidth, window.innerHeight);
+      updatePanelLayout();
+      resizeWaveformCanvas();
+    }
+
+    function draw() {
+      const deltaSeconds = deltaTime / 1000;
+      background(6, 8, 14);
+
+      if (animating) {
+        animTimer += deltaSeconds;
+        if (animTimer >= 1.0) {
+          animTimer = 0.0;
+          animModeIdx += 1;
+          if (animModeIdx >= 20) {
+            animModeIdx = 0;
+          }
+          updateReadouts();
+        }
+      }
+
+      const corr = getCorrespondence(currentHz);
+      const overrideMode = getAnimatedMode(corr);
+
+      noStroke();
+      fill(15, 24, 38, 42);
+      ellipse(plateBounds.x + plateBounds.size * 0.32, plateBounds.y + plateBounds.size * 0.2, plateBounds.size * 0.9, plateBounds.size * 0.42);
+      fill(76, 56, 22, 18);
+      ellipse(plateBounds.x + plateBounds.size * 0.5, plateBounds.y + plateBounds.size * 0.88, plateBounds.size * 0.78, plateBounds.size * 0.18);
+
+      if (plateShape === "square") {
+        renderSquarePlate(plateBounds, corr, overrideMode);
+      } else {
+        renderRoundPlate(plateBounds, corr, overrideMode);
+      }
+      drawOverlay(plateBounds);
+
+      push();
+      noStroke();
+      fill(244, 229, 192, 230);
+      textSize(16);
+      textStyle(BOLD);
+      text("CYMATIC FIELD", plateBounds.x, plateBounds.y - 12);
+      textStyle(NORMAL);
+      fill(169, 178, 196, 160);
+      textSize(11);
+      text(plateShape === "square" ? "Square plate standing-wave map" : "Round plate Bessel-style nodal map", plateBounds.x, plateBounds.y + plateBounds.size + 18);
+      pop();
+
+      drawWaveform(deltaSeconds);
+    }
+  </script>
+</body>
+</html>
