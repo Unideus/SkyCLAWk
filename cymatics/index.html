@@ -180,9 +180,77 @@
       align-items: end;
     }
 
-    .inline-control-row .field input[type="number"] {
-      padding: 10px 10px;
-      min-height: 42px;
+    .knob-field {
+      justify-items: center;
+      align-content: start;
+      gap: 8px;
+    }
+
+    .knob-wrap {
+      display: grid;
+      justify-items: center;
+      gap: 6px;
+    }
+
+    .knob {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      border: 1px solid rgba(173, 142, 94, 0.22);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.09), transparent 28%),
+        radial-gradient(circle at 50% 50%, rgba(34, 42, 58, 0.95), rgba(12, 16, 24, 0.98));
+      box-shadow:
+        inset 0 2px 8px rgba(255, 255, 255, 0.04),
+        inset 0 -12px 24px rgba(0, 0, 0, 0.34),
+        0 6px 18px rgba(0, 0, 0, 0.25);
+      cursor: ns-resize;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .knob::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: 50%;
+      border: 1px solid rgba(216, 181, 106, 0.08);
+    }
+
+    .knob:focus {
+      outline: 2px solid rgba(141, 209, 255, 0.35);
+      outline-offset: 2px;
+    }
+
+    .knob-indicator {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 4px;
+      height: 23px;
+      margin-left: -2px;
+      margin-top: -23px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #f5d594 0%, #b8893d 100%);
+      box-shadow: 0 0 10px rgba(216, 181, 106, 0.25);
+      transform-origin: 50% 100%;
+      transform: rotate(-135deg);
+    }
+
+    .knob-cap {
+      position: absolute;
+      inset: 22px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.12), rgba(25, 30, 40, 0.95));
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      pointer-events: none;
+    }
+
+    .knob-value {
+      font-size: 11px;
+      color: rgba(238, 243, 255, 0.92);
+      letter-spacing: 0.06em;
     }
 
     .wave-box {
@@ -393,9 +461,15 @@
             <div class="button-row">
               <div class="inline-control-row" style="width:100%;">
                 <button id="toneToggle" class="toggle">Tone: Off</button>
-                <div class="field">
-                  <label for="volumeInput">Volume</label>
-                  <input id="volumeInput" type="number" min="0" max="1" step="0.01" value="0.15">
+                <div class="field knob-field">
+                  <label for="volumeKnob">Volume</label>
+                  <div class="knob-wrap">
+                    <div id="volumeKnob" class="knob" role="slider" aria-label="Volume" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0.15" tabindex="0">
+                      <div id="volumeKnobIndicator" class="knob-indicator"></div>
+                      <div class="knob-cap"></div>
+                    </div>
+                    <div id="volumeValue" class="knob-value">0.15</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -527,6 +601,7 @@
     let waveformCanvas = null;
     let oscillators = [];
     let harmonicOscillators = [];
+    let knobDrag = null;
 
     const dom = {};
 
@@ -1021,6 +1096,16 @@
       waveformCanvas.height = height;
     }
 
+    function updateVolumeKnob() {
+      if (!dom.volumeKnobIndicator) {
+        return;
+      }
+      const rotation = lerp(-135, 135, volume);
+      dom.volumeKnobIndicator.style.transform = "rotate(" + rotation.toFixed(1) + "deg)";
+      dom.volumeKnob.setAttribute("aria-valuenow", volume.toFixed(2));
+      dom.volumeValue.textContent = volume.toFixed(2);
+    }
+
     function updateControlStates() {
       dom.plateToggle.textContent = plateShape === "square" ? "Square Plate" : "Round Plate";
       dom.plateToggle.classList.toggle("active", plateShape === "square");
@@ -1031,6 +1116,7 @@
       dom.toneToggle.textContent = "Tone: " + (toneOn ? "On" : "Off");
       dom.toneToggle.classList.toggle("active", toneOn);
       dom.toneToggle.classList.toggle("good", toneOn);
+      updateVolumeKnob();
     }
 
     function updatePresetHighlights() {
@@ -1069,6 +1155,7 @@
       dom.referenceDisplay.textContent = "A4 = " + referencePitch.toFixed(0) + " Hz";
       dom.colorSwatch.style.background = "linear-gradient(135deg, " + colorStyle(corr.color, 1) + ", rgba(255,255,255,0.16))";
       dom.geometryScaleValue.textContent = geometryScale.toFixed(2) + "x";
+      updateVolumeKnob();
       updatePresetHighlights();
       updateControlStates();
     }
@@ -1174,6 +1261,56 @@
       toneOn = true;
       updateAudioState();
       updateControlStates();
+    }
+
+    function setVolume(nextVolume) {
+      volume = constrain(Number(nextVolume), 0, 1);
+      updateVolumeKnob();
+      updateAudioState();
+    }
+
+    function bindVolumeKnob() {
+      const knob = dom.volumeKnob;
+      knob.addEventListener("pointerdown", (event) => {
+        knob.setPointerCapture(event.pointerId);
+        knobDrag = { pointerId: event.pointerId, startY: event.clientY, startVolume: volume };
+      });
+      knob.addEventListener("pointermove", (event) => {
+        if (!knobDrag || knobDrag.pointerId !== event.pointerId) {
+          return;
+        }
+        const delta = (knobDrag.startY - event.clientY) / 160;
+        setVolume(knobDrag.startVolume + delta);
+      });
+      knob.addEventListener("pointerup", (event) => {
+        if (knobDrag && knobDrag.pointerId === event.pointerId) {
+          knob.releasePointerCapture(event.pointerId);
+          knobDrag = null;
+        }
+      });
+      knob.addEventListener("pointercancel", () => {
+        knobDrag = null;
+      });
+      knob.addEventListener("wheel", (event) => {
+        event.preventDefault();
+        const step = event.deltaY < 0 ? 0.02 : -0.02;
+        setVolume(volume + step);
+      }, { passive: false });
+      knob.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowUp" || event.key === "ArrowRight") {
+          event.preventDefault();
+          setVolume(volume + 0.02);
+        } else if (event.key === "ArrowDown" || event.key === "ArrowLeft") {
+          event.preventDefault();
+          setVolume(volume - 0.02);
+        } else if (event.key === "Home") {
+          event.preventDefault();
+          setVolume(0);
+        } else if (event.key === "End") {
+          event.preventDefault();
+          setVolume(1);
+        }
+      });
     }
 
     function drawWaveform(deltaSeconds) {
@@ -1283,7 +1420,9 @@
         "referenceDisplay",
         "freqSliderValue",
         "freqSlider",
-        "volumeInput",
+        "volumeKnob",
+        "volumeKnobIndicator",
+        "volumeValue",
         "centsInput",
         "harmonicsInput",
         "colorSwatch",
@@ -1303,13 +1442,9 @@
       waveformCanvas = document.getElementById("waveCanvas");
       waveformCtx = waveformCanvas.getContext("2d");
       resizeWaveformCanvas();
+      bindVolumeKnob();
 
       dom.freqSlider.addEventListener("input", (event) => setFrequency(event.target.value));
-      dom.volumeInput.addEventListener("change", (event) => {
-        volume = constrain(Number(event.target.value), 0, 1);
-        dom.volumeInput.value = volume.toFixed(2);
-        updateAudioState();
-      });
       dom.centsInput.addEventListener("change", (event) => {
         centsOffset = constrain(Number(event.target.value), -50, 50);
         dom.centsInput.value = centsOffset.toFixed(0);
