@@ -17,6 +17,7 @@ export default defineConfig({
         skyclock: resolve(__dirname, 'skyclock/index.html'),
         planting: resolve(__dirname, 'planting/index.html'),
         auspicious: resolve(__dirname, 'auspicious/index.html'),
+        cymatics: resolve(__dirname, 'cymatics/index.html'),
         wheel: resolve(__dirname, 'wheel/index.html'),
       },
     },
