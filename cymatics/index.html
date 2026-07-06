@@ -130,16 +130,201 @@
       min-height: 100%;
     }
 
-    #panel.lab-mode .music-only {
+    #panel.lab-mode .music-only,
+    #panel.lab-mode .catalog-only {
       display: none !important;
     }
 
-    #panel.music-mode .lab-only {
+    #panel.music-mode .lab-only,
+    #panel.music-mode .catalog-only {
       display: none !important;
+    }
+
+    #panel.catalog-mode .lab-only,
+    #panel.catalog-mode .music-only {
+      display: none !important;
+    }
+
+    #panel.catalog-mode {
+      left: 24px;
+      right: 24px;
+      width: auto;
+      max-width: none;
+      background: rgba(8, 11, 18, 0.97);
+    }
+
+    #panel.catalog-mode .top-grid {
+      grid-template-columns: minmax(250px, 290px) minmax(0, 1fr);
+      align-items: stretch;
+      gap: 20px;
+    }
+
+    #panel.catalog-mode .readout-card,
+    #panel.catalog-mode .audio-card {
+      min-height: 100%;
+    }
+
+    #panel.catalog-mode .readout-card,
+    #panel.catalog-mode .audio-card,
+    #panel.catalog-mode .section-card {
+      background: rgba(11, 15, 24, 0.96);
+    }
+
+    #panel.catalog-mode .audio-card {
+      padding: 18px;
+    }
+
+    #panel.catalog-mode .catalog-form-grid {
+      gap: 14px;
+    }
+
+    #panel.catalog-mode .catalog-form-grid.three-up {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #panel.catalog-mode .catalog-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    #panel.catalog-mode .catalog-item {
+      gap: 12px;
+      padding: 16px;
+    }
+
+    #panel.catalog-mode .catalog-note {
+      font-size: 13px;
+    }
+
+    #panel.catalog-mode .footer-note {
+      max-width: 78ch;
+    }
+
+    #panel.catalog-mode .provenance-intro {
+      max-width: 82ch;
     }
 
     .mode-switch-card {
       margin-bottom: 16px;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      min-width: 0;
+    }
+
+    .panel-title .eyebrow,
+    .panel-title h1,
+    .panel-title .subhead {
+      margin-right: 0;
+    }
+
+    .help-trigger {
+      flex: 0 0 auto;
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(4, 6, 10, 0.72);
+      backdrop-filter: blur(10px);
+      z-index: 40;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .help-modal {
+      width: min(820px, calc(100vw - 48px));
+      max-height: min(82vh, 920px);
+      overflow: auto;
+      padding: 20px;
+      border-radius: 22px;
+      border: 1px solid rgba(173, 142, 94, 0.24);
+      background: rgba(9, 13, 21, 0.98);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.48);
+    }
+
+    .help-modal-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .help-modal-head h2 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      color: #f4e5c0;
+      letter-spacing: 0.04em;
+    }
+
+    .help-modal-head p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.55;
+      color: rgba(178, 188, 205, 0.82);
+    }
+
+    .help-close {
+      flex: 0 0 auto;
+      min-width: 42px;
+      min-height: 42px;
+      padding: 0;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .help-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .help-item {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(173, 142, 94, 0.12);
+      background: rgba(10, 14, 22, 0.72);
+    }
+
+    .help-item strong {
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(216, 181, 106, 0.82);
+    }
+
+    .help-item p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.55;
+      color: rgba(178, 188, 205, 0.82);
     }
 
     .hz-display {
@@ -300,6 +485,16 @@
       border-color: rgba(141, 209, 255, 0.22);
     }
 
+    .prov-tag.measured {
+      background: rgba(34, 82, 58, 0.92);
+      border-color: rgba(144, 213, 154, 0.24);
+    }
+
+    .prov-tag.modeled {
+      background: rgba(35, 72, 96, 0.9);
+      border-color: rgba(141, 209, 255, 0.22);
+    }
+
     .prov-tag.correspondence {
       background: rgba(85, 61, 24, 0.92);
       border-color: rgba(216, 181, 106, 0.22);
@@ -387,6 +582,140 @@
       display: block;
       border-radius: 10px;
       background: #080b12;
+    }
+
+    .catalog-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .catalog-form-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .catalog-form-grid.two-up {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .catalog-form-grid.three-up {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .field input[type="text"],
+    .field input[type="url"],
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(173, 142, 94, 0.18);
+      background: var(--field);
+      color: #eef3ff;
+      font: inherit;
+    }
+
+    .field textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .field input[type="text"]:focus,
+    .field input[type="url"]:focus,
+    .field select:focus,
+    .field textarea:focus,
+    .field input[type="number"]:focus,
+    .toggle:focus,
+    .chip:focus {
+      outline: 2px solid rgba(141, 209, 255, 0.35);
+      outline-offset: 1px;
+    }
+
+    .catalog-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .catalog-item {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(173, 142, 94, 0.14);
+      background: rgba(10, 14, 22, 0.82);
+    }
+
+    .catalog-item.active {
+      border-color: rgba(141, 209, 255, 0.34);
+      box-shadow: inset 0 0 0 1px rgba(141, 209, 255, 0.08);
+    }
+
+    .catalog-item-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .catalog-item-head strong {
+      font-size: 15px;
+      color: #eef3ff;
+    }
+
+    .catalog-item-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .catalog-item-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 12px;
+      padding: 10px 0;
+      border-top: 1px solid rgba(173, 142, 94, 0.1);
+      border-bottom: 1px solid rgba(173, 142, 94, 0.1);
+    }
+
+    .catalog-stat {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .catalog-stat span {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(178, 188, 205, 0.66);
+    }
+
+    .catalog-stat strong {
+      font-size: 13px;
+      line-height: 1.45;
+      color: #eef3ff;
+      word-break: break-word;
+    }
+
+    .catalog-pill {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(173, 142, 94, 0.14);
+      background: rgba(18, 24, 35, 0.9);
+      font-size: 11px;
+      color: rgba(238, 243, 255, 0.88);
+      letter-spacing: 0.03em;
+    }
+
+    .catalog-note {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.55;
+      color: rgba(178, 188, 205, 0.82);
+    }
+
+    .catalog-only .footer-note {
+      margin-top: 0;
     }
 
     .signal-layout {
@@ -696,13 +1025,6 @@
       font: inherit;
     }
 
-    .field input[type="number"]:focus,
-    .toggle:focus,
-    .chip:focus {
-      outline: 2px solid rgba(141, 209, 255, 0.35);
-      outline-offset: 1px;
-    }
-
     .button-row,
     .chip-grid,
     .planet-grid {
@@ -794,14 +1116,23 @@
         width: auto;
         margin: 20px;
       }
+
+      #panel.catalog-mode {
+        left: auto;
+        right: auto;
+      }
     }
 
     @media (max-width: 720px) {
       .top-grid,
       .control-row,
       .control-row.three-up,
+      .help-grid,
       .signal-layout,
       .signal-settings,
+      .catalog-form-grid.two-up,
+      .catalog-form-grid.three-up,
+      .catalog-item-grid,
       .swatch-row {
         grid-template-columns: 1fr;
       }
@@ -820,21 +1151,39 @@
       #waveCanvas {
         min-height: 180px;
       }
+
+      .panel-head {
+        flex-direction: column;
+      }
+
+      .help-trigger {
+        align-self: flex-end;
+      }
+
+      #panel.catalog-mode .catalog-list {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
   <div id="app">
     <aside id="panel">
-      <p class="eyebrow">Visible Sound Explorer</p>
-      <h1>Cymatic Correspondence Lab</h1>
-      <p class="subhead">Square and round plate explorer with tone, note, waveform, color, sacred geometry, solfeggio, and planetary presets.</p>
+      <div class="panel-head">
+        <div class="panel-title">
+          <p class="eyebrow">Visible Sound Explorer</p>
+          <h1>Cymatic Correspondence Lab</h1>
+          <p class="subhead">Square and round plate explorer with tone, note, waveform, color, sacred geometry, solfeggio, and planetary presets.</p>
+        </div>
+        <button id="helpOpenButton" class="toggle help-trigger" type="button" aria-haspopup="dialog" aria-controls="helpModal">Help</button>
+      </div>
 
       <section class="section-card mode-switch-card">
         <h2 class="section-title">Display Mode</h2>
         <div class="button-row">
           <button id="labModeToggle" class="toggle active">Lab Mode</button>
           <button id="musicModeToggle" class="toggle">Music Mode</button>
+          <button id="catalogModeToggle" class="toggle">Catalog Mode</button>
         </div>
         <p id="modeStatus" class="footer-note">Lab mode shows plate patterns, correspondences, and single-frequency tone controls.</p>
       </section>
@@ -931,6 +1280,81 @@
               <canvas id="musicWaveCanvas" width="236" height="220"></canvas>
             </div>
           </div>
+          <div class="catalog-stack catalog-only">
+            <div class="catalog-form-grid">
+              <div class="catalog-form-grid two-up">
+                <div class="field">
+                  <label for="catalogTitleInput">Entry Title</label>
+                  <input id="catalogTitleInput" type="text" placeholder="Measured square plate mode">
+                </div>
+                <div class="field">
+                  <label for="catalogGeometryInput">Geometry</label>
+                  <input id="catalogGeometryInput" type="text" placeholder="n=3, m=5 / radial ring / observed bloom">
+                </div>
+              </div>
+              <div class="catalog-form-grid three-up">
+                <div class="field">
+                  <label for="catalogShapeSelect">Plate Shape</label>
+                  <select id="catalogShapeSelect">
+                    <option value="square">Square</option>
+                    <option value="round">Round</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="catalogStatusSelect">Evidence Type</label>
+                  <select id="catalogStatusSelect">
+                    <option value="measured">Measured</option>
+                    <option value="modeled">Modeled</option>
+                    <option value="correspondence">Correspondence</option>
+                    <option value="speculative">Speculative</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="catalogFrequencyInput">Frequency (Hz)</label>
+                  <input id="catalogFrequencyInput" type="number" min="0" step="0.01" value="528">
+                </div>
+              </div>
+              <div class="catalog-form-grid three-up">
+                <div class="field">
+                  <label for="catalogNoteInput">Associated Note</label>
+                  <input id="catalogNoteInput" type="text" placeholder="C5">
+                </div>
+                <div class="field">
+                  <label for="catalogColorInput">Mapped Color Hex</label>
+                  <input id="catalogColorInput" type="text" placeholder="#7FD2FF">
+                </div>
+                <div class="field">
+                  <label for="catalogMaterialInput">Material</label>
+                  <input id="catalogMaterialInput" type="text" placeholder="Steel plate / water / powder">
+                </div>
+              </div>
+              <div class="catalog-form-grid three-up">
+                <div class="field">
+                  <label for="catalogSupportInput">Support / Boundary</label>
+                  <input id="catalogSupportInput" type="text" placeholder="Center clamp / edge support">
+                </div>
+                <div class="field">
+                  <label for="catalogExciterInput">Exciter Position</label>
+                  <input id="catalogExciterInput" type="text" placeholder="Bow at edge / speaker below">
+                </div>
+                <div class="field">
+                  <label for="catalogSourceInput">Source / URL</label>
+                  <input id="catalogSourceInput" type="url" placeholder="Notebook, paper, photo set, video">
+                </div>
+              </div>
+              <div class="field">
+                <label for="catalogNotesInput">Notes</label>
+                <textarea id="catalogNotesInput" placeholder="What was actually observed, confidence level, what still needs proof, correction notes, etc."></textarea>
+              </div>
+              <div class="button-row">
+                <button id="catalogSaveButton" class="toggle">Save Entry</button>
+                <button id="catalogCaptureButton" class="toggle">Capture Current Mapping</button>
+                <button id="catalogClearButton" class="toggle">Clear Form</button>
+                <button id="catalogDeleteButton" class="toggle">Delete Entry</button>
+              </div>
+            </div>
+          </div>
         </section>
       </div>
 
@@ -986,6 +1410,15 @@
           <a class="chip provenance-link" href="https://github.com/Unideus/webapp-SkyCLAWk" target="_blank" rel="noreferrer">View Source Repo</a>
         </div>
       </details>
+
+      <section class="section-card catalog-only">
+        <h2 class="section-title">Catalog Entries</h2>
+        <div class="button-row" style="margin-bottom:12px;">
+          <button id="catalogExportButton" class="chip">Export JSON</button>
+        </div>
+        <p class="footer-note">Catalog mode stores entries in this browser so you can separate measured observations from modeled and symbolic correspondences.</p>
+        <div id="catalogList" class="catalog-list"></div>
+      </section>
 
       <section class="section-card lab-only">
         <h2 class="section-title">Frequency</h2>
@@ -1055,6 +1488,44 @@
         <div id="planetButtons" class="planet-grid"></div>
       </section>
     </aside>
+
+    <div id="helpModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="helpModalTitle" aria-hidden="true">
+      <div class="help-modal">
+        <div class="help-modal-head">
+          <div>
+            <h2 id="helpModalTitle">How to Use This Tool</h2>
+            <p>Use the mode switch for exploration, live music color, or cataloging. The notes below explain what each mode is for and how to update the working atlas without mixing measured results with symbolic correspondences.</p>
+          </div>
+          <button id="helpCloseButton" class="toggle help-close" type="button" aria-label="Close help">&times;</button>
+        </div>
+        <div class="help-grid">
+          <div class="help-item">
+            <strong>Lab Mode</strong>
+            <p>Use the frequency slider, presets, plate shape toggle, and geometry overlay to explore the current model. Tone is optional and only affects the sound output, not the evidence status of the visual mapping.</p>
+          </div>
+          <div class="help-item">
+            <strong>Music Mode</strong>
+            <p>Load a local audio file or use the microphone. Music mode removes the plate and turns the field into a live color response driven by spectral analysis of bass, mid, and treble energy.</p>
+          </div>
+          <div class="help-item">
+            <strong>Catalog Mode</strong>
+            <p>Use this as a research ledger. Save geometry, shape, frequency, material, support, exciter position, source, and notes so observations can be reviewed and corrected later.</p>
+          </div>
+          <div class="help-item">
+            <strong>Update Workflow</strong>
+            <p>Use Capture Current Mapping to prefill a record, then revise the title, evidence type, notes, and source before saving. Select an existing entry to edit it, save again to overwrite it, or export JSON to back up the local catalog.</p>
+          </div>
+          <div class="help-item">
+            <strong>Evidence Types</strong>
+            <p>Use Measured for observed results from a real setup, Modeled for math or simulation output, Correspondence for symbolic mappings like color analogies or solfeggio, and Speculative for unverified ideas that still need proof.</p>
+          </div>
+          <div class="help-item">
+            <strong>Updating the Tool</strong>
+            <p>When you find a stronger source or a contradiction, update the catalog entry first, then revise the app logic only if the evidence justifies it. Keep provenance clear so the page does not imply more certainty than the data supports.</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -1144,8 +1615,12 @@
     let liveBassEnergy = 0.0;
     let liveMidEnergy = 0.0;
     let liveTrebleEnergy = 0.0;
+    let catalogEntries = [];
+    let selectedCatalogId = "";
+    let catalogEditingId = "";
 
     const dom = {};
+    const CATALOG_STORAGE_KEY = "cymaticsCatalogEntriesV1";
 
     function mixColorObjects(a, b, t) {
       return {
@@ -1337,6 +1812,58 @@
         solfeggioName,
         referencePitch
       };
+    }
+
+    function defaultCatalogEntries() {
+      const earthCorr = getCorrespondence(136.10);
+      const solfeggioCorr = getCorrespondence(528.0);
+      return [
+        {
+          id: "seed-modeled-square",
+          title: "Modeled Square Reference",
+          geometry: "Square mode interpolation from frequency-complexity heuristic",
+          shape: "square",
+          status: "modeled",
+          frequencyHz: 528.0,
+          noteLabel: solfeggioCorr.note.fullName,
+          colorHex: colorToHex(solfeggioCorr.color),
+          material: "Model only",
+          support: "Unspecified",
+          exciter: "Internal oscillator",
+          sourceUrl: "",
+          notes: "Starter reference from the current browser app. Useful for comparing later measured square-plate observations."
+        },
+        {
+          id: "seed-modeled-round",
+          title: "Modeled Round Reference",
+          geometry: "Circular Bessel-root family used for round display",
+          shape: "round",
+          status: "modeled",
+          frequencyHz: 256.0,
+          noteLabel: getCorrespondence(256.0).note.fullName,
+          colorHex: colorToHex(getCorrespondence(256.0).color),
+          material: "Model only",
+          support: "Circular standing-wave approximation",
+          exciter: "Internal oscillator",
+          sourceUrl: "https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.jn_zeros.html",
+          notes: "Mathematically grounded for circular standing-wave families, but not yet a calibrated thin-plate atlas."
+        },
+        {
+          id: "seed-correspondence-earth",
+          title: "Earth Tuning Correspondence",
+          geometry: "Preset correspondence entry",
+          shape: "other",
+          status: "correspondence",
+          frequencyHz: 136.10,
+          noteLabel: earthCorr.note.fullName,
+          colorHex: colorToHex(earthCorr.color),
+          material: "Correspondence only",
+          support: "N/A",
+          exciter: "N/A",
+          sourceUrl: "",
+          notes: "A symbolic preset carried by tuning traditions. Keep distinct from measured cymatic entries."
+        }
+      ];
     }
 
     function normalizedToFrequency(normalized) {
@@ -1715,6 +2242,280 @@
         (musicInputType === "track" && !!musicTrackElement && !!musicTrackElement.src);
     }
 
+    function normalizeHexColor(value) {
+      const raw = String(value || "").trim().toUpperCase();
+      if (!raw) {
+        return "";
+      }
+      const prefixed = raw.startsWith("#") ? raw : "#" + raw;
+      return /^#[0-9A-F]{6}$/.test(prefixed) ? prefixed : "";
+    }
+
+    function getCatalogStatusClass(status) {
+      if (status === "measured" || status === "modeled" || status === "correspondence" || status === "speculative") {
+        return status;
+      }
+      return "speculative";
+    }
+
+    function saveCatalogEntries() {
+      try {
+        localStorage.setItem(CATALOG_STORAGE_KEY, JSON.stringify(catalogEntries));
+      } catch (error) {
+        console.warn(error);
+      }
+    }
+
+    function loadCatalogEntries() {
+      try {
+        const raw = localStorage.getItem(CATALOG_STORAGE_KEY);
+        if (!raw) {
+          catalogEntries = defaultCatalogEntries();
+          selectedCatalogId = catalogEntries[0]?.id || "";
+          saveCatalogEntries();
+          return;
+        }
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length) {
+          catalogEntries = parsed;
+          selectedCatalogId = parsed[0].id;
+          return;
+        }
+      } catch (error) {
+        console.warn(error);
+      }
+      catalogEntries = defaultCatalogEntries();
+      selectedCatalogId = catalogEntries[0]?.id || "";
+      saveCatalogEntries();
+    }
+
+    function getSelectedCatalogEntry() {
+      return catalogEntries.find((entry) => entry.id === selectedCatalogId) || null;
+    }
+
+    function populateCatalogForm(entry) {
+      if (!entry) {
+        catalogEditingId = "";
+        dom.catalogTitleInput.value = "";
+        dom.catalogGeometryInput.value = "";
+        dom.catalogShapeSelect.value = "square";
+        dom.catalogStatusSelect.value = "measured";
+        dom.catalogFrequencyInput.value = "528";
+        dom.catalogNoteInput.value = "";
+        dom.catalogColorInput.value = "";
+        dom.catalogMaterialInput.value = "";
+        dom.catalogSupportInput.value = "";
+        dom.catalogExciterInput.value = "";
+        dom.catalogSourceInput.value = "";
+        dom.catalogNotesInput.value = "";
+        dom.catalogDeleteButton.disabled = true;
+        return;
+      }
+      catalogEditingId = entry.id;
+      dom.catalogTitleInput.value = entry.title || "";
+      dom.catalogGeometryInput.value = entry.geometry || "";
+      dom.catalogShapeSelect.value = entry.shape || "square";
+      dom.catalogStatusSelect.value = entry.status || "measured";
+      dom.catalogFrequencyInput.value = Number(entry.frequencyHz || 0).toFixed(2).replace(/0+$/, "").replace(/\.$/, "") || "0";
+      dom.catalogNoteInput.value = entry.noteLabel || "";
+      dom.catalogColorInput.value = entry.colorHex || "";
+      dom.catalogMaterialInput.value = entry.material || "";
+      dom.catalogSupportInput.value = entry.support || "";
+      dom.catalogExciterInput.value = entry.exciter || "";
+      dom.catalogSourceInput.value = entry.sourceUrl || "";
+      dom.catalogNotesInput.value = entry.notes || "";
+      dom.catalogDeleteButton.disabled = false;
+    }
+
+    function renderCatalogList() {
+      if (!dom.catalogList) {
+        return;
+      }
+      dom.catalogList.innerHTML = "";
+      catalogEntries.forEach((entry) => {
+        const item = document.createElement("article");
+        item.className = "catalog-item" + (entry.id === selectedCatalogId ? " active" : "");
+
+        const head = document.createElement("div");
+        head.className = "catalog-item-head";
+        const title = document.createElement("strong");
+        title.textContent = entry.title || "Untitled Entry";
+        const tag = document.createElement("span");
+        tag.className = "prov-tag " + getCatalogStatusClass(entry.status);
+        tag.textContent = entry.status || "speculative";
+        head.appendChild(title);
+        head.appendChild(tag);
+
+        const meta = document.createElement("div");
+        meta.className = "catalog-item-meta";
+        [
+          (entry.shape || "other").toUpperCase(),
+          (Number(entry.frequencyHz || 0).toFixed(2) + " Hz"),
+          entry.noteLabel || "Note ?",
+          entry.colorHex || "No Hex"
+        ].forEach((text) => {
+          const pill = document.createElement("span");
+          pill.className = "catalog-pill";
+          pill.textContent = text;
+          meta.appendChild(pill);
+        });
+
+        const facts = document.createElement("div");
+        facts.className = "catalog-item-grid";
+        [
+          ["Geometry", entry.geometry || "-"],
+          ["Material", entry.material || "-"],
+          ["Support", entry.support || "-"],
+          ["Exciter", entry.exciter || "-"],
+          ["Source", entry.sourceUrl || "-"],
+          ["Evidence", entry.status || "-"]
+        ].forEach(([label, value]) => {
+          const stat = document.createElement("div");
+          stat.className = "catalog-stat";
+          const key = document.createElement("span");
+          key.textContent = label;
+          const val = document.createElement("strong");
+          val.textContent = value;
+          stat.appendChild(key);
+          stat.appendChild(val);
+          facts.appendChild(stat);
+        });
+
+        const note = document.createElement("p");
+        note.className = "catalog-note";
+        note.textContent = entry.notes || "No notes yet.";
+
+        const actions = document.createElement("div");
+        actions.className = "button-row";
+        const loadButton = document.createElement("button");
+        loadButton.className = "chip";
+        loadButton.textContent = "Load";
+        loadButton.addEventListener("click", () => {
+          selectedCatalogId = entry.id;
+          populateCatalogForm(entry);
+          updateReadouts();
+          renderCatalogList();
+        });
+        const duplicateButton = document.createElement("button");
+        duplicateButton.className = "chip";
+        duplicateButton.textContent = "Duplicate";
+        duplicateButton.addEventListener("click", () => {
+          const copy = {
+            ...entry,
+            id: "catalog-" + Date.now(),
+            title: (entry.title || "Entry") + " Copy"
+          };
+          catalogEntries.unshift(copy);
+          selectedCatalogId = copy.id;
+          saveCatalogEntries();
+          populateCatalogForm(copy);
+          renderCatalogList();
+          updateReadouts();
+        });
+        actions.appendChild(loadButton);
+        actions.appendChild(duplicateButton);
+
+        item.appendChild(head);
+        item.appendChild(meta);
+        item.appendChild(facts);
+        item.appendChild(note);
+        item.appendChild(actions);
+        dom.catalogList.appendChild(item);
+      });
+    }
+
+    function buildCatalogEntryFromForm() {
+      const frequencyHz = Math.max(0, Number(dom.catalogFrequencyInput.value) || 0);
+      const autoNote = frequencyHz > 0 ? frequencyToNote(Math.max(frequencyHz, 20)).fullName : "";
+      const corr = frequencyHz > 0 ? getCorrespondence(Math.max(frequencyHz, 20)) : null;
+      return {
+        id: catalogEditingId || ("catalog-" + Date.now()),
+        title: dom.catalogTitleInput.value.trim() || "Untitled Entry",
+        geometry: dom.catalogGeometryInput.value.trim(),
+        shape: dom.catalogShapeSelect.value,
+        status: dom.catalogStatusSelect.value,
+        frequencyHz,
+        noteLabel: dom.catalogNoteInput.value.trim() || autoNote,
+        colorHex: normalizeHexColor(dom.catalogColorInput.value) || (corr ? colorToHex(corr.color) : ""),
+        material: dom.catalogMaterialInput.value.trim(),
+        support: dom.catalogSupportInput.value.trim(),
+        exciter: dom.catalogExciterInput.value.trim(),
+        sourceUrl: dom.catalogSourceInput.value.trim(),
+        notes: dom.catalogNotesInput.value.trim()
+      };
+    }
+
+    function saveCatalogEntry() {
+      const entry = buildCatalogEntryFromForm();
+      const idx = catalogEntries.findIndex((item) => item.id === entry.id);
+      if (idx >= 0) {
+        catalogEntries[idx] = entry;
+      } else {
+        catalogEntries.unshift(entry);
+      }
+      selectedCatalogId = entry.id;
+      catalogEditingId = entry.id;
+      saveCatalogEntries();
+      renderCatalogList();
+      populateCatalogForm(entry);
+      updateReadouts();
+    }
+
+    function clearCatalogForm() {
+      populateCatalogForm(null);
+    }
+
+    function deleteCatalogEntry() {
+      if (!catalogEditingId) {
+        return;
+      }
+      catalogEntries = catalogEntries.filter((entry) => entry.id !== catalogEditingId);
+      selectedCatalogId = catalogEntries[0]?.id || "";
+      saveCatalogEntries();
+      populateCatalogForm(getSelectedCatalogEntry());
+      renderCatalogList();
+      updateReadouts();
+    }
+
+    function captureCurrentMappingToCatalog() {
+      const activeHz = displayMode === "music" ? liveDominantHz : getActiveFrequency();
+      const corr = getCorrespondence(Math.max(activeHz, 20));
+      const entry = {
+        id: catalogEditingId || ("catalog-" + Date.now()),
+        title: displayMode === "music" ? "Captured Music Mapping" : "Captured Lab Mapping",
+        geometry: displayMode === "music"
+          ? "Whole-spectrum color field snapshot"
+          : (plateShape === "square"
+            ? "Square: n=" + corr.squareModes.n.toFixed(1) + ", m=" + corr.squareModes.m.toFixed(1)
+            : "Round: order=" + corr.roundModes.order + ", k=" + corr.roundModes.k.toFixed(3)),
+        shape: displayMode === "music" ? "other" : plateShape,
+        status: displayMode === "music" ? "modeled" : "modeled",
+        frequencyHz: Number(activeHz.toFixed(2)),
+        noteLabel: corr.note.fullName,
+        colorHex: displayMode === "music" ? colorToHex(liveMixColor) : colorToHex(corr.color),
+        material: displayMode === "music" ? "Whole-spectrum analyzer" : "Browser lab model",
+        support: displayMode === "music" ? musicInputType : "App mapping",
+        exciter: displayMode === "music" ? getMusicSourceLabel() : "Internal oscillator / selected frequency",
+        sourceUrl: "",
+        notes: displayMode === "music"
+          ? "Captured from Music Mode. Color reflects whole-spectrum blending, not a plate pattern."
+          : "Captured from current lab state. Treat as modeled unless replaced by measured experimental data."
+      };
+      populateCatalogForm(entry);
+    }
+
+    function exportCatalogEntries() {
+      const blob = new Blob([JSON.stringify(catalogEntries, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "cymatics-catalog.json";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
     function renderSquarePlate(bounds, corr, overrideMode) {
       const size = bounds.size;
       const x0 = bounds.x;
@@ -1996,12 +2797,18 @@
       const panel = document.getElementById("panel");
       panel.classList.toggle("lab-mode", displayMode === "lab");
       panel.classList.toggle("music-mode", displayMode === "music");
+      panel.classList.toggle("catalog-mode", displayMode === "catalog");
       dom.labModeToggle.classList.toggle("active", displayMode === "lab");
       dom.musicModeToggle.classList.toggle("active", displayMode === "music");
+      dom.catalogModeToggle.classList.toggle("active", displayMode === "catalog");
       dom.modeStatus.textContent = displayMode === "lab"
         ? "Lab mode shows plate patterns, correspondences, and single-frequency tone controls."
-        : "Music mode turns the canvas into a whole-spectrum color field driven by track or microphone analysis.";
-      dom.audioCardTitle.textContent = displayMode === "lab" ? "Audio and Waveform" : "Music Input and Waveform";
+        : (displayMode === "music"
+          ? "Music mode turns the canvas into a whole-spectrum color field driven by track or microphone analysis."
+          : "Catalog mode stores measured, modeled, and symbolic entries so the map can be refined over time.");
+      dom.audioCardTitle.textContent = displayMode === "lab"
+        ? "Audio and Waveform"
+        : (displayMode === "music" ? "Music Input and Waveform" : "Catalog Editor");
       if (dom.musicSourceDisplay) {
         dom.musicSourceDisplay.textContent = getMusicSourceLabel();
       }
@@ -2041,6 +2848,46 @@
     }
 
     function updateReadouts() {
+      if (displayMode === "catalog") {
+        const entry = getSelectedCatalogEntry();
+        if (!entry) {
+          dom.freqDisplay.textContent = "-- Hz";
+          dom.noteDisplay.textContent = "No Entry Selected";
+          dom.contextCopy.textContent = "Catalog mode keeps a working library of measured, modeled, and symbolic entries so claims can be revised instead of implied.";
+          dom.detailLabel1.textContent = "Geometry";
+          dom.wavelengthDisplay.textContent = "-";
+          dom.detailLabel2.textContent = "Shape";
+          dom.modeDisplay.textContent = "-";
+          dom.detailLabel3.textContent = "Evidence";
+          dom.solfeggioDisplay.textContent = "-";
+          dom.detailLabel4.textContent = "Material";
+          dom.referenceDisplay.textContent = "-";
+          dom.swatchKicker.textContent = "Mapped Hex";
+          dom.colorSwatch.style.background = "linear-gradient(135deg, rgba(70,82,108,1), rgba(255,255,255,0.16))";
+          dom.colorHexDisplay.textContent = "#46526C";
+          updateControlStates();
+          return;
+        }
+        dom.freqDisplay.textContent = Number(entry.frequencyHz || 0).toFixed(2) + " Hz";
+        dom.noteDisplay.textContent = entry.title || "Catalog Entry";
+        dom.contextCopy.textContent = "Catalog mode is the working atlas: keep measured observations distinct from modeled and correspondence entries so people can challenge and improve the map.";
+        dom.detailLabel1.textContent = "Geometry";
+        dom.wavelengthDisplay.textContent = entry.geometry || "-";
+        dom.detailLabel2.textContent = "Shape";
+        dom.modeDisplay.textContent = (entry.shape || "other").toUpperCase();
+        dom.detailLabel3.textContent = "Evidence";
+        dom.solfeggioDisplay.textContent = entry.status || "-";
+        dom.detailLabel4.textContent = "Material";
+        dom.referenceDisplay.textContent = entry.material || "-";
+        dom.swatchKicker.textContent = "Mapped Hex";
+        const catalogHex = normalizeHexColor(entry.colorHex) || "#46526C";
+        dom.colorSwatch.style.background = "linear-gradient(135deg, " + catalogHex + ", rgba(255,255,255,0.16))";
+        dom.colorHexDisplay.textContent = catalogHex;
+        updateSignalSettings();
+        updateControlStates();
+        return;
+      }
+
       if (displayMode === "music") {
         const dominantHz = Math.max(liveDominantHz, 20);
         const note = frequencyToNote(dominantHz);
@@ -2118,6 +2965,15 @@
           toneOn = false;
           stopToneBank();
         }
+      } else if (displayMode === "catalog") {
+        if (toneOn) {
+          toneOn = false;
+          stopToneBank();
+        }
+        stopMusicPlayback();
+        stopMicInput();
+        populateCatalogForm(getSelectedCatalogEntry());
+        renderCatalogList();
       } else {
         stopMusicPlayback();
         stopMicInput();
@@ -2506,6 +3362,46 @@
       ctx.restore();
     }
 
+    function drawCatalogField(deltaSeconds) {
+      musicFieldTime += deltaSeconds * 0.5;
+      const entry = getSelectedCatalogEntry();
+      const baseHex = normalizeHexColor(entry?.colorHex) || "#46526C";
+      const r = parseInt(baseHex.slice(1, 3), 16) / 255;
+      const g = parseInt(baseHex.slice(3, 5), 16) / 255;
+      const b = parseInt(baseHex.slice(5, 7), 16) / 255;
+      const baseColor = { r, g, b };
+      const accent = mixColorObjects(baseColor, { r: 0.96, g: 0.89, b: 0.72 }, 0.18);
+      const shadow = mixColorObjects(baseColor, { r: 0.06, g: 0.08, b: 0.12 }, 0.72);
+      const ctx = drawingContext;
+      const fieldWidth = window.innerWidth <= 1180
+        ? window.innerWidth
+        : Math.min(220, Math.max(120, window.innerWidth * 0.12));
+      const fieldHeight = window.innerHeight;
+
+      ctx.save();
+      ctx.fillStyle = "rgba(6, 8, 14, 1)";
+      ctx.fillRect(0, 0, window.innerWidth, fieldHeight);
+
+      const gradient = ctx.createLinearGradient(0, 0, fieldWidth, fieldHeight);
+      gradient.addColorStop(0, colorStyle(mixColorObjects(accent, { r: 0.12, g: 0.14, b: 0.18 }, 0.72), 0.94));
+      gradient.addColorStop(1, colorStyle(mixColorObjects(shadow, { r: 0.07, g: 0.08, b: 0.11 }, 0.86), 0.98));
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, fieldWidth, fieldHeight);
+
+      ctx.strokeStyle = "rgba(255,255,255,0.035)";
+      ctx.lineWidth = 1;
+      for (let y = 34; y < fieldHeight; y += 52) {
+        ctx.beginPath();
+        ctx.moveTo(24, y + Math.sin(y * 0.018 + musicFieldTime) * 2);
+        ctx.lineTo(Math.max(28, fieldWidth - 18), y + Math.sin(y * 0.018 + musicFieldTime) * 2);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = "rgba(8, 11, 18, 0.38)";
+      ctx.fillRect(0, 0, fieldWidth, fieldHeight);
+      ctx.restore();
+    }
+
     function buildButtonSet(container, entries, dataName, onClick) {
       entries.forEach((entry) => {
         const button = document.createElement("button");
@@ -2539,6 +3435,24 @@
       });
     }
 
+    function openHelpModal() {
+      if (!dom.helpModal) {
+        return;
+      }
+      dom.helpModal.classList.add("open");
+      dom.helpModal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeHelpModal() {
+      if (!dom.helpModal) {
+        return;
+      }
+      dom.helpModal.classList.remove("open");
+      dom.helpModal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
     function setupDom() {
       [
         "freqDisplay",
@@ -2556,6 +3470,10 @@
         "audioCardTitle",
         "labModeToggle",
         "musicModeToggle",
+        "catalogModeToggle",
+        "helpOpenButton",
+        "helpModal",
+        "helpCloseButton",
         "modeStatus",
         "freqSliderValue",
         "freqSlider",
@@ -2586,6 +3504,24 @@
         "musicSourceDisplay",
         "musicSmoothingSlider",
         "musicSmoothingValue",
+        "catalogTitleInput",
+        "catalogGeometryInput",
+        "catalogShapeSelect",
+        "catalogStatusSelect",
+        "catalogFrequencyInput",
+        "catalogNoteInput",
+        "catalogColorInput",
+        "catalogMaterialInput",
+        "catalogSupportInput",
+        "catalogExciterInput",
+        "catalogSourceInput",
+        "catalogNotesInput",
+        "catalogSaveButton",
+        "catalogCaptureButton",
+        "catalogClearButton",
+        "catalogDeleteButton",
+        "catalogExportButton",
+        "catalogList",
         "solfeggioButtons",
         "geometryButtons",
         "planetButtons"
@@ -2617,6 +3553,19 @@
       dom.cyclePauseToggle.addEventListener("click", toggleCyclePause);
       dom.labModeToggle.addEventListener("click", () => setDisplayMode("lab"));
       dom.musicModeToggle.addEventListener("click", () => setDisplayMode("music"));
+      dom.catalogModeToggle.addEventListener("click", () => setDisplayMode("catalog"));
+      dom.helpOpenButton.addEventListener("click", openHelpModal);
+      dom.helpCloseButton.addEventListener("click", closeHelpModal);
+      dom.helpModal.addEventListener("click", (event) => {
+        if (event.target === dom.helpModal) {
+          closeHelpModal();
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && dom.helpModal.classList.contains("open")) {
+          closeHelpModal();
+        }
+      });
       dom.musicFileInput.addEventListener("change", async (event) => {
         const [file] = event.target.files || [];
         await loadMusicTrack(file);
@@ -2631,10 +3580,18 @@
         musicSmoothing = constrain(Number(event.target.value), 0.04, 0.4);
         dom.musicSmoothingValue.textContent = musicSmoothing.toFixed(2);
       });
+      dom.catalogSaveButton.addEventListener("click", saveCatalogEntry);
+      dom.catalogCaptureButton.addEventListener("click", captureCurrentMappingToCatalog);
+      dom.catalogClearButton.addEventListener("click", clearCatalogForm);
+      dom.catalogDeleteButton.addEventListener("click", deleteCatalogEntry);
+      dom.catalogExportButton.addEventListener("click", exportCatalogEntries);
 
       buildSolfeggioButtons();
       buildButtonSet(dom.geometryButtons, GEOMETRY_MODES, "geometry", setGeometryMode);
       buildPlanetButtons();
+      loadCatalogEntries();
+      populateCatalogForm(getSelectedCatalogEntry());
+      renderCatalogList();
     }
 
     function setup() {
@@ -2669,6 +3626,12 @@
         updateReadouts();
         drawMusicField(deltaSeconds);
         drawMusicWaveform();
+        return;
+      }
+
+      if (displayMode === "catalog") {
+        updateReadouts();
+        drawCatalogField(deltaSeconds);
         return;
       }
 
