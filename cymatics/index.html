@@ -130,6 +130,18 @@
       min-height: 100%;
     }
 
+    #panel.lab-mode .music-only {
+      display: none !important;
+    }
+
+    #panel.music-mode .lab-only {
+      display: none !important;
+    }
+
+    .mode-switch-card {
+      margin-bottom: 16px;
+    }
+
     .hz-display {
       font-size: clamp(26px, 2.8vw, 34px);
       line-height: 1;
@@ -320,6 +332,61 @@
     .audio-stack {
       display: grid;
       gap: 12px;
+    }
+
+    .music-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .music-controls-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .music-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .file-chip {
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .file-chip input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .music-meta {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(173, 142, 94, 0.12);
+      background: rgba(10, 14, 22, 0.72);
+    }
+
+    .music-meta .detail-list {
+      margin-top: 0;
+      gap: 6px;
+    }
+
+    .music-wave-box {
+      min-height: 260px;
+    }
+
+    #musicWaveCanvas {
+      width: 100%;
+      height: 220px;
+      display: block;
+      border-radius: 10px;
+      background: #080b12;
     }
 
     .signal-layout {
@@ -763,20 +830,29 @@
       <h1>Cymatic Correspondence Lab</h1>
       <p class="subhead">Square and round plate explorer with tone, note, waveform, color, sacred geometry, solfeggio, and planetary presets.</p>
 
+      <section class="section-card mode-switch-card">
+        <h2 class="section-title">Display Mode</h2>
+        <div class="button-row">
+          <button id="labModeToggle" class="toggle active">Lab Mode</button>
+          <button id="musicModeToggle" class="toggle">Music Mode</button>
+        </div>
+        <p id="modeStatus" class="footer-note">Lab mode shows plate patterns, correspondences, and single-frequency tone controls.</p>
+      </section>
+
       <div class="top-grid">
         <section class="readout-card">
           <div id="freqDisplay" class="hz-display">528.00 Hz</div>
           <p id="noteDisplay" class="note-display">C5</p>
-          <p class="microcopy">Mode and color correspondence update live as frequency changes.</p>
+          <p id="contextCopy" class="microcopy">Mode and color correspondence update live as frequency changes.</p>
           <div class="detail-list">
-            <div class="detail"><span>Wavelength</span><strong id="wavelengthDisplay">568 nm</strong></div>
-            <div class="detail"><span>Mode</span><strong id="modeDisplay">Square: n=3.0, m=5.0</strong></div>
-            <div class="detail"><span>Solfeggio</span><strong id="solfeggioDisplay">Transformation / DNA Repair</strong></div>
-            <div class="detail"><span>Reference</span><strong id="referenceDisplay">A4 = 432 Hz</strong></div>
+            <div class="detail"><span id="detailLabel1">Wavelength</span><strong id="wavelengthDisplay">568 nm</strong></div>
+            <div class="detail"><span id="detailLabel2">Mode</span><strong id="modeDisplay">Square: n=3.0, m=5.0</strong></div>
+            <div class="detail"><span id="detailLabel3">Solfeggio</span><strong id="solfeggioDisplay">Transformation / DNA Repair</strong></div>
+            <div class="detail"><span id="detailLabel4">Reference</span><strong id="referenceDisplay">A4 = 432 Hz</strong></div>
           </div>
           <div class="readout-swatch">
             <div class="swatch-meta">
-              <span class="swatch-kicker">Spectral Hex</span>
+              <span id="swatchKicker" class="swatch-kicker">Spectral Hex</span>
               <strong id="colorHexDisplay" class="swatch-code">#FFFFFF</strong>
             </div>
             <div id="colorSwatch" class="swatch"></div>
@@ -784,8 +860,8 @@
         </section>
 
         <section class="audio-card">
-          <h2 class="section-title">Audio and Waveform</h2>
-          <div class="audio-stack">
+          <h2 id="audioCardTitle" class="section-title">Audio and Waveform</h2>
+          <div class="audio-stack lab-only">
             <div class="signal-layout">
               <div class="signal-controls">
                 <button id="toneToggle" class="toggle">Tone: Off</button>
@@ -821,6 +897,38 @@
                   <canvas id="waveCanvas" width="236" height="148"></canvas>
                 </div>
               </div>
+            </div>
+          </div>
+          <div class="music-stack music-only">
+            <div class="music-controls-grid">
+              <div class="music-chip-row">
+                <label class="chip file-chip">
+                  Load Track
+                  <input id="musicFileInput" type="file" accept="audio/*">
+                </label>
+                <button id="musicPlayToggle" class="toggle" disabled>Play Track</button>
+                <button id="musicMicToggle" class="toggle">Use Mic</button>
+              </div>
+              <div class="music-meta">
+                <div class="slider-block" style="margin-bottom:0;">
+                  <div class="slider-top">
+                    <label for="musicSmoothingSlider">Smoothing</label>
+                    <span id="musicSmoothingValue" class="value">0.18</span>
+                  </div>
+                  <input id="musicSmoothingSlider" type="range" min="0.04" max="0.4" step="0.01" value="0.18">
+                </div>
+                <div class="detail-list">
+                  <div class="detail"><span>Status</span><strong id="musicStatus">No source loaded</strong></div>
+                  <div class="detail"><span>Color Mix</span><strong>Whole Spectrum Gradient</strong></div>
+                </div>
+              </div>
+            </div>
+            <div class="wave-box music-wave-box">
+              <div class="wave-head">
+                <span>Live Waveform</span>
+                <strong id="musicSourceDisplay">Track Idle</strong>
+              </div>
+              <canvas id="musicWaveCanvas" width="236" height="220"></canvas>
             </div>
           </div>
         </section>
@@ -879,7 +987,7 @@
         </div>
       </details>
 
-      <section class="section-card">
+      <section class="section-card lab-only">
         <h2 class="section-title">Frequency</h2>
         <div class="slider-block">
           <div class="slider-top">
@@ -914,12 +1022,12 @@
         </div>
       </section>
 
-      <section class="section-card">
+      <section class="section-card lab-only">
         <h2 class="section-title">Solfeggio Presets</h2>
         <div id="solfeggioButtons" class="chip-grid"></div>
       </section>
 
-      <section class="section-card">
+      <section class="section-card lab-only">
         <h2 class="section-title">Plate and Reference</h2>
         <div class="button-row">
           <button id="plateToggle" class="toggle active">Square Plate</button>
@@ -930,7 +1038,7 @@
         <p class="footer-note">Mode cycling mirrors the Godot lab: square plate cycles through integer Chladni pairs, round plate cycles through Bessel-root families.</p>
       </section>
 
-      <section class="section-card">
+      <section class="section-card lab-only">
         <h2 class="section-title">Sacred Geometry Overlay</h2>
         <div class="slider-block">
           <div class="slider-top">
@@ -942,7 +1050,7 @@
         <div id="geometryButtons" class="chip-grid"></div>
       </section>
 
-      <section class="section-card">
+      <section class="section-card lab-only">
         <h2 class="section-title">Planetary Frequencies</h2>
         <div id="planetButtons" class="planet-grid"></div>
       </section>
@@ -1008,11 +1116,44 @@
     let wavePhase = 0.0;
     let waveformCtx = null;
     let waveformCanvas = null;
+    let musicWaveformCanvas = null;
+    let musicWaveformCtx = null;
     let activeVolumePointerId = null;
     let oscillators = [];
     let harmonicOscillators = [];
+    let displayMode = "lab";
+    let musicInputType = "track";
+    let musicSmoothing = 0.18;
+    let musicFieldTime = 0.0;
+    let musicAudioContext = null;
+    let musicAnalyser = null;
+    let musicSpectrumData = null;
+    let musicTimeDomainData = null;
+    let musicTrackElement = null;
+    let musicTrackSource = null;
+    let musicMicStream = null;
+    let musicMicSource = null;
+    let musicTrackObjectUrl = "";
+    let liveDominantHz = 528.0;
+    let liveCentroidHz = 528.0;
+    let liveLevel = 0.0;
+    let liveMixColor = { r: 0.62, g: 0.74, b: 0.98 };
+    let liveBassColor = { r: 0.84, g: 0.46, b: 0.28 };
+    let liveMidColor = { r: 0.56, g: 0.82, b: 0.48 };
+    let liveTrebleColor = { r: 0.48, g: 0.68, b: 0.98 };
+    let liveBassEnergy = 0.0;
+    let liveMidEnergy = 0.0;
+    let liveTrebleEnergy = 0.0;
 
     const dom = {};
+
+    function mixColorObjects(a, b, t) {
+      return {
+        r: lerp(a.r, b.r, t),
+        g: lerp(a.g, b.g, t),
+        b: lerp(a.b, b.b, t)
+      };
+    }
 
     function buildSquareCycleModes() {
       squareCycleModes = [];
@@ -1326,6 +1467,254 @@
       return value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "") || "0";
     }
 
+    async function ensureMusicAudioGraph() {
+      await userStartAudio();
+      musicAudioContext = typeof getAudioContext === "function"
+        ? getAudioContext()
+        : (musicAudioContext || new (window.AudioContext || window.webkitAudioContext)());
+      if (musicAudioContext.state === "suspended") {
+        await musicAudioContext.resume();
+      }
+      if (!musicAnalyser) {
+        musicAnalyser = musicAudioContext.createAnalyser();
+        musicAnalyser.fftSize = 2048;
+        musicAnalyser.smoothingTimeConstant = 0.55;
+        musicSpectrumData = new Uint8Array(musicAnalyser.frequencyBinCount);
+        musicTimeDomainData = new Float32Array(musicAnalyser.fftSize);
+      }
+      if (!musicTrackElement) {
+        musicTrackElement = new Audio();
+        musicTrackElement.crossOrigin = "anonymous";
+        musicTrackElement.preload = "auto";
+        musicTrackElement.addEventListener("play", () => {
+          if (dom.musicPlayToggle) {
+            dom.musicPlayToggle.textContent = "Pause Track";
+            dom.musicPlayToggle.classList.add("active");
+          }
+        });
+        musicTrackElement.addEventListener("pause", () => {
+          if (dom.musicPlayToggle) {
+            dom.musicPlayToggle.textContent = "Play Track";
+            dom.musicPlayToggle.classList.remove("active");
+          }
+        });
+        musicTrackElement.addEventListener("ended", () => {
+          if (dom.musicPlayToggle) {
+            dom.musicPlayToggle.textContent = "Play Track";
+            dom.musicPlayToggle.classList.remove("active");
+          }
+        });
+      }
+    }
+
+    function getMusicSourceLabel() {
+      if (musicInputType === "mic") {
+        return musicMicStream ? "Mic Live" : "Mic Idle";
+      }
+      if (musicTrackElement && musicTrackElement.src) {
+        return musicTrackElement.paused ? "Track Loaded" : "Track Playing";
+      }
+      return "Track Idle";
+    }
+
+    async function ensureTrackSource() {
+      await ensureMusicAudioGraph();
+      if (!musicTrackSource) {
+        musicTrackSource = musicAudioContext.createMediaElementSource(musicTrackElement);
+        musicTrackSource.connect(musicAnalyser);
+        musicTrackSource.connect(musicAudioContext.destination);
+      }
+    }
+
+    async function loadMusicTrack(file) {
+      if (!file) {
+        return;
+      }
+      await ensureTrackSource();
+      if (musicTrackObjectUrl) {
+        URL.revokeObjectURL(musicTrackObjectUrl);
+      }
+      musicTrackObjectUrl = URL.createObjectURL(file);
+      musicTrackElement.src = musicTrackObjectUrl;
+      musicInputType = "track";
+      if (dom.musicPlayToggle) {
+        dom.musicPlayToggle.disabled = false;
+        dom.musicPlayToggle.textContent = "Play Track";
+      }
+      if (dom.musicStatus) {
+        dom.musicStatus.textContent = file.name;
+      }
+      if (dom.musicSourceDisplay) {
+        dom.musicSourceDisplay.textContent = "Track Loaded";
+      }
+      if (displayMode === "music") {
+        updateReadouts();
+      }
+    }
+
+    async function toggleTrackPlayback() {
+      await ensureTrackSource();
+      musicInputType = "track";
+      if (!musicTrackElement.src) {
+        if (dom.musicStatus) {
+          dom.musicStatus.textContent = "Load an audio file first";
+        }
+        return;
+      }
+      await stopMicInput();
+      if (musicTrackElement.paused) {
+        await musicTrackElement.play();
+      } else {
+        musicTrackElement.pause();
+      }
+      updateReadouts();
+    }
+
+    async function toggleMicInput() {
+      await ensureMusicAudioGraph();
+      if (musicMicStream) {
+        await stopMicInput();
+        updateReadouts();
+        return;
+      }
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (dom.musicStatus) {
+          dom.musicStatus.textContent = "Microphone input not supported";
+        }
+        return;
+      }
+      try {
+        musicMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        musicMicSource = musicAudioContext.createMediaStreamSource(musicMicStream);
+        musicMicSource.connect(musicAnalyser);
+        musicInputType = "mic";
+        if (musicTrackElement && !musicTrackElement.paused) {
+          musicTrackElement.pause();
+        }
+        if (dom.musicMicToggle) {
+          dom.musicMicToggle.textContent = "Stop Mic";
+          dom.musicMicToggle.classList.add("active");
+        }
+        if (dom.musicStatus) {
+          dom.musicStatus.textContent = "Microphone active";
+        }
+      } catch (error) {
+        console.warn(error);
+        if (dom.musicStatus) {
+          dom.musicStatus.textContent = "Microphone permission denied";
+        }
+      }
+      updateReadouts();
+    }
+
+    async function stopMicInput() {
+      if (musicMicSource) {
+        try {
+          musicMicSource.disconnect();
+        } catch (error) {
+          console.warn(error);
+        }
+        musicMicSource = null;
+      }
+      if (musicMicStream) {
+        musicMicStream.getTracks().forEach((track) => track.stop());
+        musicMicStream = null;
+      }
+      if (dom.musicMicToggle) {
+        dom.musicMicToggle.textContent = "Use Mic";
+        dom.musicMicToggle.classList.remove("active");
+      }
+    }
+
+    function stopMusicPlayback() {
+      if (musicTrackElement && !musicTrackElement.paused) {
+        musicTrackElement.pause();
+      }
+    }
+
+    function analyzeMusicSpectrum() {
+      if (!musicAnalyser || !musicSpectrumData || !musicTimeDomainData) {
+        return;
+      }
+      musicAnalyser.getByteFrequencyData(musicSpectrumData);
+      musicAnalyser.getFloatTimeDomainData(musicTimeDomainData);
+
+      const sampleRate = musicAudioContext.sampleRate;
+      const binHz = sampleRate / musicAnalyser.fftSize;
+      let dominantMag = 0;
+      let dominantHz = liveDominantHz;
+      let centroidSum = 0;
+      let weightSum = 0;
+      let bassWeight = 0;
+      let midWeight = 0;
+      let trebleWeight = 0;
+      let bassCentroid = 0;
+      let midCentroid = 0;
+      let trebleCentroid = 0;
+
+      for (let i = 2; i < musicSpectrumData.length; i += 1) {
+        const hz = i * binHz;
+        if (hz > 9000) {
+          break;
+        }
+        const magnitude = musicSpectrumData[i] / 255;
+        const weight = magnitude * magnitude;
+        if (hz >= 40 && hz <= 4000 && magnitude > dominantMag) {
+          dominantMag = magnitude;
+          dominantHz = hz;
+        }
+        if (hz >= 40) {
+          centroidSum += hz * weight;
+          weightSum += weight;
+        }
+        if (hz < 250) {
+          bassWeight += weight;
+          bassCentroid += hz * weight;
+        } else if (hz < 2000) {
+          midWeight += weight;
+          midCentroid += hz * weight;
+        } else {
+          trebleWeight += weight;
+          trebleCentroid += hz * weight;
+        }
+      }
+
+      let rms = 0;
+      for (let i = 0; i < musicTimeDomainData.length; i += 1) {
+        rms += musicTimeDomainData[i] * musicTimeDomainData[i];
+      }
+      rms = Math.sqrt(rms / musicTimeDomainData.length);
+
+      const centroidHz = weightSum > 0 ? centroidSum / weightSum : liveCentroidHz;
+      const bassHz = bassWeight > 0 ? bassCentroid / bassWeight : 80;
+      const midHz = midWeight > 0 ? midCentroid / midWeight : 640;
+      const trebleHz = trebleWeight > 0 ? trebleCentroid / trebleWeight : 3200;
+      const bassColor = wavelengthToColor(frequencyToWavelengthNm(bassHz));
+      const midColor = wavelengthToColor(frequencyToWavelengthNm(midHz));
+      const trebleColor = wavelengthToColor(frequencyToWavelengthNm(trebleHz));
+      const mixColor = {
+        r: constrain((bassColor.r * bassWeight + midColor.r * midWeight + trebleColor.r * trebleWeight) / Math.max(bassWeight + midWeight + trebleWeight, 0.0001), 0, 1),
+        g: constrain((bassColor.g * bassWeight + midColor.g * midWeight + trebleColor.g * trebleWeight) / Math.max(bassWeight + midWeight + trebleWeight, 0.0001), 0, 1),
+        b: constrain((bassColor.b * bassWeight + midColor.b * midWeight + trebleColor.b * trebleWeight) / Math.max(bassWeight + midWeight + trebleWeight, 0.0001), 0, 1)
+      };
+
+      liveDominantHz = lerp(liveDominantHz, dominantHz, musicSmoothing);
+      liveCentroidHz = lerp(liveCentroidHz, centroidHz, musicSmoothing * 0.85);
+      liveLevel = lerp(liveLevel, constrain(rms * 2.2, 0, 1), musicSmoothing * 0.9);
+      liveBassEnergy = lerp(liveBassEnergy, constrain(bassWeight * 20, 0, 1), musicSmoothing);
+      liveMidEnergy = lerp(liveMidEnergy, constrain(midWeight * 12, 0, 1), musicSmoothing);
+      liveTrebleEnergy = lerp(liveTrebleEnergy, constrain(trebleWeight * 10, 0, 1), musicSmoothing);
+      liveBassColor = mixColorObjects(liveBassColor, bassColor, musicSmoothing);
+      liveMidColor = mixColorObjects(liveMidColor, midColor, musicSmoothing);
+      liveTrebleColor = mixColorObjects(liveTrebleColor, trebleColor, musicSmoothing);
+      liveMixColor = mixColorObjects(liveMixColor, mixColor, musicSmoothing * 0.9);
+    }
+
+    function musicSourceIsActive() {
+      return (musicInputType === "mic" && !!musicMicStream) ||
+        (musicInputType === "track" && !!musicTrackElement && !!musicTrackElement.src);
+    }
+
     function renderSquarePlate(bounds, corr, overrideMode) {
       const size = bounds.size;
       const x0 = bounds.x;
@@ -1571,6 +1960,16 @@
       waveformCanvas.height = height;
     }
 
+    function resizeMusicWaveformCanvas() {
+      if (!musicWaveformCanvas) {
+        return;
+      }
+      const width = Math.max(180, Math.floor(musicWaveformCanvas.clientWidth * window.devicePixelRatio));
+      const height = Math.max(120, Math.floor(musicWaveformCanvas.clientHeight * window.devicePixelRatio));
+      musicWaveformCanvas.width = width;
+      musicWaveformCanvas.height = height;
+    }
+
     function updateVolumeFader() {
       if (!dom.volumeFader || !dom.volumeThumb || !dom.volumeFill) {
         return;
@@ -1593,7 +1992,23 @@
       }
     }
 
+    function updateDisplayModeUI() {
+      const panel = document.getElementById("panel");
+      panel.classList.toggle("lab-mode", displayMode === "lab");
+      panel.classList.toggle("music-mode", displayMode === "music");
+      dom.labModeToggle.classList.toggle("active", displayMode === "lab");
+      dom.musicModeToggle.classList.toggle("active", displayMode === "music");
+      dom.modeStatus.textContent = displayMode === "lab"
+        ? "Lab mode shows plate patterns, correspondences, and single-frequency tone controls."
+        : "Music mode turns the canvas into a whole-spectrum color field driven by track or microphone analysis.";
+      dom.audioCardTitle.textContent = displayMode === "lab" ? "Audio and Waveform" : "Music Input and Waveform";
+      if (dom.musicSourceDisplay) {
+        dom.musicSourceDisplay.textContent = getMusicSourceLabel();
+      }
+    }
+
     function updateControlStates() {
+      updateDisplayModeUI();
       dom.plateToggle.textContent = plateShape === "square" ? "Square Plate" : "Round Plate";
       dom.plateToggle.classList.toggle("active", plateShape === "square");
       dom.referenceToggle.textContent = referencePitch === 432 ? "A4 = 432 Hz" : "A4 = 440 Hz";
@@ -1606,6 +2021,9 @@
       dom.toneToggle.textContent = "Tone: " + (toneOn ? "On" : "Off");
       dom.toneToggle.classList.toggle("active", toneOn);
       dom.toneToggle.classList.toggle("good", toneOn);
+      if (dom.musicPlayToggle) {
+        dom.musicPlayToggle.disabled = !musicTrackElement || !musicTrackElement.src;
+      }
       updateVolumeFader();
     }
 
@@ -1623,6 +2041,35 @@
     }
 
     function updateReadouts() {
+      if (displayMode === "music") {
+        const dominantHz = Math.max(liveDominantHz, 20);
+        const note = frequencyToNote(dominantHz);
+        const centsLabel = Math.abs(note.centsOffset) > 0.5
+          ? " (" + (note.centsOffset >= 0 ? "+" : "") + note.centsOffset.toFixed(1) + "c)"
+          : "";
+        dom.freqDisplay.textContent = dominantHz.toFixed(2) + " Hz";
+        dom.noteDisplay.textContent = note.fullName + centsLabel;
+        dom.contextCopy.textContent = "Music mode listens to the whole mix, then blends bass, mid, and treble energy into a smoothed live color field.";
+        dom.detailLabel1.textContent = "Centroid";
+        dom.wavelengthDisplay.textContent = liveCentroidHz.toFixed(1) + " Hz";
+        dom.detailLabel2.textContent = "Source";
+        dom.modeDisplay.textContent = musicInputType === "mic" ? "Microphone Input" : "Track Playback";
+        dom.detailLabel3.textContent = "Palette";
+        dom.solfeggioDisplay.textContent = "Whole Spectrum Gradient";
+        dom.detailLabel4.textContent = "Level";
+        dom.referenceDisplay.textContent = Math.round(liveLevel * 100) + "%";
+        dom.swatchKicker.textContent = "Mix Hex";
+        dom.colorSwatch.style.background = "linear-gradient(135deg, " + colorStyle(liveMixColor, 1) + ", " + colorStyle(mixColorObjects(liveBassColor, liveTrebleColor, 0.5), 1) + ")";
+        dom.colorHexDisplay.textContent = colorToHex(liveMixColor);
+        if (dom.musicSourceDisplay) {
+          dom.musicSourceDisplay.textContent = getMusicSourceLabel();
+        }
+        updateVolumeFader();
+        updateSignalSettings();
+        updateControlStates();
+        return;
+      }
+
       const activeHz = getActiveFrequency();
       const corr = getCorrespondence(activeHz);
       const animatedMode = getAnimatedMode();
@@ -1636,7 +2083,10 @@
       dom.freqSlider.value = activeHz;
       dom.freqSliderValue.textContent = activeHz.toFixed(1);
       dom.noteDisplay.textContent = note.fullName + centsLabel;
+      dom.contextCopy.textContent = "Mode and color correspondence update live as frequency changes.";
+      dom.detailLabel1.textContent = "Wavelength";
       dom.wavelengthDisplay.textContent = corr.wavelengthNm.toFixed(0) + " nm";
+      dom.detailLabel2.textContent = "Mode";
       dom.waveFreqDisplay.textContent = getToneFrequency().toFixed(2) + " Hz";
       dom.modeDisplay.textContent = animatedMode
         ? animatedMode.label + " · " + activeHz.toFixed(2) + " Hz"
@@ -1644,14 +2094,35 @@
         (plateShape === "square"
           ? "Square: n=" + corr.squareModes.n.toFixed(1) + ", m=" + corr.squareModes.m.toFixed(1)
           : "Round: order=" + corr.roundModes.order + ", k=" + corr.roundModes.k.toFixed(3));
+      dom.detailLabel3.textContent = "Solfeggio";
       dom.solfeggioDisplay.textContent = corr.solfeggioName || "-";
+      dom.detailLabel4.textContent = "Reference";
       dom.referenceDisplay.textContent = "A4 = " + referencePitch.toFixed(0) + " Hz";
+      dom.swatchKicker.textContent = "Spectral Hex";
       dom.colorSwatch.style.background = "linear-gradient(135deg, " + colorStyle(corr.color, 1) + ", rgba(255,255,255,0.16))";
       dom.colorHexDisplay.textContent = colorToHex(corr.color);
       dom.geometryScaleValue.textContent = geometryScale.toFixed(2) + "x";
       updateVolumeFader();
       updateSignalSettings();
       updatePresetHighlights(activeHz);
+      updateControlStates();
+    }
+
+    function setDisplayMode(mode) {
+      if (mode === displayMode) {
+        return;
+      }
+      displayMode = mode;
+      if (displayMode === "music") {
+        if (toneOn) {
+          toneOn = false;
+          stopToneBank();
+        }
+      } else {
+        stopMusicPlayback();
+        stopMicInput();
+      }
+      updateReadouts();
       updateControlStates();
     }
 
@@ -1930,6 +2401,111 @@
       ctx.fillText(ampText, w - ampWidth - 6, 13);
     }
 
+    function drawMusicWaveform() {
+      if (!musicWaveformCtx || !musicWaveformCanvas) {
+        return;
+      }
+      const ctx = musicWaveformCtx;
+      const w = musicWaveformCanvas.width;
+      const h = musicWaveformCanvas.height;
+      const topPad = 18;
+      const bottomPad = 16;
+      const sidePad = 6;
+      const plotTop = topPad;
+      const plotBottom = h - bottomPad;
+      const plotHeight = Math.max(24, plotBottom - plotTop);
+      const mid = plotTop + plotHeight * 0.5;
+      const maxAmp = Math.max(10, plotHeight * 0.5 - 6);
+      const amp = maxAmp * constrain(liveLevel, 0.08, 0.92);
+
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#080b12";
+      ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = "rgba(76, 86, 103, 0.85)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(sidePad, mid);
+      ctx.lineTo(w - sidePad, mid);
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(31, 38, 53, 0.9)";
+      for (let i = 1; i < 4; i += 1) {
+        const gx = w * i / 4;
+        ctx.beginPath();
+        ctx.moveTo(gx, plotTop);
+        ctx.lineTo(gx, plotBottom);
+        ctx.stroke();
+      }
+      [mid - amp, mid + amp].forEach((yy) => {
+        ctx.beginPath();
+        ctx.moveTo(sidePad, yy);
+        ctx.lineTo(w - sidePad, yy);
+        ctx.stroke();
+      });
+
+      ctx.strokeStyle = "rgba(118, 204, 255, 0.95)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < w; i += 1) {
+        const t = i / Math.max(w - 1, 1);
+        const sampleIndex = Math.floor(t * Math.max((musicTimeDomainData ? musicTimeDomainData.length : 1) - 1, 1));
+        const sample = musicTimeDomainData ? musicTimeDomainData[sampleIndex] : 0;
+        const y = constrain(mid + sample * amp, plotTop + 1, plotBottom - 1);
+        if (i === 0) {
+          ctx.moveTo(i, y);
+        } else {
+          ctx.lineTo(i, y);
+        }
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(146, 157, 176, 0.92)";
+      ctx.font = "11px Trebuchet MS";
+      ctx.fillText("Level", 6, 13);
+      ctx.fillText("0", 6, h - 5);
+      const hzText = liveDominantHz.toFixed(1) + " Hz";
+      const hzWidth = ctx.measureText(hzText).width;
+      ctx.fillText(hzText, w - hzWidth - 6, h - 5);
+      const levelText = liveLevel.toFixed(2);
+      const levelWidth = ctx.measureText(levelText).width;
+      ctx.fillText(levelText, w - levelWidth - 6, 13);
+    }
+
+    function drawMusicField(deltaSeconds) {
+      musicFieldTime += deltaSeconds;
+      const ctx = drawingContext;
+      const panelLeft = window.innerWidth <= 1180 ? window.innerWidth : Math.max(panelRect.left, window.innerWidth * 0.62);
+      const fieldRight = window.innerWidth <= 1180 ? window.innerWidth : panelLeft - 20;
+      const fieldWidth = Math.max(320, fieldRight - 20);
+      const fieldHeight = window.innerHeight;
+
+      const bgTop = mixColorObjects(liveMixColor, liveTrebleColor, 0.32);
+      const bgBottom = mixColorObjects(liveMixColor, liveBassColor, 0.4);
+      const gradient = ctx.createLinearGradient(0, 0, fieldWidth, fieldHeight);
+      gradient.addColorStop(0, colorStyle(bgTop, 0.96));
+      gradient.addColorStop(1, colorStyle(bgBottom, 0.96));
+      ctx.save();
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, fieldWidth, fieldHeight);
+
+      const drawGlow = (x, y, radius, colorObj, energy) => {
+        const glow = ctx.createRadialGradient(x, y, 0, x, y, radius);
+        glow.addColorStop(0, colorStyle(colorObj, 0.48 * energy + 0.08));
+        glow.addColorStop(0.5, colorStyle(colorObj, 0.18 * energy + 0.05));
+        glow.addColorStop(1, colorStyle(colorObj, 0));
+        ctx.fillStyle = glow;
+        ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+      };
+
+      const wave = Math.sin(musicFieldTime * 0.5);
+      drawGlow(fieldWidth * 0.22, fieldHeight * (0.52 + wave * 0.02), fieldWidth * 0.34, liveBassColor, Math.max(liveBassEnergy, 0.16));
+      drawGlow(fieldWidth * 0.54, fieldHeight * (0.36 - wave * 0.025), fieldWidth * 0.38, liveMidColor, Math.max(liveMidEnergy, 0.18));
+      drawGlow(fieldWidth * 0.82, fieldHeight * (0.58 + wave * 0.03), fieldWidth * 0.28, liveTrebleColor, Math.max(liveTrebleEnergy, 0.14));
+
+      ctx.fillStyle = "rgba(255,255,255,0.04)";
+      ctx.fillRect(0, 0, fieldWidth, fieldHeight);
+      ctx.restore();
+    }
+
     function buildButtonSet(container, entries, dataName, onClick) {
       entries.forEach((entry) => {
         const button = document.createElement("button");
@@ -1967,10 +2543,20 @@
       [
         "freqDisplay",
         "noteDisplay",
+        "contextCopy",
+        "detailLabel1",
+        "detailLabel2",
+        "detailLabel3",
+        "detailLabel4",
+        "swatchKicker",
         "wavelengthDisplay",
         "modeDisplay",
         "solfeggioDisplay",
         "referenceDisplay",
+        "audioCardTitle",
+        "labModeToggle",
+        "musicModeToggle",
+        "modeStatus",
         "freqSliderValue",
         "freqSlider",
         "volumeFader",
@@ -1993,6 +2579,13 @@
         "referenceToggle",
         "cycleToggle",
         "cyclePauseToggle",
+        "musicFileInput",
+        "musicPlayToggle",
+        "musicMicToggle",
+        "musicStatus",
+        "musicSourceDisplay",
+        "musicSmoothingSlider",
+        "musicSmoothingValue",
         "solfeggioButtons",
         "geometryButtons",
         "planetButtons"
@@ -2002,7 +2595,10 @@
 
       waveformCanvas = document.getElementById("waveCanvas");
       waveformCtx = waveformCanvas.getContext("2d");
+      musicWaveformCanvas = document.getElementById("musicWaveCanvas");
+      musicWaveformCtx = musicWaveformCanvas.getContext("2d");
       resizeWaveformCanvas();
+      resizeMusicWaveformCanvas();
 
       dom.freqSlider.addEventListener("input", (event) => setFrequency(event.target.value));
       bindVolumeFader();
@@ -2019,6 +2615,22 @@
       dom.referenceToggle.addEventListener("click", toggleReferencePitch);
       dom.cycleToggle.addEventListener("click", toggleModeCycle);
       dom.cyclePauseToggle.addEventListener("click", toggleCyclePause);
+      dom.labModeToggle.addEventListener("click", () => setDisplayMode("lab"));
+      dom.musicModeToggle.addEventListener("click", () => setDisplayMode("music"));
+      dom.musicFileInput.addEventListener("change", async (event) => {
+        const [file] = event.target.files || [];
+        await loadMusicTrack(file);
+      });
+      dom.musicPlayToggle.addEventListener("click", async () => {
+        await toggleTrackPlayback();
+      });
+      dom.musicMicToggle.addEventListener("click", async () => {
+        await toggleMicInput();
+      });
+      dom.musicSmoothingSlider.addEventListener("input", (event) => {
+        musicSmoothing = constrain(Number(event.target.value), 0.04, 0.4);
+        dom.musicSmoothingValue.textContent = musicSmoothing.toFixed(2);
+      });
 
       buildSolfeggioButtons();
       buildButtonSet(dom.geometryButtons, GEOMETRY_MODES, "geometry", setGeometryMode);
@@ -2032,6 +2644,7 @@
       buildSquareCycleModes();
       setupDom();
       updatePanelLayout();
+      updateDisplayModeUI();
       updateReadouts();
       updateControlStates();
     }
@@ -2040,11 +2653,24 @@
       resizeCanvas(window.innerWidth, window.innerHeight);
       updatePanelLayout();
       resizeWaveformCanvas();
+      resizeMusicWaveformCanvas();
     }
 
     function draw() {
       const deltaSeconds = deltaTime / 1000;
       background(6, 8, 14);
+
+      if (displayMode === "music") {
+        if (musicSourceIsActive()) {
+          analyzeMusicSpectrum();
+        } else {
+          liveLevel = lerp(liveLevel, 0, 0.08);
+        }
+        updateReadouts();
+        drawMusicField(deltaSeconds);
+        drawMusicWaveform();
+        return;
+      }
 
       if (animating && !cyclePaused) {
         animTimer += deltaSeconds;
