@@ -206,6 +206,117 @@
       color: #eef3ff;
     }
 
+    .provenance-card {
+      display: grid;
+      gap: 12px;
+    }
+
+    .provenance-card summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: rgba(216, 181, 106, 0.84);
+    }
+
+    .provenance-card summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .provenance-card summary::after {
+      content: "+";
+      font-size: 18px;
+      line-height: 1;
+      color: rgba(238, 243, 255, 0.82);
+    }
+
+    .provenance-card[open] summary::after {
+      content: "\2212";
+    }
+
+    .provenance-intro {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.55;
+      color: rgba(178, 188, 205, 0.82);
+    }
+
+    .provenance-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .provenance-item {
+      display: grid;
+      gap: 6px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(173, 142, 94, 0.12);
+      background: rgba(10, 14, 22, 0.72);
+    }
+
+    .prov-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .prov-head strong {
+      font-size: 14px;
+      color: #eef3ff;
+    }
+
+    .prov-tag {
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #eef3ff;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .prov-tag.physics {
+      background: rgba(35, 72, 96, 0.9);
+      border-color: rgba(141, 209, 255, 0.22);
+    }
+
+    .prov-tag.correspondence {
+      background: rgba(85, 61, 24, 0.92);
+      border-color: rgba(216, 181, 106, 0.22);
+    }
+
+    .prov-tag.speculative {
+      background: rgba(72, 44, 44, 0.92);
+      border-color: rgba(255, 166, 166, 0.18);
+    }
+
+    .provenance-item p {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.55;
+      color: rgba(178, 188, 205, 0.82);
+    }
+
+    .provenance-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .provenance-link {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+    }
+
     .audio-stack {
       display: grid;
       gap: 12px;
@@ -714,6 +825,59 @@
           </div>
         </section>
       </div>
+
+      <details class="section-card provenance-card">
+        <summary>Provenance and Corrections</summary>
+        <p class="provenance-intro">This page combines modeled acoustics, symbolic correspondences, and a few exploratory assumptions. The tags below show which is which so people can inspect the logic and suggest corrections.</p>
+        <div class="provenance-grid">
+          <div class="provenance-item">
+            <div class="prov-head">
+              <strong>Note and Pitch Readouts</strong>
+              <span class="prov-tag physics">Physics</span>
+            </div>
+            <p>Frequency-to-note naming uses equal-tempered pitch math against the selected `A4` reference. This is musically standard labeling, not a special cymatics law.</p>
+          </div>
+          <div class="provenance-item">
+            <div class="prov-head">
+              <strong>Round Plate Modes</strong>
+              <span class="prov-tag physics">Physics</span>
+            </div>
+            <p>The round view uses Bessel-zero mode families, which are mathematically grounded for circular standing-wave systems. In practice this is closer to a circular membrane model than a fully calibrated thin metal plate.</p>
+          </div>
+          <div class="provenance-item">
+            <div class="prov-head">
+              <strong>Square Plate Mapping</strong>
+              <span class="prov-tag speculative">Speculative</span>
+            </div>
+            <p>The square view maps frequency to pattern complexity heuristically. It is a useful visual ladder, but it is not yet tied to measured plate resonances, plate material, or support geometry.</p>
+          </div>
+          <div class="provenance-item">
+            <div class="prov-head">
+              <strong>Color Correspondence</strong>
+              <span class="prov-tag correspondence">Correspondence</span>
+            </div>
+            <p>Audio frequency is octave-shifted into the visible range and converted to approximate spectral RGB. This is a symbolic octave analogy, not a confirmed physical rule of cymatics.</p>
+          </div>
+          <div class="provenance-item">
+            <div class="prov-head">
+              <strong>Solfeggio and Planetary Presets</strong>
+              <span class="prov-tag correspondence">Correspondence</span>
+            </div>
+            <p>These presets come from tuning and esoteric correspondence traditions. They are included as exploratory reference sets, not as experimentally verified Chladni frequencies.</p>
+          </div>
+          <div class="provenance-item">
+            <div class="prov-head">
+              <strong>Cycle Modes</strong>
+              <span class="prov-tag speculative">Speculative</span>
+            </div>
+            <p>Cycle mode steps through generated mode families and inferred active frequencies so patterns can be explored continuously. It is not yet a measured resonance atlas from a real plate.</p>
+          </div>
+        </div>
+        <div class="provenance-actions">
+          <a class="chip provenance-link" href="https://github.com/Unideus/webapp-SkyCLAWk/issues/new?title=Cymatics%20correction&body=What%20needs%20correction%3F%0A%0AFeature%3A%0AObserved%20issue%3A%0ASuggested%20source%20or%20fix%3A%0A" target="_blank" rel="noreferrer">Suggest a Correction</a>
+          <a class="chip provenance-link" href="https://github.com/Unideus/webapp-SkyCLAWk" target="_blank" rel="noreferrer">View Source Repo</a>
+        </div>
+      </details>
 
       <section class="section-card">
         <h2 class="section-title">Frequency</h2>
