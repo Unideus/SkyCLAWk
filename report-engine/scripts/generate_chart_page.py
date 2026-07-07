@@ -15,6 +15,22 @@ import os, sys, math, argparse, tempfile, subprocess
 import swisseph as swe
 import cairosvg
 
+# Import planet glyph SVG paths from snapshot module (path-based = no font dependency)
+# Deferred: snapshot_page imports calculate_hellenistic_rulers from chart_page at module top,
+# so we must do this import inside the function to avoid the circular dependency.
+_PLANET_PATHS = None
+_glyph_svg_path = None
+
+def _load_planet_paths():
+    global _PLANET_PATHS, _glyph_svg_path
+    if _PLANET_PATHS is None:
+        import importlib
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        snap = importlib.import_module('generate_snapshot_page')
+        _PLANET_PATHS = snap.PLANET_PATHS
+        _glyph_svg_path = snap.glyph_svg_path
+    return _PLANET_PATHS
+
 # ── Swiss Ephemeris ──────────────────────────────────────────────────────────
 EPHE_PATH = '/mnt/e/Hermes Project/GitHub/Timeline_ARCHIVED/app-timeline/public/ephe'
 swe.set_ephe_path(EPHE_PATH)
@@ -39,6 +55,38 @@ ELEMENTS = {"Aries":"Fire","Taurus":"Earth","Gemini":"Air","Cancer":"Water",
 QUALITIES = {"Aries":"Cardinal","Taurus":"Fixed","Gemini":"Mutable","Cancer":"Cardinal",
              "Leo":"Fixed","Virgo":"Mutable","Libra":"Cardinal","Scorpio":"Fixed",
              "Sagittarius":"Mutable","Capricorn":"Cardinal","Aquarius":"Fixed","Pisces":"Mutable"}
+# Canonical planet colors (web wheel spec — also matches galvanic-metal intuition:
+# Sun=gold, Moon=silver, Mars=rust, Saturn=lead; Mercury/Venus/Jupiter/Uranus/Neptune/Pluto from web)
+PLANET_COLORS = {
+    "Sun": "#ffd700",      # gold (galvanic Au)
+    "Moon": "#c0c0c0",     # silver (galvanic Ag)
+    "Mercury": "#87ceeb",  # sky blue
+    "Venus": "#ff69b4",    # pink
+    "Mars": "#ff4444",     # rust red (galvanic Fe)
+    "Jupiter": "#ffa500",  # orange
+    "Saturn": "#8b4513",   # saddle brown (galvanic Pb)
+    "Uranus": "#34d399",   # emerald
+    "Neptune": "#38bdf8",  # sky
+    "Pluto": "#fb7185",    # rose
+    "N.Node": "#a78bfa",   # violet
+}
+
+# Print-friendly darker versions of the galvanic colors (for wheel-internal glyphs
+# which are smaller and need higher contrast on paper)
+WHEEL_GLYPH_COLORS = {
+    "Sun":     "#b8860b",  # dark goldenrod
+    "Moon":    "#222222",  # black (overrides silver for print)
+    "Mercury": "#4682b4",  # steel blue
+    "Venus":   "#c71585",  # medium violet red
+    "Mars":    "#b22222",  # firebrick
+    "Jupiter": "#cc6600",  # dark orange
+    "Saturn":  "#5c2d0a",  # darker brown
+    "Uranus":  "#006400",  # dark green
+    "Neptune": "#000080",  # navy
+    "Pluto":   "#8b0000",  # dark red
+    "N.Node":  "#4b0082",  # indigo
+}
+
 ELEMENT_COLORS = {"Fire":"#d32f2f","Earth":"#2e7d32","Air":"#fbc02d","Water":"#1976d2"}
 
 # ── Hellenistic rulership data ───────────────────────────────────────────────
@@ -87,11 +135,17 @@ def get_decan_lord(sign, deg):
     return DECAN_RULERS[global_decan % 36]
 
 def is_day_birth(asc, sun_lon):
-    desc = (asc + 180) % 360
-    if asc < desc:
-        return asc <= sun_lon <= desc
-    else:
-        return sun_lon >= asc or sun_lon <= desc
+    """Determine sect by the Sun's position relative to AC/DC on the wheel.
+
+    Day sect = Sun is in the upper half of the wheel (between AC and DC going
+    clockwise through MC). Night sect = Sun in the lower half (between DC and AC
+    going clockwise through IC). This is the traditional Hellenistic method.
+    """
+    # "Above horizon" in the wheel = sun is in the arc from AC clockwise to DC
+    # (passing through MC). Equivalently: the angular distance from ASC to Sun
+    # going clockwise is < 180°.
+    clockwise_from_asc = (sun_lon - asc) % 360
+    return 0 <= clockwise_from_asc < 180
 
 def calculate_hellenistic_rulers(planets, asc, sun_lon, moon_lon):
     """Returns (chart_ruler, master_of_nativity, predominator, is_day)."""
@@ -512,15 +566,39 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
             a_glyph = ang(adjusted_lon)
             dx, dy = pt(rPlanetDot, a_dot)
             gx, gy = pt(rPlanetGlyph, a_glyph)
-            # Leader from dot to glyph
+            # Leader from dot to glyph — touches BOTH, adapts to auto-separation distance.
+            # When auto-separation pushes the glyph radially outward (e.g., from rPlanetGlyph
+            # to rPlanetGlyph + 18px), the leader stretches with it. When glyphs overlap and
+            # get separated tangentially, the leader is a straight line from dot to glyph.
             vx, vy = gx - dx, gy - dy
             vlen = math.hypot(vx, vy) or 1
             ux, uy = vx / vlen, vy / vlen
-            lx1, ly1 = dx + ux * 5, dy + uy * 5
-            lx2, ly2 = gx - ux * 7, gy - uy * 7
-            svg += f'<line x1="{lx1:.1f}" y1="{ly1:.1f}" x2="{lx2:.1f}" y2="{ly2:.1f}" stroke="#999999" stroke-width="0.6" stroke-linecap="round"/>'
+            # Start at the dot edge (3px out — dot radius is 2), end at the glyph edge
+            # (half the visual glyph size out from glyph center along the unit vector)
+            glyph_half_w = 12 if p["name"] == "Pluto" else 14  # visual half-width in px
+            lx1, ly1 = dx + ux * 3, dy + uy * 3
+            lx2, ly2 = gx - ux * glyph_half_w, gy - uy * glyph_half_w
+            svg += f'<line x1="{lx1:.1f}" y1="{ly1:.1f}" x2="{lx2:.1f}" y2="{ly2:.1f}" stroke="#444444" stroke-width="1.2" stroke-linecap="round"/>'
             svg += f'<circle cx="{dx:.1f}" cy="{dy:.1f}" r="2" fill="black"/>'
-            svg += f'<text x="{gx:.1f}" y="{gy:.1f}" font-size="13" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="black">{p["glyph"]}</text>'
+            # Wheel-internal planet glyph: PRINT-FRIENDLY DARK colors, 30% larger
+            # Uses darker variants of galvanic palette for higher contrast on paper
+            # Moon: black (matches box-row treatment)
+            wheel_glyph_color = WHEEL_GLYPH_COLORS.get(p["name"], "#222")
+            # Pluto 20% smaller than other planets
+            glyph_size_px = 18 if p["name"] == "Pluto" else 22
+            planet_paths = _load_planet_paths()
+            if planet_paths and p["name"] in planet_paths:
+                info = planet_paths[p["name"]]
+                xMin, yMin, xMax, yMax = info["bbox"]
+                w_g, h_g = xMax - xMin, yMax - yMin
+                scale = glyph_size_px / max(w_g, h_g) if max(w_g, h_g) > 0 else 1
+                # Center the path at (gx, gy). Path is in font's Y-up coords; flip Y for SVG.
+                tx = gx - (xMin + w_g/2) * scale
+                ty = gy + (yMax - h_g/2) * scale
+                svg += f'<g transform="translate({tx:.2f},{ty:.2f}) scale({scale:.4f},-{scale:.4f})"><path d="{info["d"]}" fill="{wheel_glyph_color}"/></g>'
+            else:
+                # Fallback to text if path missing
+                svg += f'<text x="{gx:.1f}" y="{gy:.1f}" font-size="17" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="{wheel_glyph_color}">{p["glyph"]}</text>'
         elif item["type"] == "angle":
             a = item["ref"]
             aa = ang(a["lon_num"])
@@ -584,7 +662,9 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
             ax = wheel_edge_right + ANGLE_GAP - 20  # shift right of wheel edge
             ax = min(W - MARGIN - ANGLE_BOX_W, ax)
 
-        svg += f'<rect x="{ax:.0f}" y="{angle_y:.0f}" width="{ANGLE_BOX_W}" height="{ANGLE_BOX_H}" rx="3" fill="white" stroke="{angle_obj["color"]}" stroke-width="1.5"/>'
+        # MC box: border color = actual MC sign's element (was hardcoded #2980b9)
+        mc_color = ELEMENT_COLORS[angle_obj["element"]]
+        svg += f'<rect x="{ax:.0f}" y="{angle_y:.0f}" width="{ANGLE_BOX_W}" height="{ANGLE_BOX_H}" rx="3" fill="white" stroke="{mc_color}" stroke-width="1.5"/>'
         abx = ax + ANGLE_BOX_W / 2
         aby = angle_y + ANGLE_BOX_H / 2
         deg_str = f'{angle_obj["sign"]} {angle_obj["deg"]}&#176;{angle_obj["min"]:02d}&#39;'
@@ -611,13 +691,26 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
             PASTEL = {"#d32f2f":"#f5d0d0","#2e7d32":"#d0e8d0","#fbc02d":"#f5ecd0","#1976d2":"#d0dcef"}
             box_fill = PASTEL.get(border_color, "#f8f8f8")
             svg += f'<rect x="{box_x:.0f}" y="{box_y:.0f}" width="{bw}" height="{BOX_H}" rx="3" fill="{box_fill}" stroke="{border_color}" stroke-width="1"/>'
-            deg_str = f'{p["sign"]} {p["deg"]}&#176;{p["min"]:02d}&#39;'
-            svg += f'<text x="{bx:.0f}" y="{by - 8:.0f}" font-size="22" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#222">{p["glyph"]}</text>'
-            svg += f'<text x="{bx:.0f}" y="{by + 8:.0f}" font-size="9" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#444">{deg_str}</text>'
-            svg += f'<text x="{bx:.0f}" y="{by + 18:.0f}" font-size="7" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#333">H{house_num} &#183; {p["element"]} &#183; {p["quality"]}</text>'
+            # Line 1: glyph + planet name (centered as a pair in the box)
+            # Manually compute widths so the combined visual is centered (text-anchor="middle"
+            # would shift the visual center right because the glyph is much wider than the name).
+            # Tuned widths for DejaVu Sans rendering at this scale.
+            glyph_w = 22  # visual width of one glyph character at font-size 22
+            gap_w = 5     # gap between glyph and name
+            name_w = len(p["name"]) * 6  # approximate width of name at font-size 9
+            pair_w = glyph_w + gap_w + name_w
+            pair_x = box_x + (bw - pair_w) / 2  # left edge of the pair
+            glyph_x = pair_x + glyph_w / 2      # center of the glyph
+            name_x = pair_x + glyph_w + gap_w   # left edge of the name (text-anchor=start)
+            svg += f'<text x="{glyph_x:.0f}" y="{by - 8:.0f}" font-size="22" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#222">{p["glyph"]}</text>'
+            svg += f'<text x="{name_x:.0f}" y="{by - 8:.0f}" font-size="9" text-anchor="start" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#222"><tspan font-weight="bold">{p["name"]}</tspan></text>'
+            # Line 2: sign (e.g., "Gemini")
+            svg += f'<text x="{box_x + bw/2:.0f}" y="{by + 6:.0f}" font-size="9" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#444">{p["sign"]} {p["deg"]}&#176;{p["min"]:02d}&#39;</text>'
+            # Line 3: house
+            svg += f'<text x="{box_x + bw/2:.0f}" y="{by + 20:.0f}" font-size="7" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#333">H{house_num} &#183; {p["element"]} &#183; {p["quality"]}</text>'
 
-    # ── Disclaimer at bottom of chart page (2 lines) ──
-    disclaimer_y = BOXES_Y + 3 * (BOX_H + BOX_GAP) + 8
+    # ── Disclaimer at bottom of chart page (2 lines) — moved down 2 spaces
+    disclaimer_y = BOXES_Y + 3 * (BOX_H + BOX_GAP) + 8 + 30
     svg += f'<text x="{cx}" y="{disclaimer_y}" font-size="11" text-anchor="middle" font-family="DejaVu Sans, sans-serif" fill="#666">This chart is the personal coordinate map used by the report.</text>'
     svg += f'<text x="{cx}" y="{disclaimer_y + 15}" font-size="11" text-anchor="middle" font-family="DejaVu Sans, sans-serif" fill="#666">It locates this chart inside the larger Zodiyuga SkyClock cycle framework, not a full natal reading.</text>'
 

@@ -104,7 +104,24 @@ def sign_glyph_svg(sign, color, size=80, outline_color=None, outline_grow=1.06, 
         return f'<g>{outline}{main}</g>'
     return main
 
-def planet_glyph_svg(planet, color="#222", size=56, outline_color=None, outline_grow=1.06):
+PLANET_COLORS = {
+    "Sun": "#ffd700",      # gold (galvanic Au)
+    "Moon": "#c0c0c0",     # silver (galvanic Ag)
+    "Mercury": "#87ceeb",  # sky blue
+    "Venus": "#ff69b4",    # pink
+    "Mars": "#ff4444",     # rust red (galvanic Fe)
+    "Jupiter": "#ffa500",  # orange
+    "Saturn": "#8b4513",   # saddle brown (galvanic Pb)
+    "Uranus": "#34d399",   # emerald
+    "Neptune": "#38bdf8",  # sky
+    "Pluto": "#fb7185",    # rose
+    "N.Node": "#a78bfa",   # violet
+}
+
+def planet_glyph_svg(planet, color=None, size=56, outline_color=None, outline_grow=1.06):
+    """Render a planet glyph. If no color given, uses galvanic-aligned planet color."""
+    if color is None:
+        color = PLANET_COLORS.get(planet, "#222")
     """Render a planet glyph, optionally with a slightly larger outline for boldness."""
     info = PLANET_PATHS.get(planet)
     if not info:
@@ -242,8 +259,8 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
     sun_light = LIGHT_ELEMENT.get(sun_color, '#e8e8e8')
     moon_light = LIGHT_ELEMENT.get(moon_color, '#e8e8e8')
     asc_light = LIGHT_ELEMENT.get(asc_color, '#e8e8e8')
-    sun_glyph_svg = planet_glyph_svg("Sun", "#222", 48)
-    moon_glyph_svg = planet_glyph_svg("Moon", "#222", 48)
+    sun_glyph_svg = planet_glyph_svg("Sun", PLANET_COLORS["Sun"], 48)
+    moon_glyph_svg = planet_glyph_svg("Moon", PLANET_COLORS["Moon"], 48)
     sun_sign_svg = sign_glyph_svg(sun_sign, sun_light, 80, outline_color=sun_color, interior_color=sun_light)
     moon_sign_svg = sign_glyph_svg(moon_sign, moon_light, 80, outline_color=moon_color, interior_color=moon_light)
     asc_sign_svg = sign_glyph_svg(asc_sign, asc_light, 80, outline_color=asc_color, interior_color=asc_light)
@@ -270,10 +287,10 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
             border_c = "#5a7ac0"
             bg_c = "#e8edf5"
 
-        # Build SVG path glyphs for the aspect box
-        p1_svg = planet_glyph_svg(p1["name"], border_c, 18)
+        # Build SVG path glyphs for the aspect box — use planet's own color, not aspect color
+        p1_svg = planet_glyph_svg(p1["name"], PLANET_COLORS.get(p1["name"], border_c), 18)
         asp_svg = aspect_glyph_svg(name, border_c, 14)
-        p2_svg = planet_glyph_svg(p2["name"], border_c, 18)
+        p2_svg = planet_glyph_svg(p2["name"], PLANET_COLORS.get(p2["name"], border_c), 18)
 
         target_row.append(f"""
         <div class="asp-box" style="border:1.5px solid {border_c};background:transparent;">

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Septinary Cipher for English Gematria</title>
+  <style>
+    :root {
+      --bg: #07090f;
+      --panel: rgba(10, 14, 22, 0.94);
+      --panel-strong: rgba(12, 17, 27, 0.98);
+      --border: rgba(195, 163, 104, 0.24);
+      --text: #edf1fb;
+      --muted: rgba(178, 188, 205, 0.76);
+      --gold: #d8b56a;
+      --gold-soft: rgba(216, 181, 106, 0.14);
+      --active: #8fd0ff;
+      --active-soft: rgba(143, 208, 255, 0.14);
+      --shadow: rgba(0, 0, 0, 0.4);
+      --good: #9bdaa2;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top left, rgba(55, 84, 120, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(124, 89, 31, 0.14), transparent 30%),
+        linear-gradient(180deg, #06070c 0%, #0a1018 100%);
+      color: var(--text);
+      font-family: "Trebuchet MS", "Gill Sans", sans-serif;
+    }
+
+    body {
+      padding: 28px;
+    }
+
+    .shell {
+      width: min(1240px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero,
+    .panel,
+    .table-card {
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      box-shadow: 0 18px 48px var(--shadow);
+      backdrop-filter: blur(20px);
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 22px 24px;
+      align-items: flex-start;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: rgba(216, 181, 106, 0.84);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(26px, 4vw, 38px);
+      line-height: 1.02;
+      letter-spacing: 0.04em;
+      color: #f4e5c0;
+    }
+
+    .subhead {
+      margin: 0;
+      max-width: 72ch;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .chip,
+    .toggle {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(173, 142, 94, 0.18);
+      background: rgba(24, 30, 42, 0.92);
+      color: var(--text);
+      font: inherit;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+    }
+
+    .chip:hover,
+    .toggle:hover {
+      background: rgba(32, 40, 58, 0.96);
+      border-color: rgba(216, 181, 106, 0.34);
+      transform: translateY(-1px);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.9fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 18px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: rgba(216, 181, 106, 0.78);
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 12px;
+      color: rgba(178, 188, 205, 0.86);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 142px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(173, 142, 94, 0.18);
+      background: rgba(12, 17, 27, 0.98);
+      color: var(--text);
+      font: inherit;
+      font-size: 18px;
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    textarea:focus,
+    .toggle:focus,
+    .chip:focus,
+    input:focus {
+      outline: 2px solid rgba(143, 208, 255, 0.34);
+      outline-offset: 2px;
+    }
+
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .inline-choice {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(173, 142, 94, 0.14);
+      background: rgba(10, 14, 22, 0.72);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .inline-choice input {
+      accent-color: var(--gold);
+    }
+
+    .totals {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(173, 142, 94, 0.14);
+      background: rgba(10, 14, 22, 0.74);
+      display: grid;
+      gap: 6px;
+    }
+
+    .stat span {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(178, 188, 205, 0.68);
+    }
+
+    .stat strong {
+      font-size: clamp(28px, 4vw, 38px);
+      line-height: 1;
+      color: #f5f7fd;
+    }
+
+    .stat em {
+      font-style: normal;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .breakdown-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .breakdown-card {
+      border-radius: 20px;
+      border: 1px solid rgba(173, 142, 94, 0.14);
+      background: rgba(10, 14, 22, 0.7);
+      overflow: hidden;
+    }
+
+    .breakdown-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(173, 142, 94, 0.12);
+      background: rgba(18, 24, 35, 0.82);
+    }
+
+    .breakdown-head strong {
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #edf1fb;
+    }
+
+    .breakdown-head span {
+      font-size: 12px;
+      color: rgba(178, 188, 205, 0.78);
+    }
+
+    .entries {
+      padding: 14px 16px 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .empty-note {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+
+    .entry-row {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr) 70px;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(15, 20, 31, 0.88);
+      border: 1px solid rgba(173, 142, 94, 0.08);
+    }
+
+    .letter-badge {
+      display: inline-grid;
+      place-items: center;
+      min-height: 48px;
+      padding: 8px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(36, 51, 70, 0.96), rgba(20, 31, 46, 0.94));
+      border: 1px solid rgba(143, 208, 255, 0.2);
+      color: #edf7ff;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .entry-meta {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .entry-meta strong {
+      font-size: 15px;
+      color: #eef3ff;
+      letter-spacing: 0.02em;
+    }
+
+    .entry-meta span {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .entry-value {
+      justify-self: end;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .table-card {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .cipher-grid {
+      display: grid;
+      gap: 8px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(173, 142, 94, 0.14);
+      background: rgba(10, 14, 22, 0.72);
+    }
+
+    .cipher-line {
+      display: grid;
+      grid-template-columns: repeat(13, minmax(0, 1fr));
+      gap: 8px;
+      align-items: center;
+      text-align: center;
+    }
+
+    .cipher-letters {
+      font-size: clamp(15px, 2vw, 18px);
+      color: #eef3ff;
+      letter-spacing: 0.06em;
+    }
+
+    .cipher-values {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--gold);
+      letter-spacing: 0.04em;
+    }
+
+    .cipher-token {
+      display: grid;
+      place-items: center;
+      min-width: 0;
+    }
+
+    .note-block {
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(173, 142, 94, 0.12);
+      background: rgba(10, 14, 22, 0.72);
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .note-block strong {
+      color: #eef3ff;
+    }
+
+    @media (max-width: 980px) {
+      body {
+        padding: 18px;
+      }
+
+      .hero,
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        flex-direction: column;
+      }
+
+      .hero-actions {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .totals,
+      .cipher-line {
+        grid-template-columns: 1fr;
+      }
+
+      .entry-row {
+        grid-template-columns: 56px minmax(0, 1fr);
+      }
+
+      .entry-value {
+        grid-column: 2;
+        justify-self: start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Gematria Research Tool</p>
+        <h1>Septinary Cipher for English Gematria</h1>
+        <p class="subhead">English gematria calculator for the Marty Leeds septenary cipher, with separate consonant, vowel, and total tallies. Enter a phrase and inspect every counted letter below.</p>
+      </div>
+      <div class="hero-actions">
+        <a class="chip" href="/cymatics">Cymatics</a>
+        <a class="chip" href="/generational">SkyClock</a>
+      </div>
+    </section>
+
+    <div class="main-grid">
+      <section class="panel">
+        <h2 class="section-title">Phrase Entry</h2>
+        <div class="field">
+          <label for="phraseInput">Phrase</label>
+          <textarea id="phraseInput" spellcheck="false" placeholder="Enter a word, name, or phrase...">LORD AND SAVOIUR JESUS CHRIST</textarea>
+        </div>
+        <div class="control-row">
+          <label class="inline-choice" for="treatYAsVowel">
+            <input id="treatYAsVowel" type="checkbox">
+            Treat Y as vowel
+          </label>
+          <button id="clearButton" class="toggle" type="button">Clear</button>
+        </div>
+
+        <div class="totals">
+          <div class="stat">
+            <span>Consonants</span>
+            <strong id="consonantTotal">0</strong>
+            <em id="consonantCount">0 letters</em>
+          </div>
+          <div class="stat">
+            <span>Vowels</span>
+            <strong id="vowelTotal">0</strong>
+            <em id="vowelCount">0 letters</em>
+          </div>
+          <div class="stat">
+            <span>Total</span>
+            <strong id="grandTotal">0</strong>
+            <em id="letterCount">0 counted letters</em>
+          </div>
+        </div>
+
+        <div class="breakdown-grid">
+          <section class="breakdown-card">
+            <div class="breakdown-head">
+              <strong>Consonant Breakdown</strong>
+              <span id="consonantSummary">0 letters · 0</span>
+            </div>
+            <div id="consonantEntries" class="entries"></div>
+          </section>
+
+          <section class="breakdown-card">
+            <div class="breakdown-head">
+              <strong>Vowel Breakdown</strong>
+              <span id="vowelSummary">0 letters · 0</span>
+            </div>
+            <div id="vowelEntries" class="entries"></div>
+          </section>
+
+          <section class="breakdown-card">
+            <div class="breakdown-head">
+              <strong>Total Breakdown</strong>
+              <span id="totalSummary">0 letters · 0</span>
+            </div>
+            <div id="totalEntries" class="entries"></div>
+          </section>
+        </div>
+      </section>
+
+      <aside class="table-card">
+        <h2 class="section-title">Marty Leeds Septenary Cipher</h2>
+        <div id="cipherGrid" class="cipher-grid"></div>
+        <div class="note-block">
+          Spaces, punctuation, digits, and symbols are ignored. The `Y` toggle only changes whether `Y` is grouped under vowels or consonants; its septenary value stays `2`.
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const SEPTENARY_VALUES = {
+      A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7,
+      H: 6, I: 5, J: 4, K: 3, L: 2, M: 1, N: 1,
+      O: 2, P: 3, Q: 4, R: 5, S: 6, T: 7, U: 6,
+      V: 5, W: 4, X: 3, Y: 2, Z: 1
+    };
+
+    const BASE_VOWELS = new Set(["A", "E", "I", "O", "U"]);
+    const LETTER_NAMES = {
+      A: "A", B: "B", C: "C", D: "D", E: "E", F: "F", G: "G",
+      H: "H", I: "I", J: "J", K: "K", L: "L", M: "M", N: "N",
+      O: "O", P: "P", Q: "Q", R: "R", S: "S", T: "T", U: "U",
+      V: "V", W: "W", X: "X", Y: "Y", Z: "Z"
+    };
+
+    const dom = {
+      phraseInput: document.getElementById("phraseInput"),
+      treatYAsVowel: document.getElementById("treatYAsVowel"),
+      clearButton: document.getElementById("clearButton"),
+      consonantTotal: document.getElementById("consonantTotal"),
+      vowelTotal: document.getElementById("vowelTotal"),
+      grandTotal: document.getElementById("grandTotal"),
+      consonantCount: document.getElementById("consonantCount"),
+      vowelCount: document.getElementById("vowelCount"),
+      letterCount: document.getElementById("letterCount"),
+      consonantSummary: document.getElementById("consonantSummary"),
+      vowelSummary: document.getElementById("vowelSummary"),
+      totalSummary: document.getElementById("totalSummary"),
+      consonantEntries: document.getElementById("consonantEntries"),
+      vowelEntries: document.getElementById("vowelEntries"),
+      totalEntries: document.getElementById("totalEntries"),
+      cipherGrid: document.getElementById("cipherGrid")
+    };
+
+    function isVowel(letter) {
+      if (letter === "Y") {
+        return dom.treatYAsVowel.checked;
+      }
+      return BASE_VOWELS.has(letter);
+    }
+
+    function parsePhrase(phrase) {
+      const letters = [];
+      for (const rawChar of phrase.toUpperCase()) {
+        if (!Object.prototype.hasOwnProperty.call(SEPTENARY_VALUES, rawChar)) {
+          continue;
+        }
+        letters.push({
+          letter: rawChar,
+          value: SEPTENARY_VALUES[rawChar],
+          kind: isVowel(rawChar) ? "vowel" : "consonant"
+        });
+      }
+      return letters;
+    }
+
+    function sumEntries(entries) {
+      return entries.reduce((sum, entry) => sum + entry.value, 0);
+    }
+
+    function formatLetterCount(count) {
+      return count + " " + (count === 1 ? "letter" : "letters");
+    }
+
+    function renderEntryList(container, entries, emptyText) {
+      container.innerHTML = "";
+      if (!entries.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-note";
+        empty.textContent = emptyText;
+        container.appendChild(empty);
+        return;
+      }
+
+      entries.forEach((entry, index) => {
+        const row = document.createElement("div");
+        row.className = "entry-row";
+
+        const badge = document.createElement("div");
+        badge.className = "letter-badge";
+        badge.textContent = entry.letter;
+
+        const meta = document.createElement("div");
+        meta.className = "entry-meta";
+
+        const title = document.createElement("strong");
+        title.textContent = "Letter " + (index + 1) + " · " + LETTER_NAMES[entry.letter];
+
+        const desc = document.createElement("span");
+        desc.textContent = (entry.kind === "vowel" ? "Vowel" : "Consonant") + " in septenary cipher";
+
+        meta.appendChild(title);
+        meta.appendChild(desc);
+
+        const value = document.createElement("div");
+        value.className = "entry-value";
+        value.textContent = entry.value;
+
+        row.appendChild(badge);
+        row.appendChild(meta);
+        row.appendChild(value);
+        container.appendChild(row);
+      });
+    }
+
+    function renderCipherLine(className, tokens) {
+      const row = document.createElement("div");
+      row.className = "cipher-line " + className;
+      tokens.forEach((token) => {
+        const cell = document.createElement("div");
+        cell.className = "cipher-token";
+        cell.textContent = token;
+        row.appendChild(cell);
+      });
+      return row;
+    }
+
+    function renderCipherGrid() {
+      const topLetters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M"];
+      const bottomLetters = ["N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+      const values = topLetters.map((letter) => SEPTENARY_VALUES[letter]);
+
+      dom.cipherGrid.innerHTML = "";
+      dom.cipherGrid.appendChild(renderCipherLine("cipher-letters", topLetters));
+      dom.cipherGrid.appendChild(renderCipherLine("cipher-letters", bottomLetters));
+      dom.cipherGrid.appendChild(renderCipherLine("cipher-values", values));
+    }
+
+    function update() {
+      const letters = parsePhrase(dom.phraseInput.value);
+      const vowels = letters.filter((entry) => entry.kind === "vowel");
+      const consonants = letters.filter((entry) => entry.kind === "consonant");
+      const vowelTotal = sumEntries(vowels);
+      const consonantTotal = sumEntries(consonants);
+      const grandTotal = vowelTotal + consonantTotal;
+
+      dom.vowelTotal.textContent = vowelTotal;
+      dom.consonantTotal.textContent = consonantTotal;
+      dom.grandTotal.textContent = grandTotal;
+
+      dom.vowelCount.textContent = formatLetterCount(vowels.length);
+      dom.consonantCount.textContent = formatLetterCount(consonants.length);
+      dom.letterCount.textContent = formatLetterCount(letters.length);
+
+      dom.vowelSummary.textContent = formatLetterCount(vowels.length) + " · " + vowelTotal;
+      dom.consonantSummary.textContent = formatLetterCount(consonants.length) + " · " + consonantTotal;
+      dom.totalSummary.textContent = formatLetterCount(letters.length) + " · " + grandTotal;
+
+      renderEntryList(dom.consonantEntries, consonants, "No consonants counted in the current phrase.");
+      renderEntryList(dom.vowelEntries, vowels, "No vowels counted in the current phrase.");
+      renderEntryList(dom.totalEntries, letters, "Enter a phrase to see the full septenary breakdown.");
+    }
+
+    dom.phraseInput.addEventListener("input", update);
+    dom.treatYAsVowel.addEventListener("change", update);
+    dom.clearButton.addEventListener("click", () => {
+      dom.phraseInput.value = "";
+      update();
+      dom.phraseInput.focus();
+    });
+
+    renderCipherGrid();
+    update();
+  </script>
+</body>
+</html>
