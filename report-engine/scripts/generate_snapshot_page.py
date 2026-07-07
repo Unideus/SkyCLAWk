@@ -237,7 +237,7 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
 
     sun_lon = next(p["lon_num"] for p in planets if p["name"] == "Sun")
     moon_lon = next(p["lon_num"] for p in planets if p["name"] == "Moon")
-    chart_ruler, master, predominator, is_day = calculate_hellenistic_rulers(planets, asc, sun_lon, moon_lon)
+    chart_ruler, master, predominator, is_day = calculate_hellenistic_rulers(planets, asc, sun_lon, moon_lon, jd_ut=jd, lat=lat, lon=lon)
 
     yuga_label = ("Closing Iron Age pressure field, later crossing into ascending Dvapara/Bronze Age after 2020"
                   if year < 2020 else "First ascending Bronze generation")

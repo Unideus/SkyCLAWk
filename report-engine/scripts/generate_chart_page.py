@@ -134,25 +134,34 @@ def get_decan_lord(sign, deg):
     global_decan = sign_idx * 3 + int(deg // 10)
     return DECAN_RULERS[global_decan % 36]
 
-def is_day_birth(asc, sun_lon):
-    """Determine sect by the Sun's position relative to AC/DC on the wheel.
+def is_day_birth(jd_ut, lat, lon):
+    """Determine sect by the Sun's actual physical altitude at birth.
 
-    Day sect = Sun is in the upper half of the wheel (between AC and DC going
-    clockwise through MC). Night sect = Sun in the lower half (between DC and AC
-    going clockwise through IC). This is the traditional Hellenistic method.
+    Day sect = Sun is above the horizon at the moment of birth (i.e., between
+    local sunrise and sunset). This is the physical definition; the chart-based
+    "above horizon" (= Sun in upper half of wheel) is not the same thing, because
+    a 2 AM birth in May at 30°N has the Sun well below the horizon even though
+    the Sun's longitude may happen to fall in the wheel's upper half.
+
+    Computed via Swiss Ephemeris: sun altitude = swe.azalt(jd, ECL2HOR, geopos).
     """
-    # "Above horizon" in the wheel = sun is in the arc from AC clockwise to DC
-    # (passing through MC). Equivalently: the angular distance from ASC to Sun
-    # going clockwise is < 180°.
-    clockwise_from_asc = (sun_lon - asc) % 360
-    return 0 <= clockwise_from_asc < 180
+    geopos = [lon, lat, 0]
+    try:
+        sun, _ = swe.calc_ut(jd_ut, swe.SUN)
+        res = swe.azalt(jd_ut, swe.ECL2HOR, geopos, 0, 0, [sun[0], 0, 1])
+        altitude = res[1]  # +ve = above horizon
+        return altitude > 0
+    except Exception:
+        # Fallback: rough UTC-hour check
+        year, month, day, hour_frac = swe.revjul(jd_ut)
+        return 6.0 <= hour_frac <= 18.0
 
-def calculate_hellenistic_rulers(planets, asc, sun_lon, moon_lon):
+def calculate_hellenistic_rulers(planets, asc, sun_lon, moon_lon, jd_ut=None, lat=0, lon=0):
     """Returns (chart_ruler, master_of_nativity, predominator, is_day)."""
     asc_sign = sign_from_lon(asc)
     chart_ruler = DOMICILE[asc_sign]  # Kurios = domicile lord of Ascendant
 
-    is_day = is_day_birth(asc, sun_lon)
+    is_day = is_day_birth(jd_ut, lat, lon) if jd_ut is not None else False
     lot_fortune = (asc + moon_lon - sun_lon) % 360 if is_day else (asc + sun_lon - moon_lon) % 360
 
     # Traditional planet positions only
@@ -753,7 +762,7 @@ def main():
     # Calculate Hellenistic rulers
     sun_lon = next(p["lon_num"] for p in planets if p["name"] == "Sun")
     moon_lon = next(p["lon_num"] for p in planets if p["name"] == "Moon")
-    chart_ruler, master, predominator, is_day = calculate_hellenistic_rulers(planets, asc, sun_lon, moon_lon)
+    chart_ruler, master, predominator, is_day = calculate_hellenistic_rulers(planets, asc, sun_lon, moon_lon, jd_ut=jd, lat=args.lat, lon=args.lon)
     rulers = {"chart_ruler": chart_ruler, "master": master, "predominator": predominator, "is_day": is_day}
     print(f"\nChart Ruler (Kurios): {chart_ruler}")
     print(f"Master of Nativity (Oikodespotes): {master}")
