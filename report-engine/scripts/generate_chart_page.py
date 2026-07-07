@@ -604,6 +604,17 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
                 # Center the path at (gx, gy). Path is in font's Y-up coords; flip Y for SVG.
                 tx = gx - (xMin + w_g/2) * scale
                 ty = gy + (yMax - h_g/2) * scale
+                # Drop-shadow effect: render a white-stroked copy of the path BEHIND the
+                # colored version. This creates a visual halo/separator that lifts the glyph
+                # off the sign-ring backgrounds. cairo does not support SVG filter elements,
+                # so we use stroke-as-halo instead. Pluto gets a slightly smaller halo.
+                halo_sw = 3.2 if p["name"] != "Pluto" else 2.6
+                shadow_sw = 1.0
+                # Shadow: dark, slightly offset
+                svg += f'<g transform="translate({tx+0.5:.2f},{ty+0.5:.2f}) scale({scale:.4f},-{scale:.4f})"><path d="{info["d"]}" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="{shadow_sw/scale:.2f}" stroke-linejoin="round"/></g>'
+                # Halo: white, behind
+                svg += f'<g transform="translate({tx:.2f},{ty:.2f}) scale({scale:.4f},-{scale:.4f})"><path d="{info["d"]}" fill="none" stroke="white" stroke-width="{halo_sw/scale:.2f}" stroke-linejoin="round"/></g>'
+                # Glyph itself on top
                 svg += f'<g transform="translate({tx:.2f},{ty:.2f}) scale({scale:.4f},-{scale:.4f})"><path d="{info["d"]}" fill="{wheel_glyph_color}"/></g>'
             else:
                 # Fallback to text if path missing
