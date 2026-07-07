@@ -144,14 +144,14 @@ def planet_glyph_svg(planet, color=None, size=56, outline_color=None, outline_gr
         return ""
     if drop_shadow:
         # Three layers (back to front):
-        # 1. Dark drop shadow (slight offset, stroke, dark)
-        # 2. White halo (centered, stroke, white) — lifts glyph off colored background
+        # 1. Dark drop shadow (offset, dark stroke) — gives depth
+        # 2. White halo (centered, thick white stroke) — lifts glyph off background
         # 3. Colored glyph (fill, on top)
-        # Stroke widths are in glyph units; the inner colored path will sit on top
-        # and cover everything but the outer rim of the halo, creating the effect.
-        shadow = glyph_svg_stroke(info["d"], info["bbox"], size, "rgba(0,0,0,0.5)",
-                                   stroke_w=size * 0.08, dx=size * 0.04, dy=size * 0.04)
-        halo = glyph_svg_stroke(info["d"], info["bbox"], size, "white", stroke_w=size * 0.18)
+        # Stroke widths are in ABSOLUTE SVG units (not glyph units) so they remain
+        # visible regardless of glyph scale.
+        shadow = glyph_svg_stroke(info["d"], info["bbox"], size, "rgba(0,0,0,0.55)",
+                                   stroke_w=2.5, dx=1.5, dy=1.5)
+        halo = glyph_svg_stroke(info["d"], info["bbox"], size, "white", stroke_w=5.0)
         main = glyph_svg_path(info["d"], info["bbox"], size, color)
         return f'<g>{shadow}{halo}{main}</g>'
     main = glyph_svg_path(info["d"], info["bbox"], size, color)
