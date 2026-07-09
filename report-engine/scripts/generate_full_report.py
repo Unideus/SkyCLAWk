@@ -1363,7 +1363,7 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
 
     house_sys_label = ES["chart_house_system"] if lang == "es" else "Whole Sign"
     chart_title_label = "Carta Natal" if lang == "es" else "Natal Chart"
-    chart_svg = build_chart_svg(planets, asc, mc, recipient_name, birth_date, birth_time, birth_location, house_sys_label, jd=jd, chart_title=chart_title_label)
+    chart_svg = build_chart_svg(planets, asc, mc, recipient_name, birth_date, birth_time, birth_location, house_sys_label, jd=jd, chart_title=chart_title_label, lang=lang)
 
     # Convert chart SVG to a single-page PDF via cairosvg
     chart_pdf_path = os.path.join(tempfile.gettempdir(), f"chart_page_{year}{month:02d}{day:02d}.pdf")

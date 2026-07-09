@@ -136,7 +136,7 @@ def planet_glyph_svg(planet, color=None, size=56, outline_color=None, outline_gr
 
     If drop_shadow=True, adds a soft white halo + soft dark drop shadow behind the glyph
     for legibility against colored backgrounds (used in the Big-3 house boxes on page 3).
-    Uses SVG <filter> with feGaussianBlur for a real soft feather (not stroked outlines).
+    Uses stroked outlines (the same white-halo + dark-shadow effect used in the wheel).
     """
     if color is None:
         color = PLANET_COLORS.get(planet, "#222")
@@ -144,25 +144,28 @@ def planet_glyph_svg(planet, color=None, size=56, outline_color=None, outline_gr
     if not info:
         return ""
     if drop_shadow:
-        # Single soft black drop shadow. ONE stroked outline, not stacked.
-        # v52 stacked 4 strokes which produced concentric rings ("2 circles").
-        # This is just one stroke: solid black, soft width, modest offset.
         path_d = info["d"]
         xMin, yMin, xMax, yMax = info["bbox"]
         w, h = xMax - xMin, yMax - yMin
         scale = size / max(w, h) if max(w, h) > 0 else 1
-        # One single shadow stroke: 5 SVG units wide, offset (4, 4), opacity 0.75
-        shadow_tx = (size - w * scale) / 2 - xMin * scale + 4
-        shadow_ty = (size - h * scale) / 2 + scale * yMax + 4
+        # Drop shadow: black, slightly offset, soft
+        shadow_tx = (size - w * scale) / 2 - xMin * scale + 1.5
+        shadow_ty = (size - h * scale) / 2 + scale * yMax + 1.5
         shadow = (f'<g transform="translate({shadow_tx:.2f},{shadow_ty:.2f}) scale({scale:.6f},-{scale:.6f})">'
-                  f'<path d="{path_d}" fill="none" stroke="rgba(0,0,0,0.75)" '
-                  f'stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/></g>')
+                  f'<path d="{path_d}" fill="none" stroke="rgba(0,0,0,0.55)" '
+                  f'stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></g>')
+        # White halo: behind the glyph, lifts it off the colored house background
+        halo_tx = (size - w * scale) / 2 - xMin * scale
+        halo_ty = (size - h * scale) / 2 + scale * yMax
+        halo = (f'<g transform="translate({halo_tx:.2f},{halo_ty:.2f}) scale({scale:.6f},-{scale:.6f})">'
+                f'<path d="{path_d}" fill="none" stroke="white" '
+                f'stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/></g>')
         # Main glyph
         tx = (size - w * scale) / 2 - xMin * scale
         ty = (size - h * scale) / 2 + scale * yMax
         main = (f'<g transform="translate({tx:.2f},{ty:.2f}) scale({scale:.6f},-{scale:.6f})">'
                 f'<path d="{path_d}" fill="{color}" stroke="none"/></g>')
-        return f'<g>{shadow}{main}</g>'
+        return f'<g>{shadow}{halo}{main}</g>'
     main = glyph_svg_path(info["d"], info["bbox"], size, color)
     if outline_color:
         outline = glyph_svg_path(info["d"], info["bbox"], size * outline_grow, outline_color)
@@ -375,8 +378,11 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
     moon_light = LIGHT_ELEMENT.get(moon_color, '#e8e8e8')
     asc_light = LIGHT_ELEMENT.get(asc_color, '#e8e8e8')
     # Planet glyphs centered in the cell (48-unit glyph centered at 60,65)
-    sun_glyph_svg = planet_glyph_svg("Sun", PLANET_COLORS["Sun"], 48, drop_shadow=False)
-    moon_glyph_svg = planet_glyph_svg("Moon", "#000000", 48, drop_shadow=False)  # Moon: black
+    # drop_shadow=True adds the white halo + dark drop shadow (the same effect
+    # that was on the wheel glyphs before they were cleaned up) — lifts the
+    # colored glyphs off the element-tinted house backgrounds.
+    sun_glyph_svg = planet_glyph_svg("Sun", PLANET_COLORS["Sun"], 48, drop_shadow=True)
+    moon_glyph_svg = planet_glyph_svg("Moon", "#000000", 48, drop_shadow=True)  # Moon: black
     # Sign glyphs at 70% of 4x (size 140, was 200) — drawn BEFORE polygon so it sits behind the house outline
     sun_sign_svg = sign_glyph_svg(sun_sign, sun_light, 140, outline_color=sun_color, interior_color=sun_light)
     moon_sign_svg = sign_glyph_svg(moon_sign, moon_light, 140, outline_color=moon_color, interior_color=moon_light)

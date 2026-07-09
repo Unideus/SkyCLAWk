@@ -46,6 +46,19 @@ SWE_BODIES = {
 GLYPHS = {"Sun":"☉","Moon":"☽","Mercury":"☿","Venus":"♀","Mars":"♂",
           "Jupiter":"♃","Saturn":"♄","Uranus":"♅","Neptune":"♆","Pluto":"♇",
           "N.Node":"☊"}
+
+# Spanish translations for chart page labels.
+# These match the ES_* dicts in generate_snapshot_page.py so the Spanish chart
+# page reads naturally with the Spanish snapshot page.
+ES_PLANETS = {
+    "Sun": "Sol", "Moon": "Luna", "Mercury": "Mercurio", "Venus": "Venus",
+    "Mars": "Marte", "Jupiter": "Júpiter", "Saturn": "Saturno",
+    "Uranus": "Urano", "Neptune": "Neptuno", "Pluto": "Plutón", "N.Node": "Nodo",
+}
+ES_SIGNS = {"Aries":"Aries","Taurus":"Tauro","Gemini":"Géminis","Cancer":"Cáncer","Leo":"Leo","Virgo":"Virgo","Libra":"Libra","Scorpio":"Escorpio","Sagittarius":"Sagitario","Capricorn":"Capricornio","Aquarius":"Acuario","Pisces":"Piscis"}
+ES_ELEMENTS = {"Fire":"Fuego","Earth":"Tierra","Air":"Aire","Water":"Agua"}
+ES_QUALITIES = {"Cardinal":"Cardinal","Fixed":"Fija","Mutable":"Mutable"}
+ES_HOUSE_ABBR = "C"  # "Casa" in Spanish, vs English "H" for "House"
 SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra",
          "Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"]
 SIGN_GLYPHS = ["♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒","♓"]
@@ -236,13 +249,24 @@ NON_ASPECT_BODIES = {"N.Node"}
 # We build the SVG at 612×792 (1:1 with PDF points) so there's NO scaling,
 # NO aspect-ratio mismatch, and NO off-center pushing.
 
-def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_time="", birth_location="", house_system="Whole Sign", rulers=None, jd=None, chart_title="Natal Chart"):
+def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_time="", birth_location="", house_system="Whole Sign", rulers=None, jd=None, chart_title="Natal Chart", lang="en"):
     W, H = 612, 792          # US Letter in points (72dpi)
     MARGIN = 18              # 0.25" printer-safe margin on all sides
     cx, cy = W / 2, 280      # Wheel centered on page, kept high
     WHEEL_R = 200            # Wheel radius (20% smaller from 250)
     BOX_W, BOX_H = 120, 52     # Bigger boxes for larger text
     BOX_GAP = 8
+
+    # Language helpers — when lang="es", translate planet/sign/element/quality
+    # labels. When lang="en", use the English values directly.
+    # Note: variable names are prefixed with `t_` (for "translate") to avoid
+    # shadowing the planet loop variable `pname` below.
+    is_es = (lang == "es")
+    house_abbr = ES_HOUSE_ABBR if is_es else "H"
+    t_planet = lambda n: ES_PLANETS.get(n, n) if is_es else n
+    t_sign = lambda s: ES_SIGNS.get(s, s) if is_es else s
+    t_elem = lambda e: ES_ELEMENTS.get(e, e) if is_es else e
+    t_qual = lambda q: ES_QUALITIES.get(q, q) if is_es else q
 
     def ang(lon_deg):
         return math.radians(180 - (lon_deg - asc))
@@ -488,20 +512,21 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
         svg += f'<text x="{g["mx"]:.1f}" y="{g["my"]:.1f}" text-anchor="middle" dominant-baseline="central" font-family="FreeSerif" font-size="13" fill="{g["color"]}" font-weight="bold">{g["glyph"]}</text>'
 
     # ── Planet dots and glyphs inside the house ring ──
-    # Auto-separation: compute seam, sort, push apart, render glyphs
+    # Auto-separation applies to PLANETS ONLY. Angles (AC, MC, etc.) are rendered
+    # separately as ticks + labels at the ecliptic and are NOT included in the
+    # separation logic — they have their own fixed positions and should not
+    # influence planet spacing.
     # Planets sit between ecliptic and house inner edge
     rPlanetDot = rEcliptic
     rPlanetGlyph = rEcliptic - 24
     GLYPH_FONT_PX = 13
-    GLYPH_MIN_GAP_PX = 11
+    GLYPH_MIN_GAP_PX = 14  # ↑ from 11 — just enough room for glyph to be fully visible
     MIN_SEP_DEG = max(0.8, min(8.0, ((GLYPH_FONT_PX + GLYPH_MIN_GAP_PX) / rPlanetGlyph) * (180 / math.pi)))
 
-    # Combine planets + angles for separation
+    # Planets ONLY for separation (angles excluded — they get their own ticks/labels)
     all_items = []
     for p in planets:
         all_items.append({"key": "planet_" + p["name"], "lon": p["lon_num"], "type": "planet", "ref": p, "fixed": False})
-    for a in angles:
-        all_items.append({"key": "angle_" + a["name"], "lon": a["lon_num"], "type": "angle", "ref": a, "fixed": True})
 
     # Compute seam (opposite centroid)
     sx, sy = 0, 0
@@ -604,17 +629,9 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
                 # Center the path at (gx, gy). Path is in font's Y-up coords; flip Y for SVG.
                 tx = gx - (xMin + w_g/2) * scale
                 ty = gy + (yMax - h_g/2) * scale
-                # Drop-shadow effect: render a white-stroked copy of the path BEHIND the
-                # colored version. This creates a visual halo/separator that lifts the glyph
-                # off the sign-ring backgrounds. cairo does not support SVG filter elements,
-                # so we use stroke-as-halo instead. Pluto gets a slightly smaller halo.
-                halo_sw = 3.2 if p["name"] != "Pluto" else 2.6
-                shadow_sw = 1.0
-                # Shadow: dark, slightly offset
-                svg += f'<g transform="translate({tx+0.5:.2f},{ty+0.5:.2f}) scale({scale:.4f},-{scale:.4f})"><path d="{info["d"]}" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="{shadow_sw/scale:.2f}" stroke-linejoin="round"/></g>'
-                # Halo: white, behind
-                svg += f'<g transform="translate({tx:.2f},{ty:.2f}) scale({scale:.4f},-{scale:.4f})"><path d="{info["d"]}" fill="none" stroke="white" stroke-width="{halo_sw/scale:.2f}" stroke-linejoin="round"/></g>'
-                # Glyph itself on top
+                # NO white halo / no drop shadow — glyph sits on its own against the wheel background.
+                # The galvanic color is the only visual treatment; the auto-separation gap is wide
+                # enough to prevent overlap.
                 svg += f'<g transform="translate({tx:.2f},{ty:.2f}) scale({scale:.4f},-{scale:.4f})"><path d="{info["d"]}" fill="{wheel_glyph_color}"/></g>'
             else:
                 # Fallback to text if path missing
@@ -689,10 +706,10 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
         aby = angle_y + ANGLE_BOX_H / 2
         # AC is always the cusp of House 1; MC is always the cusp of House 10
         angle_house = 1 if angle_obj["name"] == "AC" else 10
-        deg_str = f'{angle_obj["sign"]} {angle_obj["deg"]}&#176;{angle_obj["min"]:02d}&#39;'
+        deg_str = f'{t_sign(angle_obj["sign"])} {angle_obj["deg"]}&#176;{angle_obj["min"]:02d}&#39;'
         svg += f'<text x="{abx:.0f}" y="{aby - 8:.0f}" font-size="22" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#222">{angle_obj["name"]}</text>'
         svg += f'<text x="{abx:.0f}" y="{aby + 8:.0f}" font-size="9" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#444">{deg_str}</text>'
-        svg += f'<text x="{abx:.0f}" y="{aby + 18:.0f}" font-size="7" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#333">H{angle_house} &#183; {angle_obj["element"]} &#183; {angle_obj["quality"]}</text>'
+        svg += f'<text x="{abx:.0f}" y="{aby + 18:.0f}" font-size="7" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#333">{house_abbr}{angle_house} &#183; {t_elem(angle_obj["element"])} &#183; {t_qual(angle_obj["quality"])}</text>'
 
     # ── Planet rows ──
     for row_idx, names in enumerate(row_configs):
@@ -719,22 +736,30 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
             # Tuned widths for DejaVu Sans rendering at this scale.
             glyph_w = 22  # visual width of one glyph character at font-size 22
             gap_w = 5     # gap between glyph and name
-            name_w = len(p["name"]) * 6  # approximate width of name at font-size 9
+            # Use the translated name for width calc so the box centers properly
+            # for both English (Sun) and Spanish (Mercurio, Júpiter, etc.)
+            name_w = len(t_planet(p["name"])) * 6  # approximate width of name at font-size 9
             pair_w = glyph_w + gap_w + name_w
             pair_x = box_x + (bw - pair_w) / 2  # left edge of the pair
             glyph_x = pair_x + glyph_w / 2      # center of the glyph
             name_x = pair_x + glyph_w + gap_w   # left edge of the name (text-anchor=start)
             svg += f'<text x="{glyph_x:.0f}" y="{by - 8:.0f}" font-size="22" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#222">{p["glyph"]}</text>'
-            svg += f'<text x="{name_x:.0f}" y="{by - 8:.0f}" font-size="9" text-anchor="start" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#222"><tspan font-weight="bold">{p["name"]}</tspan></text>'
-            # Line 2: sign (e.g., "Gemini")
-            svg += f'<text x="{box_x + bw/2:.0f}" y="{by + 6:.0f}" font-size="9" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#444">{p["sign"]} {p["deg"]}&#176;{p["min"]:02d}&#39;</text>'
+            svg += f'<text x="{name_x:.0f}" y="{by - 8:.0f}" font-size="9" text-anchor="start" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#222"><tspan font-weight="bold">{t_planet(p["name"])}</tspan></text>'
+            # Line 2: sign (e.g., "Gemini" / "Géminis")
+            svg += f'<text x="{box_x + bw/2:.0f}" y="{by + 6:.0f}" font-size="9" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#444">{t_sign(p["sign"])} {p["deg"]}&#176;{p["min"]:02d}&#39;</text>'
             # Line 3: house
-            svg += f'<text x="{box_x + bw/2:.0f}" y="{by + 20:.0f}" font-size="7" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#333">H{house_num} &#183; {p["element"]} &#183; {p["quality"]}</text>'
+            svg += f'<text x="{box_x + bw/2:.0f}" y="{by + 20:.0f}" font-size="7" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#333">{house_abbr}{house_num} &#183; {t_elem(p["element"])} &#183; {t_qual(p["quality"])}</text>'
 
     # ── Disclaimer at bottom of chart page (2 lines) — moved down 2 spaces
     disclaimer_y = BOXES_Y + 3 * (BOX_H + BOX_GAP) + 8 + 30
-    svg += f'<text x="{cx}" y="{disclaimer_y}" font-size="11" text-anchor="middle" font-family="DejaVu Sans, sans-serif" fill="#666">This chart is the personal coordinate map used by the report.</text>'
-    svg += f'<text x="{cx}" y="{disclaimer_y + 15}" font-size="11" text-anchor="middle" font-family="DejaVu Sans, sans-serif" fill="#666">It locates this chart inside the larger Zodiyuga SkyClock cycle framework, not a full natal reading.</text>'
+    if is_es:
+        disclaimer_1 = "Esta carta es el mapa de coordenadas personales que usa el informe."
+        disclaimer_2 = "Ubica esta carta dentro del marco más amplio del ciclo Zodiyuga SkyClock, no es una lectura natal completa."
+    else:
+        disclaimer_1 = "This chart is the personal coordinate map used by the report."
+        disclaimer_2 = "It locates this chart inside the larger Zodiyuga SkyClock cycle framework, not a full natal reading."
+    svg += f'<text x="{cx}" y="{disclaimer_y}" font-size="11" text-anchor="middle" font-family="DejaVu Sans, sans-serif" fill="#666">{disclaimer_1}</text>'
+    svg += f'<text x="{cx}" y="{disclaimer_y + 15}" font-size="11" text-anchor="middle" font-family="DejaVu Sans, sans-serif" fill="#666">{disclaimer_2}</text>'
 
     svg += '</svg>'
     return svg
