@@ -375,10 +375,10 @@ ES = {
     "th_marker_year": "Año", "th_marker": "Marcador", "th_how": "Cómo usarlo",
     "birth_imprint": "Imprenta de nacimiento: La conjunción Saturno-Júpiter que definió su campo generacional y estableció el tono de la era que entered.",
     "saturn_return": "Retorno de Saturno",
-    "sr_desc": "Saturno regresa a su posición natal a los {age} años: un hito estructural que marca el final de un capítulo y el comienzo del siguiente. Revise lo construido, libere lo que ya no sirve y comprométase con el próximo ciclo de responsabilidad.",
+    "sr_desc": "Saturno regresa a tu posición natal a los {age} años: un hito estructural que marca el final de un capítulo y el comienzo del siguiente. Revisa lo construido, libera lo que ya no sirve y comprométete con el próximo ciclo de responsabilidad.",
     "sr_first": "Primer", "sr_second": "Segundo",
     "uranus_opp": "Oposición de Urano",
-    "uo_desc": "Urano en tránsito se opone a su posición natal a los {age} años: el despertar clásico de la mediana edad. Los patrones establecidos son desafiados, las viejas identidades se rompen y comienza una nueva fase de libertad y experimentación. Esta es la señal de 'no se conforme' del reloj cósmico.",
+    "uo_desc": "Urano en tránsito se opone a tu posición natal a los {age} años: el despertar clásico de la mediana edad. Los patrones establecidos son desafiados, las viejas identidades se rompen y comienza una nueva fase de libertad y experimentación. Esta es la señal de 'no te conformes' del reloj cósmico.",
     "sn_desc": "A los {age} años, Saturno y Neptuno se encuentran en {sign}: una alineación rara que fusiona la realidad estructural con la imaginación visionaria. Las viejas ilusiones se disuelven; los nuevos sueños deben construirse sobre tierra firme. Un tiempo para alinear lo práctico con lo significativo.",
     "sj_marker_data": [
         (1940, "Tauro", "Crisis", "Segunda Guerra Mundial, Gran Depresión y la plantilla de reconstrucción del orden de posguerra."),
@@ -401,23 +401,20 @@ ES = {
     "glossary_title": "Glosario Ampliado",
     "glossary": [
         ("Metrónomo (♄☌♃):", "Una referencia de tiempo repetitiva que establece el tempo para un sistema más grande. En este modelo, la conjunción Saturno–Júpiter (♄☌♃) funciona como el metrónomo maestro — un reloj celeste predecible que marca cuándo una onda generacional termina y la siguiente comienza. Así como un metrónomo musical no determina qué notas se tocan sino que establece el ritmo que siguen, el metrónomo ♄☌♃ no determina el destino individual sino que establece el tempo estructural que cada generación sigue."),
-        ("Conjunción Saturno–Júpiter (♄☌♃):", "Un marcador de tiempo civilizacional de aproximadamente 20 años usado aquí como metrónomo generacional para señalar cambios socioeconómicos. Cada conjunción ocurre en un signo zodiacal específico, y el elemento de ese signo (Tierra, Aire, Fuego o Agua) determina el carácter elemental de la era."),
-        ("Saeculum:", "Un ritmo histórico de aproximadamente 80 años que se mueve a través de cuatro estaciones generacionales: Primavera (Alto), Verano (Despertar), Otoño (Desenredo) e Invierno (Crisis), mapeando el aliento de la confianza institucional y cultural."),
-        ("Era Elemental:", "Un período de aproximadamente 200 años en el que las conjunciones Saturno-Júpiter enfatizan consistentemente un elemento (Tierra, Aire, Fuego o Agua), estableciendo el tema estructural mayor de la civilización global. La Era de Tierra se extendió desde principios del siglo XIX hasta 2020; la Era de Aire comienza en 2020 y se extiende hasta aproximadamente 2219."),
-        ("Onda de Yuga:", "El ciclo de conciencia de 26.000 años usado en este modelo para mapear el ascenso y descenso civilizacional relativo a la densidad y percepción energética. El Kali Yuga (Edad de Hierro) representa la conciencia material más densa; el Dvapara Yuga (Edad de Bronce) marca la ascensión hacia la percepción energética e informacional."),
-        ("Era de Tierra:", "La era elemental que se extendió desde principios del siglo XIX hasta 2020. Abarca las conjunciones Saturno-Júpiter de 1842 en Capricornio, 1861 en Capricornio, 1881 en Tauro, 1901 en Sagitario, 1921 en Virgo, 1940 en Tauro, 1961 en Capricornio y 2000 en Tauro. Caracterizada por producción industrial en masa, poder centralizado del Estado-nación, infraestructura basada en combustibles fósiles, expansión suburbana, burocracia en papel y propiedad física como forma dominante de riqueza. La conjunción terminal de la Era de Tierra en 2000 en Tauro sirvió como su alineación final de despedida."),
-        ("Era de Aire:", "La era elemental actual, fijada por la conjunción Saturno-Júpiter de 2020 en Acuario. Caracterizada por datos, redes, protocolos, poder distribuido, infraestructura invisible y coordinación a distancia. Se extiende hasta aproximadamente el año 2219."),
-        ("Era de Agua:", "La era elemental que sigue a la Era de Aire, comenzando cuando las conjunciones Saturno-Júpiter se agrupan en signos de Agua. Las eras de Agua no han dominado el período moderno, pero históricamente coinciden con el surgimiento de movimientos emocionales masivos, psicología profunda, expansión oceánica y submarina, la emergencia de material colectivo largamente enterrado, y la disolución de las estructuras duras de la era anterior. La firma de una era de Agua es la saturación de la vida pública con sentimiento — lo que la era anterior endureció, esta era lo disuelve, y lo que la era anterior ignoró, esta era lo nombra."),
-        ("Era de Fuego:", "La era elemental que sigue a la Era de Agua, comenzando con la primera conjunción Saturno-Júpiter en un signo de Fuego. Las eras de Fuego históricas coinciden con expansión civilizacional, liderazgo carismático, fervor doctrinal e ideológico, grandes movilizaciones religiosas y militares, y la ignición visible de nuevas épocas culturales. La firma de una era de Fuego es una nueva carta mítica — una historia fundacional fresca que la era anterior no pudo proveer."),
-        ("Tornillo de Línea de Tiempo:", "La metáfora 3D de Zodiyuga SkyClock para ciclos anidados. En lugar de representar una columna física vertical, conceptualiza el tiempo girando como un hélice continua, combinando órbitas cíclicas con avance temporal hacia adelante."),
-        ("NCP (Polo Celeste Norte):", "El punto de referencia de Polaris — el punto en el cielo norte alrededor del cual las estrellas parecen rotar desde nuestra perspectiva a nivel del suelo. En el modelo espacial de Zodiyuga SkyClock, el NCP se trata como uno de dos puntos de referencia celeste desplazados en un plano celeste plano, separado del ENP por aproximadamente 23.4°."),
-        ("ENP (Polo Norte Eclíptico):", "El punto de referencia del Corazón de Draco — la referencia celeste profunda sostenida en la constelación Draco. En el modelo espacial de Zodiyuga SkyClock, el ENP es el segundo de dos puntos de referencia desplazados en el mismo plano celeste plano. La relación angular entre NCP y ENP genera la metáfora del tornillo de línea de tiempo usada en todo este informe."),
-        ("Precesión:", "En términos astronómicos estándar, la precesión se describe como un desplazamiento axial de 26.000 años del eje de rotación de la Tierra, cambiando gradualmente la alineación entre el zodíaco tropical (estacional) y el zodíaco sidéreo (basado en estrellas). En el marco de Zodiyuga SkyClock, esto se procesa puramente como el mecanismo de tiempo geométrico que impulsa la onda de Yuga: a medida que la relación angular entre los puntos de referencia celestes evoluciona, la densidad colectiva de percepción sube y baja."),
         ("Retorno de Saturno:", "El momento en que Saturno en tránsito regresa a la posición zodiacal exacta que ocupaba al nacer, ocurriendo aproximadamente cada 29.5 años. El Primer Retorno de Saturno (alrededor de los 29-30 años) marca el final de la juventud y el comienzo de la adultez madura. El Segundo (alrededor de los 58-60 años) marca la transición de la mediana edad al rol de anciano."),
         ("Oposición de Urano:", "El momento en que Urano en tránsito alcanza el punto exactamente opuesto a su posición natal, ocurriendo alrededor de los 42 años (la mitad de la órbita de 84 años de Urano). Es el despertar clásico de la mediana edad — un desafío a los patrones establecidos y una invitación a experimentar."),
+        ("Conjunción Saturno–Júpiter (♄☌♃):", "Un marcador de tiempo civilizacional de aproximadamente 20 años usado aquí como metrónomo generacional para señalar cambios socioeconómicos. Cada conjunción ocurre en un signo zodiacal específico, y el elemento de ese signo (Tierra, Aire, Fuego o Agua) determina el carácter elemental de la era."),
+        ("Saeculum:", "Un ritmo histórico de aproximadamente 80 años que se mueve a través de cuatro estaciones generacionales: Primavera (Alto), Verano (Despertar), Otoño (Desenredo) e Invierno (Crisis), mapeando el aliento de la confianza institucional y cultural."),
         ("Giro (Fase del Saeculum):", "Una de cuatro fases estacionales dentro del ciclo del saeculum: Primavera (Alto) — confianza cívica y expansión institucional; Verano (Despertar) — individualismo y cuestionamiento cultural; Otoño (Desenredo) — decadencia institucional y fractura; Invierno (Crisis) — colapso estructural y reconstrucción."),
         ("Arquetipo (Generacional):", "El tipo de personalidad recurrente asignado a cada generación por su posición en el saeculum: Profeta (Boomers, Gen Alpha), Nómada (Gen X), Héroe (Millennials), Artista (Gen Z). Cada arquetipo juega un rol distinto en el giro que madura."),
-        ("Era de Aire:", "La era elemental actual, bloqueada por la conjunción Saturno-Júpiter de 2020 en Acuario. Caracterizada por datos, redes, protocolos, poder distribuido, infraestructura invisible y coordinación a distancia. Se extiende hasta aproximadamente 2219."),
+        ("Era Elemental:", "Un período de aproximadamente 200 años en el que las conjunciones Saturno-Júpiter enfatizan consistentemente un elemento (Tierra, Aire, Fuego o Agua), estableciendo el tema estructural mayor de la civilización global. La Era de Tierra se extendió desde principios del siglo XIX hasta 2020; la Era de Aire comienza en 2020 y se extiende hasta aproximadamente 2219."),
+        ("Era de Tierra:", "La era elemental que se extendió desde principios del siglo XIX hasta 2020. Abarca las conjunciones Saturno-Júpiter de 1842 en Capricornio, 1861 en Capricornio, 1881 en Tauro, 1901 en Sagitario, 1921 en Virgo, 1940 en Tauro, 1961 en Capricornio y 2000 en Tauro. Caracterizada por producción industrial en masa, poder centralizado del Estado-nación, infraestructura basada en combustibles fósiles, expansión suburbana, burocracia en papel y propiedad física como forma dominante de riqueza. La conjunción terminal de la Era de Tierra en 2000 en Tauro sirvió como su alineación final de despedida."),
+        ("Era de Aire:", "La era elemental actual, fijada por la conjunción Saturno-Júpiter de 2020 en Acuario. Caracterizada por datos, redes, protocolos, poder distribuido, infraestructura invisible y coordinación a distancia. Se extiende hasta aproximadamente 2219."),
+        ("Era de Agua:", "La era elemental que sigue a la Era de Aire, comenzando cuando las conjunciones Saturno-Júpiter se agrupan en signos de Agua. Las eras de Agua no han dominado el período moderno, pero históricamente coinciden con el surgimiento de movimientos emocionales masivos, psicología profunda, expansión oceánica y submarina, la emergencia de material colectivo largamente enterrado, y la disolución de las estructuras duras de la era anterior. La firma de una era de Agua es la saturación de la vida pública con sentimiento — lo que la era anterior endureció, esta era lo disuelve, y lo que la era anterior ignoró, esta era lo nombra."),
+        ("Era de Fuego:", "La era elemental que sigue a la Era de Agua, comenzando con la primera conjunción Saturno-Júpiter en un signo de Fuego. Las eras de Fuego históricas coinciden con expansión civilizacional, liderazgo carismático, fervor doctrinal e ideológico, grandes movilizaciones religiosas y militares, y la ignición visible de nuevas épocas culturales. La firma de una era de Fuego es una nueva carta mítica — una historia fundacional fresca que la era anterior no pudo proveer."),
+        ("Precesión:", "En términos astronómicos estándar, la precesión se describe como un desplazamiento axial de 26.000 años del eje de rotación de la Tierra, cambiando gradualmente la alineación entre el zodíaco tropical (estacional) y el zodíaco sidéreo (basado en estrellas). En el marco de Zodiyuga SkyClock, esto se procesa puramente como el mecanismo de tiempo geométrico que impulsa la onda de Yuga: a medida que la relación angular entre los puntos de referencia celestes evoluciona, la densidad colectiva de percepción sube y baja."),
+        ("Onda de Yuga:", "El ciclo de conciencia de 26.000 años usado en este modelo para mapear el ascenso y descenso civilizacional relativo a la densidad y percepción energética. El Kali Yuga (Edad de Hierro) representa la conciencia material más densa; el Dvapara Yuga (Edad de Bronce) marca la ascensión hacia la percepción energética e informacional."),
+        ("Las Estaciones, los Signos y la Eclíptica:", "La eclíptica es el camino aparente que el Sol traza a través del cielo en el curso de un año. Los doce signos del zodíaco son segmentos de 30 grados de este círculo, nombrados según las constelaciones que alguna vez se alinearon con ellos. Debido a que el zodíaco tropical está anclado a las estaciones, el signo Aries siempre comienza en el equinoccio de primavera — independientemente de dónde se encuentren actualmente las estrellas. Cada signo pertenece a uno de cuatro elementos (Fuego, Tierra, Aire, Agua) y a una de tres cualidades (Cardinal, Fija, Mutable), dando a cada signo un carácter distinto que colorea cualquier planeta que pase por él."),
     ],
     "th_house": "House",
     "planet_placements": "Planet Placements",
@@ -431,6 +428,7 @@ ES = {
     "footer2": "This report is calibrated strictly for educational, structural, and research integration.",
     "page_of": "Page {n} of {total}",
     "moon_para": "\nYour Moon in {moon} shapes the inner emotional weather beneath the Sun identity. Where the Sun is how you shine, the Moon is how you feel. This placement gives you {interp}. The Moon sign is the private instrument through which you process the macro-weather described above - it colors how you receive, digest, and respond to the structural pressures of your era.\n",
+    "moon_para_es": "\nTu Luna en {moon} da forma al clima emocional interno bajo la identidad solar. Donde el Sol es cómo brillas, la Luna es cómo sientes. Esta posición te da {interp}. El signo lunar es el instrumento privado a través del cual procesas el macroclima descrito arriba — colorea cómo recibes, digieres y respondes a las presiones estructurales de tu era.\n",
     "narrative_not_found": "<h2>1. Your Cosmic Snapshot</h2><p>Prose template not found for {arch} / {sun}.</p>",
     "chart_house_system": "Signo Completo",
 }
@@ -512,7 +510,7 @@ def load_narrative(archetype, sun_sign, moon_sign=None, asc_sign=None, lang="en"
     # Inject Moon sign paragraph
     if lang == "es":
         moon_interp = MOON_SIGN_INTERPRETATIONS_ES.get(moon_sign, "profundidad emocional y ritmo interno")
-        moon_para = ES["moon_para"].format(moon=moon_sign, interp=moon_interp)
+        moon_para = ES["moon_para_es"].format(moon=moon_sign, interp=moon_interp)
     else:
         moon_interp = MOON_SIGN_INTERPRETATIONS.get(moon_sign, "emotional depth and inner rhythm")
         moon_para = f"\nYour Moon in {moon_sign} shapes the inner emotional weather beneath the Sun's identity. Where the Sun is how you shine, the Moon is how you feel. This placement gives you {moon_interp}. The Moon sign is the private instrument through which you process the macro-weather described above — it colors how you receive, digest, and respond to the structural pressures of your era.\n"
@@ -953,13 +951,20 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
             "midlife": ES["meaning_midlife"],
             "elder": ES["meaning_elder"],
         }
+        # ES turning names match the EN turning names; translate here.
+        ES_TURN_NAMES = {
+            "High": "Alto", "Awakening": "Despertar",
+            "Unraveling": "Desenredo", "Crisis": "Crisis",
+        }
         life_rows = ""
         for phase, age_range, stage_key in life_phases:
             age_start = int(age_range.split("–")[0])
             c = conj_for_age_block(year, age_start)
             c_year, c_sign, c_elem, c_turn = c
             yrs = f"{year + age_start}–{year + age_start + 20}"
-            weather = f"{c_year} {c_sign} / {c_turn}"
+            # Conjunction / Turning column: drop the year, show sign + turning only
+            # (mirrors the English version's `weather = f"{c_sign} / {c_turn}"`)
+            weather = f"{c_sign} / {ES_TURN_NAMES.get(c_turn, c_turn)}"
             life_rows += f'<tr><td><strong>{phase}</strong></td><td style="white-space:nowrap;">{age_range}</td><td style="white-space:nowrap;">{yrs}</td><td>{weather}</td><td>{meaning_map_es[stage_key]}</td></tr>'
         life_section = f"""
         <table>
@@ -1020,7 +1025,7 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     # backbone of this report. Each entry is the year/sign/turning + a one-line era description
     # used for the row's "How to use" cell. The 1921 Virgo entry is the actual predecessor of
     # the 1940 conjunction; included for completeness but the 1928 Leo entry is intentionally
-    # omitted (it is not an actual S/J conjunction — that boundary is a known data issue).
+    # omitted (it is not an actual S-J conjunction — that boundary is a known data issue).
     SJ_MARKER_DATA = [
         (1921, "Virgo",    "Crisis",     "Earth", "Pre-modern conjunction preceding the 1940 sequence. Last pre-industrial alignment in the Earth era's opening sequence."),
         (1940, "Taurus",   "Crisis",     "Earth", "The crisis that built the world you were born into. World War II, Great Depression, and the reconstruction template that defined the post-war order. This is the structural foundation your childhood stood on — understanding it reveals why the institutions of your youth were built the way they were."),
@@ -1031,6 +1036,18 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
         (2040, "Libra",    "High",       "Air",   "Projected Air High — the rebuilt civic structures of a networked world. This is the era your mature leadership helps shape. The question: what did you build that will be part of this new foundation?"),
         (2060, "Aquarius", "Awakening",  "Air",   "Projected Air Awakening — renewed cultural questioning inside the networked paradigm. Your elder years coincide with this turning. The question: what wisdom do you carry forward, and what do you release?"),
     ]
+    # Spanish translations of the S-J marker descriptions, keyed by (year, sign).
+    # When lang="es", we look up the ES version; otherwise we use the English desc.
+    SJ_MARKER_DATA_ES = {
+        (1921, "Virgo"):    "Conjunción pre-moderna que precede la secuencia de 1940. Última alineación pre-industrial en la secuencia de apertura de la Era de Tierra.",
+        (1940, "Taurus"):   "La crisis que construyó el mundo en el que naciste. Segunda Guerra Mundial, Gran Depresión y la plantilla de reconstrucción que definió el orden de posguerra. Esta es la base estructural sobre la que se sostuvo tu infancia — entenderla revela por qué las instituciones de tu juventud se construyeron como se construyeron.",
+        (1961, "Capricorn"):"El alto cívico que enmarcó tus años formativos. Suburbios, carrera espacial, consenso de Guerra Fría y confianza institucional. Este es el clima cultural en el que te criaste — sus fortalezas te dieron seguridad, sus puntos ciegos te dieron las contradicciones que luego tendrías que navegar.",
+        (1981, "Libra"):    "El despertar cultural de tu adultez temprana. Primera señal de Aire después de una secuencia de 160 años de Tierra — computación personal, redes tempranas, cuestionamiento cultural. Esta conjunción marcó el cambio del mundo centralizado de tu juventud al descentralizado en el que construirías tu carrera.",
+        (2000, "Taurus"):   "El desenredo de la mediana edad. Conjunción final de Tierra en 600 años — burbuja puntocom, 11-S, hiper-financiarización y límites materiales expuestos. Este es cuando los sistemas viejos comenzaron a fallar visiblemente. Tu tarea aquí fue identificar qué estaba muriendo y posicionarte para lo que venía.",
+        (2020, "Aquarius"): "El giro de crisis que bloquea la Era de Aire. Choque pandémico, reinicio institucional y dependencia de red inevitable. Este es el punto de pivote — las estructuras en las que confiabas fueron puestas a prueba y el nuevo paradigma se volvió ineludible. Revisa qué se sostuvo y qué se rompió.",
+        (2040, "Libra"):    "Alto de Aire proyectado — las estructuras cívicas reconstruidas de un mundo en red. Esta es la era que tu liderazgo maduro ayuda a dar forma. La pregunta: ¿qué construiste que será parte de esta nueva base?",
+        (2060, "Aquarius"): "Despertar de Aire proyectado — cuestionamiento cultural renovado dentro del paradigma en red. Tus años de vejez coinciden con este giro. La pregunta: ¿qué sabiduría llevas adelante y qué liberas?",
+    }
 
     # ── Anchor row: the S/J conjunction that anchors the recipient's generation
     #    Inserted FIRST (above the birth row and all other markers) and styled
@@ -1044,6 +1061,8 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     if anchor_entry is None:
         anchor_entry = SJ_MARKER_DATA[0]
     anchor_year, anchor_sign, anchor_turn, anchor_elem, anchor_desc = anchor_entry
+    # Look up the Spanish description for the anchor (if applicable)
+    anchor_desc_disp = SJ_MARKER_DATA_ES.get((anchor_year, anchor_sign), anchor_desc) if lang == "es" else anchor_desc
     # Compute the exact degree of the conjunction via bisection on the year window
     # (kept for potential future use but the anchor row no longer shows the degree —
     #  it now matches the rest of the marker column for visual consistency)
@@ -1079,27 +1098,63 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     # as the other S-J conjunction rows: ♄☌♃ in ♉ Taurus — High turning, Earth
     # Uses the same 16px glyphs and same italic style. The element-tinted
     # background and bold weight make this row visually distinct as the anchor.
+    # Spanish: turn name + element translated, anchor label translated.
+    ES_TURN_NAMES_ANCHOR = {
+        "High": "Alto", "Awakening": "Despertar",
+        "Unraveling": "Desenredo", "Crisis": "Crisis",
+    }
+    ES_ELEMENTS_ANCHOR = {
+        "Fire": "Fuego", "Earth": "Tierra", "Air": "Aire", "Water": "Agua",
+    }
+    ES_SIGNS_ANCHOR = {
+        "Aries": "Aries", "Taurus": "Tauro", "Gemini": "Géminis",
+        "Cancer": "Cáncer", "Leo": "Leo", "Virgo": "Virgo",
+        "Libra": "Libra", "Scorpio": "Escorpio", "Sagittarius": "Sagitario",
+        "Capricorn": "Capricornio", "Aquarius": "Acuario", "Pisces": "Piscis",
+    }
+    if lang == "es":
+        anchor_turn_disp = ES_TURN_NAMES_ANCHOR.get(anchor_turn, anchor_turn)
+        anchor_elem_disp = ES_ELEMENTS_ANCHOR.get(anchor_elem, anchor_elem)
+        anchor_sign_disp = ES_SIGNS_ANCHOR.get(anchor_sign, anchor_sign)
+        anchor_desc_label = "Ancla Generacional"
+    else:
+        anchor_turn_disp = anchor_turn
+        anchor_elem_disp = anchor_elem
+        anchor_sign_disp = anchor_sign
+        anchor_desc_label = "Generational anchor"
     anchor_row_html = (
         f'<tr style="background-color:{anchor_bg};page-break-inside:avoid;font-weight:bold;">'
         f'<td style="white-space:nowrap;">{anchor_year}</td>'
         f'<td style="white-space:nowrap;text-align:center;">—</td>'
         f'<td>'
         f'<span class="astroglyph" style="font-size:16px;color:{anchor_fg};">♄☌♃</span> '
-        f'in {anchor_sign_glyph} {anchor_sign} — <span style="font-style:italic;">{anchor_turn}, {anchor_elem}</span>'
+        f'{"en" if lang == "es" else "in"} {anchor_sign_glyph} {anchor_sign_disp} — <span style="font-style:italic;">{anchor_turn_disp}, {anchor_elem_disp}</span>'
         f'</td>'
         f'<td>'
-        f'<strong>Generational anchor</strong> — {anchor_desc}'
+        f'<strong>{anchor_desc_label}</strong> — {anchor_desc_disp}'
         f'</td>'
         f'</tr>'
     )
 
     # Birth row — uses actual birth year and age 0 (NOT the anchor year)
-    conj_sign_str = saec['conj_sign']
-    birth_imprint_text = f"Birth imprint — {anchor_turn} turning — {anchor_desc}"
+    if lang == "es":
+        conj_sign_str_disp = ES_SIGNS_ANCHOR.get(saec['conj_sign'], saec['conj_sign'])
+        birth_label = "Nacimiento"
+        birth_turn_disp = ES_TURN_NAMES_ANCHOR.get(anchor_turn, anchor_turn)
+        birth_imprint_text = f"Impronta de Nacimiento — giro {birth_turn_disp} — {anchor_desc_disp}"
+        birth_marker_html = f'<span class="astroglyph">Birth</span> {conj_sign_str_disp}'  # "Birth" is the rendering label, kept as-is per existing style
+        # Wait — the marker column uses the "Birth" word. Translate:
+        birth_marker_html = f'<span class="astroglyph">Nacimiento</span> {conj_sign_str_disp}'
+    else:
+        conj_sign_str_disp = saec['conj_sign']
+        birth_label = "Birth"
+        birth_turn_disp = anchor_turn
+        birth_imprint_text = f"Birth imprint — {anchor_turn} turning — {anchor_desc}"
+        birth_marker_html = f'<span class="astroglyph">Birth</span> {conj_sign_str_disp}'
     birth_row = (
         year,  # actual birth year (e.g., 1975 for Ian)
         0,     # age 0
-        f'<span class="astroglyph">Birth</span> {conj_sign_str}',
+        birth_marker_html,
         birth_imprint_text
     )
 
@@ -1152,12 +1207,14 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
         sn_jd, sn_year, sn_sign = sn_result
         age_at_sn = sn_year - year
         if lang == "es":
-            sn_desc = ES["sn_desc"].format(age=age_at_sn, sign=sn_sign)
+            sn_desc = ES["sn_desc"].format(age=age_at_sn, sign=ES_SIGNS.get(sn_sign, sn_sign))
+            sn_marker_label = f'<span class="astroglyph">♄☌♆</span> en {ES_SIGNS.get(sn_sign, sn_sign)}'
         else:
             sn_desc = f"At age {age_at_sn}, Saturn and Neptune meet in {sn_sign}: a rare alignment that fuses structural reality with visionary imagination. This is the era when old illusions dissolve and new dreams must be built on solid ground. The practical and the meaningful converge — whatever you have been building either aligns with your deeper purpose or falls away. This is the time to align what works with what matters."
+            sn_marker_label = f'<span class="astroglyph">♄☌♆</span> in {sn_sign}'
         markers_list.append((
             sn_year,
-            f'<span class="astroglyph">♄☌♆</span> in {sn_sign}',
+            sn_marker_label,
             age_at_sn,
             sn_desc
         ))
@@ -1168,8 +1225,12 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     # Uranus-Saturn conjunction) and a "Now" anchor row for the reader's present.
     # Uranus-Saturn conjunction (different cycle, not a S-J conjunction)
     us_text = ES["us_marker"] if lang == "es" else "Uranus-Saturn conjunction: Midlife restructuring of language, education, localized infrastructure, and your immediate practical communication frameworks."
+    if lang == "es":
+        us_marker_label = '<span class="astroglyph">♅☌♄</span> en Géminis'
+    else:
+        us_marker_label = '<span class="astroglyph">♅☌♄</span> in Gemini'
     markers_list.append((
-        2032, f'<span class="astroglyph">♅☌♄</span> in Gemini',
+        2032, us_marker_label,
         2032 - year,
         us_text
     ))
@@ -1188,11 +1249,22 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
         bg = ELEMENT_HEX.get(elem, "#f8f8f8")
         # Each S-J row is colored to its element, with the sign glyph in the foreground
         sj_age = cy - year
+        # Translate turn name + sign + element for Spanish
+        if lang == "es":
+            turn_disp = ES_TURN_NAMES_ANCHOR.get(turn, turn)
+            sign_disp = ES_SIGNS_ANCHOR.get(cs, cs)
+            elem_disp = ES_ELEMENTS_ANCHOR.get(elem, elem)
+            desc_disp = SJ_MARKER_DATA_ES.get((cy, cs), desc)
+        else:
+            turn_disp = turn
+            sign_disp = cs
+            elem_disp = elem
+            desc_disp = desc
         sj_marker_html = (
             f'<span class="astroglyph" style="font-size:16px;color:{ELEMENT_FG.get(elem, "#222")};">♄☌♃</span> '
-            f'in {sign_glyph} {cs} — <span style="font-style:italic;">{turn}, {elem}</span>'
+            f'{"en" if lang == "es" else "in"} {sign_glyph} {sign_disp} — <span style="font-style:italic;">{turn_disp}, {elem_disp}</span>'
         )
-        markers_list.append((cy, sj_marker_html, sj_age, f"{turn} turning — {desc}"))
+        markers_list.append((cy, sj_marker_html, sj_age, f"{turn_disp} turning — {desc_disp}" if lang != "es" else f"giro {turn_disp} — {desc_disp}"))
 
     # Sort chronologically by year
     markers_list.sort(key=lambda x: x[0])
@@ -1201,7 +1273,14 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     import datetime as _dt
     _now = _dt.datetime.now()
     _now_age = _now.year - year
-    _now_date_str = _now.strftime("%B %d, %Y")
+    # Format the date in the appropriate language
+    if lang == "es":
+        _now_date_str = _now.strftime("%d de %B de %Y").replace(
+            _now.strftime("%B"), ["enero","febrero","marzo","abril","mayo","junio",
+                                  "julio","agosto","septiembre","octubre","noviembre","diciembre"][_now.month-1]
+        )
+    else:
+        _now_date_str = _now.strftime("%B %d, %Y")
     _now_year_str = _now.strftime("%Y")
 
     marker_rows = ""
@@ -1211,6 +1290,13 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     by, ba, bm, bh = birth_row
     marker_rows += f'<tr style="background-color:#ffffff;page-break-inside:avoid;"><td style="white-space:nowrap;"><strong>{by}</strong></td><td style="white-space:nowrap;text-align:center;"><strong>{ba}</strong></td><td>{bm}</td><td>{bh}</td></tr>'
 
+    if lang == "es":
+        now_marker_label = "Ahora"
+        now_desc_text = f"Ahora — {_now_date_str} — posición actual en la línea de tiempo. Los marcadores arriba son pasados, abajo son futuros."
+    else:
+        now_marker_label = "Now"
+        now_desc_text = f"Now — {_now_date_str} — current position on the timeline. The markers above are past, below are future."
+
     prev_status = None
     for yr, marker, age, how in markers_list:
         status = time_status(yr)
@@ -1218,7 +1304,7 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
         if prev_status == "past" and status != "past":
             marker_rows += '<tr><td colspan="4" style="border:none;border-top:2px solid #d44a4a;padding:2px 0;"></td></tr>'
             # Insert the "Now" row directly under the red line, with light yellow background
-            marker_rows += f'<tr style="background-color:#fff8e1;page-break-inside:avoid;"><td style="white-space:nowrap;"><strong>{_now_year_str}</strong></td><td style="white-space:nowrap;text-align:center;"><strong>{_now_age}</strong></td><td><strong>Now</strong></td><td><strong>Now — {_now_date_str}</strong> — current position on the timeline. The markers above are past, below are future.</td></tr>'
+            marker_rows += f'<tr style="background-color:#fff8e1;page-break-inside:avoid;"><td style="white-space:nowrap;"><strong>{_now_year_str}</strong></td><td style="white-space:nowrap;text-align:center;"><strong>{_now_age}</strong></td><td><strong>{now_marker_label}</strong></td><td><strong>{now_desc_text}</strong></td></tr>'
         prev_status = status
         marker_rows += f'<tr style="page-break-inside:avoid;"><td style="white-space:nowrap;">{yr}</td><td style="white-space:nowrap;text-align:center;">{age}</td><td>{marker}</td><td>{how}</td></tr>'
 

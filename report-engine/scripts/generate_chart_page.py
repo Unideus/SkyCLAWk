@@ -57,7 +57,7 @@ ES_PLANETS = {
 }
 ES_SIGNS = {"Aries":"Aries","Taurus":"Tauro","Gemini":"Géminis","Cancer":"Cáncer","Leo":"Leo","Virgo":"Virgo","Libra":"Libra","Scorpio":"Escorpio","Sagittarius":"Sagitario","Capricorn":"Capricornio","Aquarius":"Acuario","Pisces":"Piscis"}
 ES_ELEMENTS = {"Fire":"Fuego","Earth":"Tierra","Air":"Aire","Water":"Agua"}
-ES_QUALITIES = {"Cardinal":"Cardinal","Fixed":"Fija","Mutable":"Mutable"}
+ES_QUALITIES = {"Cardinal":"Cardinal","Fixed":"Fijo","Mutable":"Mutable"}
 ES_HOUSE_ABBR = "C"  # "Casa" in Spanish, vs English "H" for "House"
 SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra",
          "Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"]

@@ -312,6 +312,7 @@ def get_aspects(planets):
 def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
                         year, month, day, hour, minute, tz_offset, tz_label,
                         recipient_name="", lang="en", solar_chart=False):
+    is_es = (lang == "es")
     """Build the snapshot page HTML."""
 
     utc_hour_frac = (hour + tz_offset) + minute / 60.0
@@ -363,9 +364,28 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
         11: "Friends & Community",
         12: "Enemies & Self-Undoing",
     }
-    sun_house_area  = f"House of {HOUSE_AREAS.get(sun_house, 'Life')}"
-    moon_house_area = f"House of {HOUSE_AREAS.get(moon_house, 'Life')}"
-    asc_house_area  = f"House of {HOUSE_AREAS.get(1, 'Life')}"
+    HOUSE_AREAS_ES = {
+        1:  "Ser y Cuerpo",
+        2:  "Recursos y Valores",
+        3:  "Hermanos y Comunicación",
+        4:  "Hogar y Familia",
+        5:  "Hijos y Creatividad",
+        6:  "Salud y Servicio",
+        7:  "Pareja y Matrimonio",
+        8:  "Muerte y Herencia",
+        9:  "Viajes y Mente Superior",
+        10: "Carrera y Rol Público",
+        11: "Amistades y Comunidad",
+        12: "Enemigos y Autodestrucción",
+    }
+    if is_es:
+        sun_house_area  = f"Casa de {HOUSE_AREAS_ES.get(sun_house, 'Vida')}"
+        moon_house_area = f"Casa de {HOUSE_AREAS_ES.get(moon_house, 'Vida')}"
+        asc_house_area  = f"Casa de {HOUSE_AREAS_ES.get(1, 'Vida')}"
+    else:
+        sun_house_area  = f"House of {HOUSE_AREAS.get(sun_house, 'Life')}"
+        moon_house_area = f"House of {HOUSE_AREAS.get(moon_house, 'Life')}"
+        asc_house_area  = f"House of {HOUSE_AREAS.get(1, 'Life')}"
 
     # Glyphs and colors — SVG path-based (no font matching needed)
     sun_color = ELEMENT_COLORS.get(ELEMENTS.get(sun_sign, ''), '#333')
@@ -401,8 +421,21 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
     # Here: same rect style but color-graded by aspect type (red/blue)
     aspect_top = []
     aspect_bottom = []
+    # Aspect name translations for Spanish — match the EN→ES glossary
+    # used in the full-report aspects table (ES_ASPECT_MEANINGS keys would
+    # collide with meanings, so a dedicated dict lives here).
+    ES_ASPECT_NAMES = {
+        "Conjunction": "Conjunción",
+        "Sextile":      "Sextil",
+        "Square":       "Cuadratura",
+        "Trine":        "Trígono",
+        "Opposition":   "Oposición",
+    }
     for idx, (p1, p2, d, name, orb, target, glyph) in enumerate(aspects[:5]):
         target_row = aspect_top if idx < 3 else aspect_bottom
+        # Translate aspect name for Spanish; "name" stays as the English
+        # key so ASPECT_PATHS / color-coding keep working.
+        name_disp = ES_ASPECT_NAMES.get(name, name) if is_es else name
         if name in ("Conjunction", "Square", "Opposition"):
             border_c = "#d44a4a"
             bg_c = "#fde8e8"
@@ -422,14 +455,12 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
                 <g transform="translate(43,4)">{asp_svg}</g>
                 <g transform="translate(68,2)">{p2_svg}</g>
             </svg>
-            <div class="asp-name">{name}</div>
+            <div class="asp-name">{name_disp}</div>
             <div class="asp-orb">{orb:.1f}&deg;</div>
         </div>""")
 
     aspect_top = "".join(aspect_top)
     aspect_bottom = "".join(aspect_bottom)
-
-    is_es = (lang == "es")
 
     if is_es:
         title = "Instantánea Cósmica"
