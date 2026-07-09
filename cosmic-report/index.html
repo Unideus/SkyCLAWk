@@ -1,90 +1,875 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Cosmic History Report — Zodiyuga</title>
-  <link rel="icon" href="../timelinetitle.webp" type="image/webp">
-  <link rel="stylesheet" href="../css/timeline.css">
-  <link rel="stylesheet" href="cosmic-report.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cosmic History Report — Your Life Through the Lens of the Planets</title>
+  <style>
+    :root {
+      --bg: #05060a;
+      --panel: rgba(11, 15, 24, 0.92);
+      --panel-border: rgba(173, 142, 94, 0.28);
+      --muted: rgba(164, 173, 190, 0.7);
+      --text: #edf1fb;
+      --gold: #d8b56a;
+      --gold-soft: rgba(216, 181, 106, 0.18);
+      --gold-glow: rgba(216, 181, 106, 0.08);
+      --active: #8dd1ff;
+      --active-soft: rgba(141, 209, 255, 0.2);
+      --good: #90d59a;
+      --button: rgba(24, 30, 42, 0.92);
+      --button-hover: rgba(32, 40, 58, 0.96);
+      --field: rgba(15, 21, 31, 0.96);
+      --shadow: rgba(0, 0, 0, 0.38);
+      --card-bg: rgba(11, 15, 24, 0.85);
+      --accent-red: #c0392b;
+      --accent-blue: #1976d2;
+      --accent-earth: #2e7d32;
+      --accent-air: #fbc02d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Trebuchet MS", "Gill Sans", "Segoe UI", sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 20% 10%, rgba(44, 71, 104, 0.15), transparent 40%),
+        radial-gradient(ellipse at 80% 20%, rgba(96, 66, 28, 0.12), transparent 35%),
+        radial-gradient(ellipse at 50% 80%, rgba(216, 181, 106, 0.04), transparent 50%);
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Eyebrow ── */
+    .eyebrow {
+      text-align: center;
+      padding: 28px 0 0;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.7;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 40px 0 32px;
+    }
+
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span {
+      color: var(--gold);
+    }
+
+    .hero .subhead {
+      font-size: clamp(15px, 2.2vw, 19px);
+      color: var(--muted);
+      max-width: 680px;
+      margin: 0 auto 24px;
+      line-height: 1.5;
+    }
+
+    .hero .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .hero .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--button);
+    }
+
+    .hero .badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .hero .badge .dot.gold { background: var(--gold); }
+    .hero .badge .dot.blue { background: var(--accent-blue); }
+    .hero .badge .dot.green { background: var(--accent-earth); }
+
+    .hero .cta-primary {
+      display: inline-block;
+      padding: 14px 40px;
+      background: var(--gold);
+      color: #05060a;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .hero .cta-primary:hover {
+      background: #e6c47a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(216, 181, 106, 0.3);
+    }
+
+    .hero .price-tag {
+      margin-top: 14px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .hero .price-tag strong {
+      color: var(--gold);
+      font-size: 20px;
+    }
+
+    /* ── Section headers ── */
+    .section {
+      padding: 48px 0;
+    }
+
+    .section h2 {
+      font-size: clamp(22px, 3.5vw, 30px);
+      color: var(--text);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .section h2 .gold {
+      color: var(--gold);
+    }
+
+    .section .subtitle {
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    /* ── Sample chart ── */
+    .chart-preview {
+      text-align: center;
+      margin: 0 auto;
+      max-width: 600px;
+    }
+
+    .chart-preview img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      border: 1px solid var(--panel-border);
+      box-shadow: 0 8px 40px var(--shadow);
+    }
+
+    .chart-preview .caption {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── What's inside ── */
+    .inside-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+
+    .inside-card {
+      background: var(--card-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+
+    .inside-card:hover {
+      border-color: rgba(173, 142, 94, 0.5);
+    }
+
+    .inside-card .icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .inside-card h3 {
+      font-size: 15px;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    .inside-card p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── Sample chapter ── */
+    .sample-chapter {
+      background: var(--card-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 28px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .sample-chapter .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--gold);
+      opacity: 0.6;
+      margin-bottom: 12px;
+    }
+
+    .sample-chapter p {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    .sample-chapter p:last-child {
+      margin-bottom: 0;
+    }
+
+    .sample-chapter .ellipsis {
+      color: var(--gold);
+      opacity: 0.5;
+      text-align: center;
+      font-size: 20px;
+      letter-spacing: 6px;
+    }
+
+    /* ── Pricing ── */
+    .pricing-card {
+      max-width: 420px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border: 1px solid var(--gold);
+      border-radius: 16px;
+      padding: 36px 32px;
+      text-align: center;
+      position: relative;
+    }
+
+    .pricing-card .price {
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .pricing-card .price-label {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .pricing-card .features {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 24px;
+    }
+
+    .pricing-card .features li {
+      padding: 6px 0;
+      font-size: 13px;
+      color: var(--text);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .pricing-card .features li::before {
+      content: "✓";
+      color: var(--good);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .pricing-card .cta-primary {
+      display: inline-block;
+      width: 100%;
+      padding: 14px 24px;
+      background: var(--gold);
+      color: #05060a;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 8px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pricing-card .cta-primary:hover {
+      background: #e6c47a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(216, 181, 106, 0.3);
+    }
+
+    .pricing-card .note {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── Order form ── */
+    .order-form {
+      max-width: 520px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 32px;
+    }
+
+    .order-form .form-row {
+      margin-bottom: 16px;
+    }
+
+    .order-form label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .order-form input,
+    .order-form select,
+    .order-form textarea {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--field);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    .order-form input:focus,
+    .order-form select:focus,
+    .order-form textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    .order-form .form-row-inline {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .order-form .form-row-half {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .order-form .submit-btn {
+      width: 100%;
+      padding: 14px 24px;
+      background: var(--gold);
+      color: #05060a;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .order-form .submit-btn:hover {
+      background: #e6c47a;
+    }
+
+    .order-form .form-note {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .order-form .form-status {
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      text-align: center;
+    }
+    .order-form .form-status.success {
+      background: rgba(39, 174, 96, 0.15);
+      border: 1px solid rgba(39, 174, 96, 0.3);
+      color: #90d59a;
+    }
+    .order-form .form-status.error {
+      background: rgba(192, 57, 43, 0.15);
+      border: 1px solid rgba(192, 57, 43, 0.3);
+      color: #e74c3c;
+    }
+
+    /* ── FAQ ── */
+    .faq-list {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid rgba(173, 142, 94, 0.15);
+      padding: 16px 0;
+    }
+
+    .faq-item:last-child {
+      border-bottom: none;
+    }
+
+    .faq-item .q {
+      font-size: 15px;
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .faq-item .q::after {
+      content: "+";
+      color: var(--gold);
+      font-size: 18px;
+      transition: transform 0.2s;
+    }
+
+    .faq-item.open .q::after {
+      content: "−";
+    }
+
+    .faq-item .a {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .faq-item.open .a {
+      display: block;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      padding: 40px 0 48px;
+      border-top: 1px solid rgba(173, 142, 94, 0.12);
+      margin-top: 16px;
+    }
+
+    .footer p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .footer .brand {
+      color: var(--gold);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    /* ── Language toggle ── */
+    .lang-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      gap: 4px;
+    }
+
+    .lang-toggle a {
+      padding: 6px 12px;
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--panel-border);
+      border-radius: 6px;
+      background: var(--button);
+      transition: all 0.2s;
+    }
+
+    .lang-toggle a.active {
+      color: var(--gold);
+      border-color: var(--gold);
+      background: var(--gold-soft);
+    }
+
+    .lang-toggle a:hover {
+      border-color: rgba(173, 142, 94, 0.5);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .container { padding: 0 16px; }
+      .order-form .form-row-inline { grid-template-columns: 1fr; }
+      .order-form .form-row-half { grid-template-columns: 1fr; }
+      .pricing-card { padding: 24px 20px; }
+      .lang-toggle { top: 12px; right: 12px; }
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(173, 142, 94, 0.2); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(173, 142, 94, 0.35); }
+  </style>
 </head>
-<body class="cosmic-report-page">
-  <div id="topMenu">
-    <div id="menuTitle">
-      <img alt="Zodiyuga" src="../timelinetitle.webp" class="menuLogo" draggable="false"/>
+<body>
+
+<div class="bg-glow"></div>
+
+<div class="lang-toggle">
+  <a href="#" class="active" data-lang="en">EN</a>
+  <a href="#" data-lang="es">ES</a>
+</div>
+
+<!-- ── Eyebrow ── -->
+<div class="container">
+  <div class="eyebrow" data-i18n="eyebrow">Personalized Cosmic History Report</div>
+</div>
+
+<!-- ── Hero ── -->
+<div class="container">
+  <div class="hero">
+    <h1 data-i18n="hero_title">Your Life Through the <span>Lens of the Planets</span></h1>
+    <p class="subhead" data-i18n="hero_sub">
+      A 20-page PDF that maps your birth chart onto the 200-year sweep of the Saturn-Jupiter cycle,
+      the elemental shift from Earth to Air, and the Yuga transition — calibrated against
+      <strong>NASA JPL Horizons</strong> ephemeris data. Western common terms with native
+      (Yuga / Saeculum) cross-references.
+    </p>
+    <div class="badge-row">
+      <span class="badge"><span class="dot gold"></span> NASA JPL DE440</span>
+      <span class="badge"><span class="dot blue"></span> 200+ Year Sweep</span>
+      <span class="badge"><span class="dot green"></span> PDF Delivered via Email</span>
     </div>
-    <nav class="report-nav">
-      <a href="/generational/">Generational Timeline</a>
-      <a href="/personal/">Personal Timeline</a>
-      <a href="/planting/">Planting</a>
-    </nav>
+    <a href="#order" class="cta-primary" data-i18n="hero_cta">Get Your Report — $19</a>
+    <div class="price-tag" data-i18n="hero_price">One-time purchase. <strong>$19</strong>. No subscription.</div>
   </div>
+</div>
 
-  <main class="report-landing">
-    <section class="hero">
-      <h1>Your Cosmic History Report</h1>
-      <p class="subtitle">A 20-page personalized PDF showing where your natal chart sits inside generational, elemental, and long-wave civilizational cycles.</p>
-      <div class="price-tag">$19 — delivered instantly</div>
-    </section>
+<!-- ── Sample Chart ── -->
+<div class="container">
+  <div class="section">
+    <h2 data-i18n="chart_title">See What's Inside</h2>
+    <p class="subtitle" data-i18n="chart_sub">Your natal chart wheel with constellation overlay, house cusps, and aspect lines — rendered from Swiss Ephemeris data.</p>
+    <div class="chart-preview">
+      <img src="chart_sample.png" alt="Sample natal chart wheel" loading="lazy">
+      <div class="caption" data-i18n="chart_caption">Sample chart: Ian Beggs — Jan 1, 1975, 13:03 HST, Kailua-Kona, HI</div>
+    </div>
+  </div>
+</div>
 
-    <section class="form-card">
-      <h2>Enter your birth details</h2>
-      <form id="reportForm">
-        <div class="field-row">
-          <label>
-            Name
-            <input type="text" id="name" name="name" placeholder="First Last" required/>
-          </label>
-        </div>
-        <div class="field-row">
-          <label>
-            Birth Date
-            <input type="date" id="birthDate" name="birthDate" required/>
-          </label>
-          <label>
-            Birth Time
-            <input type="time" id="birthTime" name="birthTime" value="12:00" step="60" required/>
-          </label>
-        </div>
-        <div class="field-row">
-          <label>
-            Birth Location
-            <input type="text" id="location" name="location" placeholder="City, State/Country" required/>
-          </label>
-        </div>
-        <div class="field-row">
-          <label>
-            Latitude
-            <input type="number" id="lat" name="lat" step="0.01" placeholder="e.g. 30.22" required/>
-          </label>
-          <label>
-            Longitude
-            <input type="number" id="lon" name="lon" step="0.01" placeholder="e.g. -81.68" required/>
-          </label>
-        </div>
-        <div class="field-row">
-          <label>
-            Timezone offset (hours from UTC)
-            <input type="number" id="tzOffset" name="tzOffset" step="0.5" placeholder="e.g. -4" required/>
-          </label>
-        </div>
-        <button type="submit" id="generateBtn" class="primary-btn">Generate & Download Sample PDF</button>
-      </form>
-      <div id="status" class="status"></div>
-    </section>
+<!-- ── What's Inside ── -->
+<div class="container">
+  <div class="section">
+    <h2 data-i18n="inside_title">What's Inside the Report</h2>
+    <p class="subtitle" data-i18n="inside_sub">Six sections that move from the collective sky to your personal signature.</p>
+    <div class="inside-grid">
+      <div class="inside-card">
+        <div class="icon">🌀</div>
+        <h3 data-i18n="inside_1_title">Era Wheel</h3>
+        <p data-i18n="inside_1_desc">Your generation's Saturn-Jupiter conjunction, the Saeculum archetype, and the elemental epoch you were born into — the collective weather before the personal chart.</p>
+      </div>
+      <div class="inside-card">
+        <div class="icon">📊</div>
+        <h3 data-i18n="inside_2_title">Aspect Table</h3>
+        <p data-i18n="inside_2_desc">Every major planetary aspect in your chart — conjunctions, sextiles, squares, trines, oppositions — with orbs, glyphs, and plain-language meaning.</p>
+      </div>
+      <div class="inside-card">
+        <div class="icon">📖</div>
+        <h3 data-i18n="inside_3_title">Glossary</h3>
+        <p data-i18n="inside_3_desc">Key terms defined in plain language: Metronome, Saturn Return, Uranus Opposition, Saturn-Jupiter Conjunction, Saeculum, Yuga (Dvapara Yuga, Kali Yuga).</p>
+      </div>
+      <div class="inside-card">
+        <div class="icon">📍</div>
+        <h3 data-i18n="inside_4_title">Life Markers</h3>
+        <p data-i18n="inside_4_desc">Key dates on your timeline — Saturn Returns, Uranus Oppositions, major conjunctions — mapped to your life phases from childhood through elderhood.</p>
+      </div>
+      <div class="inside-card">
+        <div class="icon">🔄</div>
+        <h3 data-i18n="inside_5_title">Return Windows</h3>
+        <p data-i18n="inside_5_desc">When each planet returns to its birth position in your lifetime — the personal clock that measures your development against the celestial metronome.</p>
+      </div>
+      <div class="inside-card">
+        <div class="icon">✍️</div>
+        <h3 data-i18n="inside_6_title">Personal Narrative</h3>
+        <p data-i18n="inside_6_desc">A written synthesis of your chart — the geometry of your soul, your natal signature, and how the macro-cycles of your birth era shape your life assignment.</p>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <section class="what-you-get">
-      <h2>What you receive</h2>
-      <ul>
-        <li>Custom cover page with your birth data</li>
-        <li>Full natal chart wheel (Whole Sign houses)</li>
-        <li>Cosmic Snapshot dashboard: Sun, Moon, Rising, generation, elemental era, yuga position</li>
-        <li>10+ page narrative: saeculum, Saturn-Jupiter timeline, elemental shift, yuga wave, life phases</li>
-        <li>Appendix with glossary, planet placements, major aspects, and house engine</li>
+<!-- ── Sample Chapter ── -->
+<div class="container">
+  <div class="section">
+    <h2 data-i18n="sample_title">Read a Sample</h2>
+    <p class="subtitle" data-i18n="sample_sub">This is the actual voice of the report — the opening of the Generational Weather section.</p>
+    <div class="sample-chapter">
+      <div class="label" data-i18n="sample_label">From Section 3: The Generational Weather — The Saeculum</div>
+      <p data-i18n="sample_p1">To understand the individual psyche, you must first look at the collective season of your birth. History does not move in a straight line; it breathes in a four-stage historical rhythm called the Saeculum. You entered the world during a specific phase of this cycle — a period that shaped the assumptions, pressures, and possibilities that would define your generation's character.</p>
+      <p data-i18n="sample_p2">Your birth occurred in the structural field of a Saturn-Jupiter conjunction — the precise moment the celestial metronomes reset the generational clock. When these two planetary governors met in their 20-year cycle, they anchored a specific social contract: a set of rules about what the world rewards, what it punishes, and what it expects from you.</p>
+      <p data-i18n="sample_p3">The report traces this thread from the collective down to the personal — from the generational archetype, through the elemental epoch, across the Yuga threshold, and into the geometry of your own birth chart. Each scale informs the next.</p>
+      <div class="ellipsis">· · ·</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Pricing ── -->
+<div class="container">
+  <div class="section">
+    <h2 data-i18n="pricing_title">One Report. <span class="gold">One Price.</span></h2>
+    <p class="subtitle" data-i18n="pricing_sub">No subscription. No account. No recurring costs.</p>
+    <div class="pricing-card">
+      <div class="price">$19</div>
+      <div class="price-label" data-i18n="pricing_label">One-time purchase</div>
+      <ul class="features">
+        <li data-i18n="pricing_f1">20-page PDF — natal chart + narrative + appendix</li>
+        <li data-i18n="pricing_f2">Calibrated against NASA JPL DE440 ephemeris</li>
+        <li data-i18n="pricing_f3">Available in English or Spanish</li>
+        <li data-i18n="pricing_f4">Delivered to your email within 24 hours</li>
+        <li data-i18n="pricing_f5">One report per birth chart — yours or someone else's</li>
       </ul>
-    </section>
-  </main>
+      <a href="#order" class="cta-primary" data-i18n="pricing_cta">Order Your Report</a>
+      <div class="note" data-i18n="pricing_note">PDF format. ~20 pages. Read on any device.</div>
+    </div>
+  </div>
+</div>
 
-  <script type="module" src="cosmic-report.js"></script>
+<!-- ── Order Form / CTA ── -->
+<div class="container" id="order">
+  <div class="section">
+    <h2 data-i18n="order_title">Order Your Report</h2>
+    <p class="subtitle" data-i18n="order_sub">Enter the birth data below. We'll generate your report and email you the PDF.</p>
+    <form class="order-form" id="reportForm">
+      <div id="formStatus" class="form-status" style="display:none;"></div>
+      <div class="form-row">
+        <label for="name" data-i18n="form_name">Full Name</label>
+        <input type="text" id="name" name="name" required placeholder="e.g. Jane Doe">
+      </div>
+      <div class="form-row">
+        <label for="email" data-i18n="form_email">Email Address</label>
+        <input type="email" id="email" name="email" required placeholder="jane@example.com">
+      </div>
+      <div class="form-row">
+        <label for="lang" data-i18n="form_lang">Report Language</label>
+        <select id="lang" name="lang">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label data-i18n="form_birth">Birth Date &amp; Time</label>
+        <div class="form-row-inline">
+          <input type="number" id="year" name="year" placeholder="Year" required min="1900" max="2030">
+          <input type="number" id="month" name="month" placeholder="Month" required min="1" max="12">
+          <input type="number" id="day" name="day" placeholder="Day" required min="1" max="31">
+        </div>
+      </div>
+      <div class="form-row">
+        <label data-i18n="form_time">Time of Birth</label>
+        <div class="form-row-inline">
+          <input type="number" id="hour" name="hour" placeholder="Hour (0-23)" required min="0" max="23">
+          <input type="number" id="min" name="min" placeholder="Minute" required min="0" max="59">
+          <select id="tz" name="tz">
+            <option value="EST">EST (UTC-5)</option>
+            <option value="EDT">EDT (UTC-4)</option>
+            <option value="CST">CST (UTC-6)</option>
+            <option value="CDT">CDT (UTC-5)</option>
+            <option value="MST">MST (UTC-7)</option>
+            <option value="MDT">MDT (UTC-6)</option>
+            <option value="PST">PST (UTC-8)</option>
+            <option value="PDT">PDT (UTC-7)</option>
+            <option value="HST">HST (UTC-10)</option>
+            <option value="GMT">GMT/UTC</option>
+            <option value="IST">IST (UTC+5:30)</option>
+            <option value="COT">COT (UTC-5)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label data-i18n="form_location">Birth Location</label>
+        <div class="form-row-half">
+          <input type="text" id="city" name="city" placeholder="City" required>
+          <input type="text" id="state" name="state" placeholder="State / Region">
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="lat" data-i18n="form_lat">Latitude</label>
+        <input type="number" id="lat" name="lat" step="0.01" placeholder="e.g. 41.88" required>
+      </div>
+      <div class="form-row">
+        <label for="lon" data-i18n="form_lon">Longitude</label>
+        <input type="number" id="lon" name="lon" step="0.01" placeholder="e.g. -87.63" required>
+      </div>
+      <div class="form-row">
+        <label for="scope" data-i18n="form_scope">Report Scope (optional)</label>
+        <textarea id="scope" name="scope" rows="2" placeholder="e.g. 'Focus on career and relationships' or 'I want to understand my Saturn return'" style="resize:vertical;"></textarea>
+      </div>
+      <button type="submit" class="submit-btn" id="formSubmitBtn" data-i18n="form_submit">Generate My Report — $19</button>
+      <div class="form-note" data-i18n="form_note">Your report will be generated and emailed to you within a few minutes.</div>
+    </form>
+  </div>
+</div>
+
+<!-- ── FAQ ── -->
+<div class="container">
+  <div class="section">
+    <h2 data-i18n="faq_title">Frequently Asked Questions</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="q" data-i18n="faq_1_q">What data do you need from me?</div>
+        <div class="a" data-i18n="faq_1_a">Your full birth date, exact time of birth, and birth location. The time matters — it determines your rising sign and house cusps. If you don't know your birth time, we can still generate a partial report using sunrise as a default, but the house placements and rising sign will be approximate.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q" data-i18n="faq_2_q">How is the report generated?</div>
+        <div class="a" data-i18n="faq_2_a">The report is generated by a Python engine using the Swiss Ephemeris library, calibrated against NASA JPL DE440 ephemeris data. The chart wheel is rendered as a vector graphic, and the narrative is assembled from archetype-specific templates written for each generation and rising sign. No AI is used — every word is hand-authored.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q" data-i18n="faq_3_q">Is the report refundable?</div>
+        <div class="a" data-i18n="faq_3_a">Yes. If the report doesn't meet your expectations, email us within 7 days and we'll refund your $19. No questions asked. The report is a one-time purchase — there's no subscription to cancel.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q" data-i18n="faq_4_q">What format is the PDF?</div>
+        <div class="a" data-i18n="faq_4_a">Standard PDF (~20 pages, ~450 KB). Readable on any device — phone, tablet, laptop, or desktop. The chart wheel is embedded as a high-resolution vector graphic. You can print it, share it, or keep it on your device.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q" data-i18n="faq_5_q">English or Spanish?</div>
+        <div class="a" data-i18n="faq_5_a">Both. Select your language when ordering. The English and Spanish versions have the same structure, the same chart data, and the same narrative depth. The Spanish version includes a fully translated appendix (houses, elements, qualities, aspect meanings).</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Footer ── -->
+<div class="container">
+  <div class="footer">
+    <p class="brand" data-i18n="footer_brand">Zodi-Yuga Holdings</p>
+    <p data-i18n="footer_text">Data-driven celestial mechanics. Open-source where possible. The Cosmic History Report is a product of the SkyCLAWk Relationship Engine — a professional instrument for visualizing the relationship between the tropical zodiac, sidereal constellations, precessional cycle, and Yuga ages. Report funded by the company, not by subscriptions.</p>
+  </div>
+</div>
+
+<script>
+// ── FAQ toggle ──
+document.querySelectorAll('.faq-item .q').forEach(function(q) {
+  q.addEventListener('click', function() {
+    this.parentElement.classList.toggle('open');
+  });
+});
+
+// ── Form submit — POST to VPS endpoint ──
+document.getElementById('reportForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('formSubmitBtn');
+  const status = document.getElementById('formStatus');
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+  status.style.display = 'block';
+  status.className = 'form-status';
+  status.textContent = 'Generating your report... this takes about 30 seconds.';
+
+  const data = {
+    name: document.getElementById('name').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    year: parseInt(document.getElementById('year').value),
+    month: parseInt(document.getElementById('month').value),
+    day: parseInt(document.getElementById('day').value),
+    hour: parseInt(document.getElementById('hour').value),
+    min: parseInt(document.getElementById('min').value),
+    tz: document.getElementById('tz').value,
+    lat: parseFloat(document.getElementById('lat').value),
+    lon: parseFloat(document.getElementById('lon').value),
+    location: document.getElementById('city').value.trim() + ', ' + document.getElementById('state').value.trim(),
+    lang: document.getElementById('lang').value,
+    scope: document.getElementById('scope').value.trim(),
+  };
+
+  try {
+    const resp = await fetch('https://signandsoil.online/api/cosmic-report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const result = await resp.json();
+    if (resp.ok) {
+      status.className = 'form-status success';
+      status.textContent = '✅ Report generated! Check your email (may take a few minutes).';
+      document.getElementById('reportForm').reset();
+    } else {
+      status.className = 'form-status error';
+      status.textContent = 'Error: ' + (result.error || 'Something went wrong. Please try again.');
+    }
+  } catch (err) {
+    status.className = 'form-status error';
+    status.textContent = 'Could not reach the server. Please try again later.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generate My Report — $19';
+  }
+});
+
+// ── Language toggle placeholder ──
+document.querySelectorAll('.lang-toggle a').forEach(function(btn) {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('.lang-toggle a').forEach(function(b) { b.classList.remove('active'); });
+    this.classList.add('active');
+  });
+});
+</script>
+
 </body>
 </html>
