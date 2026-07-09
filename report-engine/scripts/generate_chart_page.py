@@ -523,10 +523,16 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
     GLYPH_MIN_GAP_PX = 14  # ↑ from 11 — just enough room for glyph to be fully visible
     MIN_SEP_DEG = max(0.8, min(8.0, ((GLYPH_FONT_PX + GLYPH_MIN_GAP_PX) / rPlanetGlyph) * (180 / math.pi)))
 
-    # Planets ONLY for separation (angles excluded — they get their own ticks/labels)
+    # Planets AND angles both go into the separation list, but angles
+    # are fixed (their position is the actual chart structure — AC, MC,
+    # DC, IC are real ecliptic points, not glyphs to be packed). Planets
+    # get pushed around their own cluster; angles stay anchored.
+    # Auto-separation only matters between planets.
     all_items = []
     for p in planets:
         all_items.append({"key": "planet_" + p["name"], "lon": p["lon_num"], "type": "planet", "ref": p, "fixed": False})
+    for a in angles:
+        all_items.append({"key": "angle_" + a["name"], "lon": a["lon_num"], "type": "angle", "ref": a, "fixed": True})
 
     # Compute seam (opposite centroid)
     sx, sy = 0, 0
