@@ -206,6 +206,7 @@
 			const topMenuBottom = topMenu ? Math.round(topMenu.getBoundingClientRect().bottom) : 0;
 			const labelTop = Math.max(topMenuBottom, Math.round(xAxisY - labelHeight));
 			document.documentElement.style.setProperty("--label-top", `${labelTop}px`);
+			document.documentElement.style.setProperty("--label-height", `${labelHeight}px`);
 		}
 
 
@@ -1461,6 +1462,8 @@
 								window.locationData = { lat: nearest.lat, lon: nearest.lon, tz: nearest.tz };
 								if (locationBoxInput) locationBoxInput.value = `${nearest.name}, ${nearest.country}`;
 								console.log(`[location] Auto-detected: ${nearest.name}, ${nearest.country}`);
+								// Menu grew — recompute label/box positions
+								requestAnimationFrame(() => { syncTimeMarkerLayout(); syncScrewSVGHeight(); });
 								return;
 							}
 						}
@@ -1488,6 +1491,8 @@
 						window.locationData = { lat: city.lat, lon: city.lon, tz: city.tz };
 						if (locationBoxInput) locationBoxInput.value = `${city.name}, ${city.country}`;
 						console.log(`[location] Auto-detected from timezone: ${city.name}, ${city.country}`);
+						// Menu grew — recompute label/box positions
+						requestAnimationFrame(() => { syncTimeMarkerLayout(); syncScrewSVGHeight(); });
 					} else {
 						// Last resort: use first city in database
 						const fallback = citiesData[0];
@@ -2068,11 +2073,21 @@ if (nextElementBtn) {
 	   SECTION 12 — MAIN ANIMATION LOOP
 	   ========================================================= */
 
+		let __layoutResyncDeadline = performance.now() + 3000; // re-sync layout for first 3s
+
 		function animate(t) {
 
 			if (!lastTime) lastTime = t;
 			const dt = (t - lastTime) / 1000;
 			lastTime = t;
+
+			// Re-sync layout for first few seconds to catch menu/location shifts
+			if (performance.now() < __layoutResyncDeadline) {
+				syncTimeMarkerLayout();
+				if (typeof window.updatePlantingNowLuminaryFrame === "function") {
+					window.updatePlantingNowLuminaryFrame(performance.now());
+				}
+			}
 
 			const v = speedSlider.value / 100;
 			if (pauseBtn) pauseBtn.classList.toggle("paused", Math.abs(v) < 0.0001);
@@ -2211,6 +2226,9 @@ if (nextElementBtn) {
 			syncRiverClip();
 		}
 		});
+
+	// Expose syncTimeMarkerLayout so astro-wheel.js can call it on modal open/close
+	window.syncTimeMarkerLayout = syncTimeMarkerLayout;
 
 	// 🔁 Start loop (only once)
 	requestAnimationFrame(animate);

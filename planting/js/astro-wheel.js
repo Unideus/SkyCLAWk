@@ -110,6 +110,13 @@
       if (wheelCardEl) wheelCardEl.style.pointerEvents = "";
 
       if (typeof syncEventShield === "function") syncEventShield();
+      // Recalculate NOW marker + seasons box position after layout shifts back
+      requestAnimationFrame(() => {
+        if (typeof window.syncTimeMarkerLayout === "function") window.syncTimeMarkerLayout();
+        setTimeout(() => {
+          if (typeof window.syncTimeMarkerLayout === "function") window.syncTimeMarkerLayout();
+        }, 100);
+      });
     }
 
     function toggleWheel() {

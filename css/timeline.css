@@ -327,6 +327,248 @@ button.uiPill:active{
   display: inline-block;
 }
 
+/* Updates button in menuDate */
+#updatesBtn {
+  height: var(--ui-h);
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: rgba(212, 175, 55, 0.2);
+  border-color: rgba(212, 175, 55, 0.5);
+  color: #d4af37;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+#updatesBtn:hover {
+  background: rgba(212, 175, 55, 0.35);
+  border-color: rgba(212, 175, 55, 0.7);
+  color: #f0d060;
+}
+
+/* Updates Modal */
+#updatesModal.zyModal {
+  position: fixed !important;
+  inset: 0 !important;
+  display: none !important;
+  z-index: 9999999 !important;
+  pointer-events: none !important;
+}
+
+#updatesModal.zyModal[aria-hidden="false"] {
+  display: block !important;
+}
+
+#updatesModal .updatesModalCard {
+  position: fixed;
+  width: 380px;
+  max-width: calc(100vw - 44px);
+  max-height: 70vh;
+  padding: 18px 20px 20px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  background: rgba(10,10,14,0.98) !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,.55) !important;
+  z-index: 9999998 !important;
+  pointer-events: auto !important;
+  overflow-y: auto;
+}
+
+.updatesModalTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255,255,255,.92);
+  margin-bottom: 14px;
+  padding-right: 30px;
+  letter-spacing: .3px;
+}
+
+.updates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.updates-date-group {
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  padding-bottom: 10px;
+}
+
+.updates-date-group:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.updates-date {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,.45);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 6px;
+}
+
+.updates-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.updates-item {
+  font-size: 12px;
+  color: rgba(255,255,255,.78);
+  line-height: 1.4;
+  padding-left: 10px;
+  position: relative;
+}
+
+.updates-item::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: rgba(255,255,255,.3);
+}
+
+/* Updates header */
+.updates-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+
+.updates-engine {
+  font-size: 13px;
+  color: rgba(255,255,255,.7);
+}
+
+.updates-engine strong {
+  color: #d4af37;
+}
+
+.updates-status {
+  font-size: 12px;
+  color: rgba(255,255,255,.6);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.status-active {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.status-in-progress {
+  background: rgba(255, 200, 50, 0.2);
+  color: #f0c040;
+  border: 1px solid rgba(255, 200, 50, 0.3);
+}
+
+/* Phase blocks */
+.updates-phase {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.updates-phase:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.updates-phase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.updates-phase-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,.85);
+}
+
+.phase-complete .updates-phase-name {
+  color: #22c55e;
+}
+
+.phase-in-progress .updates-phase-name {
+  color: #f0c040;
+}
+
+.updates-phase-pct {
+  font-size: 10px;
+  color: rgba(255,255,255,.45);
+  font-weight: 600;
+}
+
+.updates-phase-bar {
+  height: 4px;
+  background: rgba(255,255,255,.08);
+  border-radius: 2px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.updates-phase-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: #d4af37;
+  transition: width 0.3s ease;
+}
+
+.phase-complete .updates-phase-fill {
+  background: #22c55e;
+}
+
+.phase-in-progress .updates-phase-fill {
+  background: #f0c040;
+}
+
+.updates-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.updates-item {
+  font-size: 11px;
+  line-height: 1.4;
+  padding: 2px 0;
+}
+
+.item-done {
+  color: rgba(255,255,255,.6);
+}
+
+.item-pending {
+  color: rgba(255,255,255,.45);
+}
+
 /* --- Scale selector (in menuDate, left of date input) --- */
 #menuDate{
   display: flex;

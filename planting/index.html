@@ -455,13 +455,18 @@
 				</g>
 			  </svg>
 			  <section id="plantingMoonPhaseReadout" class="plantingMoonPhaseReadout" aria-live="polite">
-				<div class="moonPhaseKicker">Moon phase</div>
-				<div class="moonPhaseLine">
-				  <span id="moonPhaseReadoutGlyph" class="moonPhaseGlyph">🌑</span>
-				  <span id="moonPhaseReadoutName">New Moon</span>
-				  <span id="moonPhaseReadoutMeta">0° from New · age 0.0d · illum 0%</span>
-				</div>
-				<p id="moonPhaseReadoutAdvice">Plan, observe, and set intentions for the next planting cycle.</p>
+			  <div class="moonPhaseKicker">Moon phase</div>
+			  <div class="moonPhaseLine">
+			  <span id="moonPhaseReadoutGlyph" class="moonPhaseGlyph">🌑</span>
+			  <span id="moonPhaseReadoutName">New Moon</span>
+			  <span id="moonPhaseReadoutMeta">0° from New · age 0.0d · illum 0%</span>
+			  </div>
+			  <p id="moonPhaseReadoutAdvice">Plan, observe, and set intentions for the next planting cycle.</p>
+			  <div id="moonPhaseReadoutExtra" style="display:flex;gap:16px;margin-top:6px;font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);line-height:1.4;">
+			  <span id="moonPhaseReadoutSun"></span>
+			  <span id="moonPhaseReadoutLunation"></span>
+			  <span id="moonPhaseReadoutEclipse"></span>
+			  </div>
 			  </section>
 
 			
@@ -523,12 +528,12 @@
 
 		<script src="js/heaven-data.js"></script>
 
-		<script src="js/screw-renderer.js?v=6"></script>
-		<script src="js/astro-wheel.js?v=2"></script>
+		<script src="js/screw-renderer.js?v=11"></script>
+		<script src="js/astro-wheel.js?v=3"></script>
 		<script src="js/conjunction-selector.js"></script>
 
 		<!-- 3D (Phase 1) — Three.js global build + simple renderer wrapper -->
-		<script src="js/ui-controller.js?v=2"></script>
+		<script src="js/ui-controller.js?v=5"></script>
 		<script src="js/planting.js?v=7"></script>
 	<script>
 	// Navigation: Scale selector navigates to skyclock or timeline variants

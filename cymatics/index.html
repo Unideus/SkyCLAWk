@@ -1075,6 +1075,18 @@
       border-color: rgba(144, 213, 154, 0.42);
     }
 
+    a.toggle.atlas-trigger {
+      color: #d8b56a;
+      border-color: rgba(216, 181, 106, 0.5);
+      margin-left: 8px;
+      text-decoration: none;
+    }
+    a.toggle.atlas-trigger:hover {
+      color: #fff;
+      background: rgba(216, 181, 106, 0.18);
+      border-color: rgba(216, 181, 106, 0.8);
+    }
+
     .planet-grid .chip {
       min-width: 90px;
     }
@@ -1176,6 +1188,7 @@
           <p class="subhead">Square and round plate explorer with tone, note, waveform, color, sacred geometry, solfeggio, and planetary presets.</p>
         </div>
         <button id="helpOpenButton" class="toggle help-trigger" type="button" aria-haspopup="dialog" aria-controls="helpModal">Help</button>
+        <a id="openAtlasButton" class="toggle atlas-trigger" href="/cymatics-correspondence/" target="_blank" rel="noopener" title="Open the Cymatic Correspondence Atlas (a navigable view of the 4-axis data model)">Correspondence Atlas →</a>
       </div>
 
       <section class="section-card mode-switch-card">
@@ -1524,6 +1537,7 @@
             <p>When you find a stronger source or a contradiction, update the catalog entry first, then revise the app logic only if the evidence justifies it. Keep provenance clear so the page does not imply more certainty than the data supports.</p>
           </div>
         </div>
+        <p style="margin-top:14px; font-size:12px; color:rgba(178,188,205,0.7); border-top:1px solid rgba(173,142,94,0.12); padding-top:12px;"><strong style="color:rgba(216,181,106,0.84); text-transform:uppercase; letter-spacing:0.08em;">About this build:</strong> This is the <em>cymatics webapp preview</em>, shared with a select few. The cymatics project may be hosted publicly by Crrow777 at a future date. The same data also powers the <strong>Godot 3D cymatics visualization</strong> &mdash; the paid visual-teaching product, and the natural home of the cymatic project going forward. The cymatics webapp and the Godot 3D app both hit a hard ceiling on the astrology-rendering side: the visual teaching elements (live chart wheels, aspect flows, transit timelines, the cymatic field overlays) are impossible to render smoothly in a 2D browser page. The company is funded by the cosmic-history report and the permaculture app-plan generator, both of which also consume this data.</p>
       </div>
     </div>
   </div>

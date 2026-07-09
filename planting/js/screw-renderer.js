@@ -974,37 +974,42 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 			el.style.opacity = "0.62";
 		}
 
+		// NOTE: Living guild preview disabled — kept for future re-enable.
+		// function renderPlantingFixedGuildPreview() {
+		// 	let panel = document.getElementById("plantingFixedGuildPreview");
+		// 	if (!panel) {
+		// 		panel = document.createElement("div");
+		// 		panel.id = "plantingFixedGuildPreview";
+		// 		document.body.appendChild(panel);
+		// 	}
+		// 	stylePlantingFixedPanel(panel, getPlantingFixedPanelFrame(), "guild");
+		// 	panel.innerHTML = `
+		// 		<div style="position:absolute;left:14px;top:10px;font-size:12px;font-weight:900;color:#e7f8d2;">Living guild preview</div>
+		// 		<div style="position:absolute;left:14px;top:29px;font-size:9px;color:rgba(255,255,255,0.62);">free mode: soil becomes a generic food forest</div>
+		// 		<svg viewBox="0 0 300 110" width="300" height="110" aria-hidden="true" style="position:absolute;left:0;top:0;">
+		// 			<path d="M18 76 C72 66 112 88 162 74 C214 59 246 74 282 66 L282 94 L18 94 Z" fill="rgba(88,49,24,0.82)" stroke="rgba(245,222,179,0.28)" stroke-width="1"></path>
+		// 			<path d="M24 68 C82 61 136 72 188 62 C230 54 258 60 280 56" fill="none" stroke="#c08457" stroke-width="5" opacity="0.68" stroke-linecap="round"></path>
+		// 			<g stroke-linecap="round">
+		// 				<line x1="84" y1="70" x2="84" y2="48" stroke="#22c55e" stroke-width="2.5"></line>
+		// 				<ellipse cx="77" cy="46" rx="8" ry="4" fill="#22c55e" transform="rotate(-26 77 46)" opacity="0.9"></ellipse>
+		// 				<ellipse cx="92" cy="40" rx="8" ry="4" fill="#22c55e" transform="rotate(28 92 40)" opacity="0.86"></ellipse>
+		// 				<line x1="128" y1="70" x2="128" y2="34" stroke="#86efac" stroke-width="2.5"></line>
+		// 				<ellipse cx="121" cy="32" rx="8" ry="4" fill="#86efac" transform="rotate(-26 121 32)" opacity="0.9"></ellipse>
+		// 				<ellipse cx="136" cy="26" rx="8" ry="4" fill="#86efac" transform="rotate(28 136 26)" opacity="0.86"></ellipse>
+		// 				<line x1="176" y1="70" x2="176" y2="16" stroke="#4ade80" stroke-width="2.5"></line>
+		// 				<ellipse cx="169" cy="14" rx="8" ry="4" fill="#4ade80" transform="rotate(-26 169 14)" opacity="0.9"></ellipse>
+		// 				<ellipse cx="184" cy="8" rx="8" ry="4" fill="#4ade80" transform="rotate(28 184 8)" opacity="0.86"></ellipse>
+		// 				<line x1="218" y1="70" x2="218" y2="40" stroke="#bef264" stroke-width="2.5"></line>
+		// 				<ellipse cx="211" cy="38" rx="8" ry="4" fill="#bef264" transform="rotate(-26 211 38)" opacity="0.9"></ellipse>
+		// 				<ellipse cx="226" cy="32" rx="8" ry="4" fill="#bef264" transform="rotate(28 226 32)" opacity="0.86"></ellipse>
+		// 			</g>
+		// 		</svg>
+		// 	`;
+		// }
 		function renderPlantingFixedGuildPreview() {
-			let panel = document.getElementById("plantingFixedGuildPreview");
-			if (!panel) {
-				panel = document.createElement("div");
-				panel.id = "plantingFixedGuildPreview";
-				document.body.appendChild(panel);
-			}
-
-			stylePlantingFixedPanel(panel, getPlantingFixedPanelFrame(), "guild");
-			panel.innerHTML = `
-				<div style="position:absolute;left:14px;top:10px;font-size:12px;font-weight:900;color:#e7f8d2;">Living guild preview</div>
-				<div style="position:absolute;left:14px;top:29px;font-size:9px;color:rgba(255,255,255,0.62);">free mode: soil becomes a generic food forest</div>
-				<svg viewBox="0 0 300 110" width="300" height="110" aria-hidden="true" style="position:absolute;left:0;top:0;">
-					<path d="M18 76 C72 66 112 88 162 74 C214 59 246 74 282 66 L282 94 L18 94 Z" fill="rgba(88,49,24,0.82)" stroke="rgba(245,222,179,0.28)" stroke-width="1"></path>
-					<path d="M24 68 C82 61 136 72 188 62 C230 54 258 60 280 56" fill="none" stroke="#c08457" stroke-width="5" opacity="0.68" stroke-linecap="round"></path>
-					<g stroke-linecap="round">
-						<line x1="84" y1="70" x2="84" y2="48" stroke="#22c55e" stroke-width="2.5"></line>
-						<ellipse cx="77" cy="46" rx="8" ry="4" fill="#22c55e" transform="rotate(-26 77 46)" opacity="0.9"></ellipse>
-						<ellipse cx="92" cy="40" rx="8" ry="4" fill="#22c55e" transform="rotate(28 92 40)" opacity="0.86"></ellipse>
-						<line x1="128" y1="70" x2="128" y2="34" stroke="#86efac" stroke-width="2.5"></line>
-						<ellipse cx="121" cy="32" rx="8" ry="4" fill="#86efac" transform="rotate(-26 121 32)" opacity="0.9"></ellipse>
-						<ellipse cx="136" cy="26" rx="8" ry="4" fill="#86efac" transform="rotate(28 136 26)" opacity="0.86"></ellipse>
-						<line x1="176" y1="70" x2="176" y2="16" stroke="#4ade80" stroke-width="2.5"></line>
-						<ellipse cx="169" cy="14" rx="8" ry="4" fill="#4ade80" transform="rotate(-26 169 14)" opacity="0.9"></ellipse>
-						<ellipse cx="184" cy="8" rx="8" ry="4" fill="#4ade80" transform="rotate(28 184 8)" opacity="0.86"></ellipse>
-						<line x1="218" y1="70" x2="218" y2="40" stroke="#bef264" stroke-width="2.5"></line>
-						<ellipse cx="211" cy="38" rx="8" ry="4" fill="#bef264" transform="rotate(-26 211 38)" opacity="0.9"></ellipse>
-						<ellipse cx="226" cy="32" rx="8" ry="4" fill="#bef264" transform="rotate(28 226 32)" opacity="0.86"></ellipse>
-					</g>
-				</svg>
-			`;
+			// Disabled — living guild preview removed per request. See commented code above to re-enable.
+			const panel = document.getElementById("plantingFixedGuildPreview");
+			if (panel) panel.remove();
 		}
 
 		window.repositionPlantingFixedPanels = function() {
@@ -2030,7 +2035,26 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 			if (nameEl) nameEl.textContent = `${phaseReadout.name} Moon in ${zodiac.name}`;
 			if (metaEl) metaEl.textContent = formatPlantingMoonPhaseExact(phaseDeg);
 			if (adviceEl) adviceEl.textContent = getPlantingMoonAdvice(phaseReadout.name, context);
-		}
+
+			// Sun position + season
+			const sunZodiac = getPlantingSunZodiacSign(currentDate);
+			const season = getPlantingCurrentSeason(currentDate);
+			const sunEl = document.getElementById("moonPhaseReadoutSun");
+			if (sunEl) {
+				sunEl.textContent = `☉ ${sunZodiac.glyph}\uFE0E ${Math.floor(sunZodiac.degreeInSign)}°${String(Math.floor((sunZodiac.degreeInSign % 1) * 60)).padStart(2,"0")}' · ${season.name}`;
+			}
+
+			// Next lunation + next eclipse
+			const summary = getPlantingNextLunarSummary(currentDate);
+			const lunationEl = document.getElementById("moonPhaseReadoutLunation");
+			const eclipseEl = document.getElementById("moonPhaseReadoutEclipse");
+			if (lunationEl && summary.lunation) {
+				lunationEl.textContent = summary.lunation;
+			}
+			if (eclipseEl && summary.eclipse) {
+				eclipseEl.textContent = summary.eclipse;
+			}
+			}
 
 		function formatPlantingZodiacPosition(zodiac) {
 			const degree = Math.floor(zodiac.degreeInSign);
@@ -2127,7 +2151,6 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 							<path id="plantingNowOrbitVeilFeather" fill="none" stroke="rgba(0,0,0,0.52)" stroke-width="66" stroke-linecap="round" stroke-linejoin="round" filter="url(#plantingNowOrbitVeilBlur)"></path>
 							<path id="plantingNowOrbitVeilCore" fill="none" stroke="rgba(0,0,0,0.38)" stroke-width="42" stroke-linecap="round" stroke-linejoin="round"></path>
 						</g>
-						<rect id="plantingNowReadoutVeil" x="-398" y="22" width="388" height="178" fill="url(#plantingNowTextVeilGradient)"></rect>
 						<line id="plantingNowEcliptic" x1="45" x2="45" y1="20" y2="200" stroke="rgba(250,204,21,0.42)" stroke-width="1.1"></line>
 						<path id="plantingNowLunarOrbitPath" fill="none" stroke="rgba(148,163,184,0.46)" stroke-width="1.2" stroke-dasharray="4 5"></path>
 						<circle id="plantingNowSunGlow" cx="45" cy="200" r="18" fill="rgba(250,204,21,0.18)"></circle>
@@ -2148,30 +2171,6 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 							<path id="plantingNowMoonLight" fill="#f8fafc"></path>
 						</g>
 						<circle id="plantingNowMoonRim" cx="45" cy="200" r="6.5" fill="none" stroke="#cbd5e1" stroke-width="1"></circle>
-						<rect id="plantingNowMoonZodiacBox" x="-156" y="22" width="146" height="64" rx="7" fill="rgba(3,7,18,0.9)" stroke="rgba(203,213,225,0.34)" stroke-width="0.8"></rect>
-						<g id="plantingNowMoonZodiacReadout" font-family="Georgia, 'Times New Roman', serif" font-weight="900" text-anchor="start" dominant-baseline="middle" paint-order="stroke" stroke="rgba(0,0,0,0.9)" stroke-linejoin="round">
-							<g id="plantingNowMoonPhaseIcon">
-								<circle id="plantingNowMoonPhaseIconDark" cx="-130" cy="43" r="8.5" fill="#0f172a"></circle>
-								<path id="plantingNowMoonPhaseIconLight" fill="#f8fafc"></path>
-								<circle id="plantingNowMoonPhaseIconRim" cx="-130" cy="43" r="8.5" fill="none" stroke="#cbd5e1" stroke-width="1"></circle>
-							</g>
-							<text id="plantingNowMoonZodiacGlyph" x="-113" y="43" fill="#ff4136" font-size="24" stroke-width="2.2">♈︎</text>
-							<text id="plantingNowMoonZodiacDegree" x="-84" y="43" fill="#e0f2fe" font-size="24" stroke-width="2.2">0°00'</text>
-							<text id="plantingNowMoonPhaseName" x="-141" y="64" fill="rgba(224,242,254,0.82)" font-family="Inter, system-ui, sans-serif" font-size="9.5" font-weight="800" letter-spacing="0.4" stroke-width="1.3">New Moon</text>
-						</g>
-						<rect id="plantingNowNextLunarBox" x="-398" y="40" width="232" height="120" rx="7" fill="rgba(3,7,18,0.9)" stroke="rgba(148,163,184,0.34)" stroke-width="0.8"></rect>
-						<g id="plantingNowNextLunarReadout" font-family="Inter, system-ui, sans-serif" text-anchor="start" dominant-baseline="middle" paint-order="stroke" stroke="rgba(0,0,0,0.9)" stroke-linejoin="round">
-							<text x="-378" y="66" fill="rgba(224,242,254,0.86)" font-size="11" font-weight="900" letter-spacing="0.35" stroke-width="1.2">LUNATION CYCLE</text>
-							<text id="plantingNowNextLunationText" x="-378" y="95" fill="#e0f2fe" font-size="10.5" font-weight="800" stroke-width="1.2">Next lunation: New Moon 0d ♈ 0°00'</text>
-							<text id="plantingNowNextEclipseText" x="-378" y="119" fill="#fed7aa" font-size="10.5" font-weight="800" stroke-width="1.2">Next eclipse: Solar 0d ♈ 0°00'</text>
-						</g>
-						<rect id="plantingNowSunZodiacBox" x="-156" y="136" width="146" height="64" rx="7" fill="rgba(3,7,18,0.9)" stroke="rgba(250,204,21,0.36)" stroke-width="0.8"></rect>
-						<g id="plantingNowSunZodiacReadout" font-family="Georgia, 'Times New Roman', serif" font-weight="900" text-anchor="start" dominant-baseline="middle" paint-order="stroke" stroke="rgba(0,0,0,0.9)" stroke-linejoin="round">
-							<text id="plantingNowSunGlyph" x="-146" y="158" fill="#facc15" font-size="23" stroke-width="2.2">☉</text>
-							<text id="plantingNowSunZodiacGlyph" x="-118" y="158" fill="#ff4136" font-size="24" stroke-width="2.2">♈︎</text>
-							<text id="plantingNowSunZodiacDegree" x="-89" y="158" fill="#fde68a" font-size="24" stroke-width="2.2">0°00'</text>
-							<text id="plantingNowSunLabel" x="-146" y="179" fill="rgba(253,230,138,0.82)" font-family="Inter, system-ui, sans-serif" font-size="9.5" font-weight="800" letter-spacing="0.4" stroke-width="1.3">Spring</text>
-						</g>
 					</svg>
 				`;
 				host.querySelector("#plantingNowSun").style.filter = "drop-shadow(0 0 6px #f97316) drop-shadow(0 0 14px #facc15)";
@@ -2190,6 +2189,7 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 			const screenX = typeof getPlantingNowViewportX === "function"
 				? getPlantingNowViewportX()
 				: bounds.centerX;
+			// Position luminary orbit at the sun's screen position on the screw (unchanged)
 			const sunY = bounds.top + CANON.SCREW_TOP_PAD + 25 + CANON.TIMELINE_Y;
 			const phaseDeg = getPlantingMoonPhaseDegrees(currentDate);
 			const orbit = getPlantingLunarOrbitGeometry(currentDate, phaseDeg, 200);
@@ -2205,19 +2205,19 @@ function reserveInLane(kindState, laneIndex, x0, x1) {
 				southNode: host.querySelector("#plantingNowSouthNode"),
 				northNodeLabel: host.querySelector("#plantingNowNorthNodeLabel"),
 				northNodeLeader: host.querySelector("#plantingNowNorthNodeLeader"),
-				moonZodiacReadout: host.querySelector("#plantingNowMoonZodiacReadout"),
-				moonPhaseIconDark: host.querySelector("#plantingNowMoonPhaseIconDark"),
-				moonPhaseIconLight: host.querySelector("#plantingNowMoonPhaseIconLight"),
-				moonPhaseIconRim: host.querySelector("#plantingNowMoonPhaseIconRim"),
-				moonPhaseName: host.querySelector("#plantingNowMoonPhaseName"),
-				moonZodiacGlyph: host.querySelector("#plantingNowMoonZodiacGlyph"),
-				moonZodiacDegree: host.querySelector("#plantingNowMoonZodiacDegree"),
-				sunZodiacReadout: host.querySelector("#plantingNowSunZodiacReadout"),
-				sunZodiacGlyph: host.querySelector("#plantingNowSunZodiacGlyph"),
-				sunZodiacDegree: host.querySelector("#plantingNowSunZodiacDegree"),
-				sunSeasonLabel: host.querySelector("#plantingNowSunLabel"),
-				nextLunationText: host.querySelector("#plantingNowNextLunationText"),
-				nextEclipseText: host.querySelector("#plantingNowNextEclipseText"),
+				moonZodiacReadout: null,
+				moonPhaseIconDark: null,
+				moonPhaseIconLight: null,
+				moonPhaseIconRim: null,
+				moonPhaseName: null,
+				moonZodiacGlyph: null,
+				moonZodiacDegree: null,
+				sunZodiacReadout: null,
+				sunZodiacGlyph: null,
+				sunZodiacDegree: null,
+				sunSeasonLabel: null,
+				nextLunationText: null,
+				nextEclipseText: null,
 				orbitVeilFeather: host.querySelector("#plantingNowOrbitVeilFeather"),
 				orbitVeilCore: host.querySelector("#plantingNowOrbitVeilCore"),
 				solarEclipseCue: host.querySelector("#plantingNowSolarEclipseCue"),

@@ -21,6 +21,7 @@ export default defineConfig({
         cosmicReport: resolve(__dirname, 'cosmic-report/index.html'),
         cymatics: resolve(__dirname, 'cymatics/index.html'),
         gematria: resolve(__dirname, 'gematria/index.html'),
+        cymaticsCorrespondence: resolve(__dirname, 'cymatics-correspondence/index.html'),
       },
     },
     outDir: 'dist',

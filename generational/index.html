@@ -148,22 +148,27 @@
 
 			  <!-- Date panel (uniform stack: date / time / location / go) -->
 			  <div id="menuDate">
-				<!-- Timeline scale selector -->
-				<div id="scaleSelector" role="group" aria-label="Time Scale">
-					<div class="scaleLabel">Time Scale</div>
-					<div class="scaleBtns">
-						<button class="scaleOpt" type="button" data-scale="skyclock" onclick="window.location.href='/skyclock/'">Skyclock</button>
-						<button class="scaleOpt" type="button" data-scale="generational" onclick="window.location.href='/'">Generational</button>
-						<button class="scaleOpt" type="button" data-scale="personal" onclick="window.location.href='/personal/'">Personal</button>
-						<button class="scaleOpt" type="button" data-scale="planting" onclick="window.location.href='/planting/'">Planting</button>
-					</div>
-				</div>
-				<div id="dateBoxOuter">
-					<input id="dateBoxInput" type="text" placeholder="21 Jan 2026" />
-					<input id="timeBoxInput" type="time" value="12:00" step="60" />
-					<input id="locationBoxInput" type="text" placeholder="location" autocomplete="off" />
-					<button type="button" class="dateGoBtn" id="dateBoxGoBtn">GO</button>
-				</div>
+			  	<button id="updatesBtn" class="uiPill updatesBtn" type="button"
+			  		aria-haspopup="dialog"
+			  		aria-controls="updatesModal"
+			  		aria-expanded="false"
+			  		aria-label="View Godot project updates">Updates</button>
+			  	<!-- Timeline scale selector -->
+			  	<div id="scaleSelector" role="group" aria-label="Time Scale">
+			  		<div class="scaleLabel">Time Scale</div>
+			  		<div class="scaleBtns">
+			  			<button class="scaleOpt" type="button" data-scale="skyclock" onclick="window.location.href='/skyclock/'">Skyclock</button>
+			  			<button class="scaleOpt" type="button" data-scale="generational" onclick="window.location.href='/'">Generational</button>
+			  			<button class="scaleOpt" type="button" data-scale="personal" onclick="window.location.href='/personal/'">Personal</button>
+			  			<button class="scaleOpt" type="button" data-scale="planting" onclick="window.location.href='/planting/'">Planting</button>
+			  		</div>
+			  	</div>
+			  	<div id="dateBoxOuter">
+			  		<input id="dateBoxInput" type="text" placeholder="21 Jan 2026" />
+			  		<input id="timeBoxInput" type="time" value="12:00" step="60" />
+			  		<input id="locationBoxInput" type="text" placeholder="location" autocomplete="off" />
+			  		<button type="button" class="dateGoBtn" id="dateBoxGoBtn">GO</button>
+			  	</div>
 			  </div>
 
 			</div> <!-- ✅ END topMenu -->
@@ -1112,6 +1117,218 @@
 
 		<!-- ARCHETYPE LABELS — Div wrapper for reliable position:fixed stacking -->
 <script src="../shared/wheel-popout-bridge.js?v=2"></script>
+
+<!-- Updates Modal -->
+<div id="updatesModal" class="zyModal" role="dialog" aria-modal="true" aria-hidden="true">
+<div class="zyModalBackdrop" data-close="updates"></div>
+<div class="zyModalCard updatesModalCard" role="document">
+	<button id="updatesClose" class="zyModalClose" type="button" aria-label="Close updates">x</button>
+	<div class="updatesModalTitle">Godot Project Status</div>
+	<div id="updatesList" class="updates-list"></div>
+</div>
+</div>
+
+<script>
+(function() {
+'use strict';
+const updatesBtn = document.getElementById('updatesBtn');
+const updatesModal = document.getElementById('updatesModal');
+const updatesClose = document.getElementById('updatesClose');
+const updatesList = document.getElementById('updatesList');
+const updatesCard = updatesModal ? updatesModal.querySelector('.zyModalCard') : null;
+const updatesBackdrop = updatesModal ? updatesModal.querySelector('.zyModalBackdrop') : null;
+
+if (!updatesBtn || !updatesModal || !updatesClose || !updatesList) return;
+
+// Godot project status data
+const GODOT_STATUS = {
+	engine: 'Godot 4.7',
+	location: 'E:/Hermes Project/Master Godot SkyCLAWk/',
+	status: 'Active prototyping - full Godot path',
+	phases: [
+		{
+			name: 'Phase 1: Foundation',
+			status: 'complete',
+			items: [
+				{ done: true, text: 'Godot 4.7 project created' },
+				{ done: true, text: '3D Gleason map scene (world_with_hud.tscn)' },
+				{ done: true, text: 'Tropical zodiac wheel + offset ecliptic' },
+				{ done: true, text: 'Planet markers on the ecliptic (astro_wheel.gd, 1,328 lines)' },
+				{ done: true, text: 'Procedural analemma' },
+				{ done: true, text: 'Atmospheric layer + personal dome prototype' },
+				{ done: true, text: 'Cymatic membrane (Bessel standing-wave model)' },
+				{ done: true, text: 'Starfield texture generation + constellation lines' },
+				{ done: true, text: 'Binary ephemeris tables + 7 JSON data files' },
+				{ done: true, text: '2D wheel scene (scenes/main.tscn)' },
+				{ done: true, text: 'Speed controls (slider, pause, keyboard shortcuts)' },
+				{ done: true, text: 'Timeline strip with event markers (746 lines)' },
+				{ done: true, text: 'Precession rotation (50.29 arcsec/year)' },
+				{ done: true, text: 'Timeline screw engine ported (350 lines)' },
+				{ done: true, text: 'History graph mode (3D interactive, 3 scripts)' },
+				{ done: true, text: 'Eclipse mode (map + math + renderer)' },
+				{ done: true, text: 'Astrocartography prototype (Gleason projection)' },
+				{ done: true, text: 'Heaven plane + Bullinger wheel overlays' },
+				{ done: true, text: 'Views menu with 3D toggles' },
+				{ done: true, text: 'Teaching pyramid + morph transition scenes' },
+				{ done: true, text: 'Swiss Ephemeris GDExtension build environment' },
+				{ done: true, text: 'Cymatics webapp kept as private preview build (no gating, no paywall, no pro tier)' },
+				{ done: false, text: 'Build landing pages + email funnel for the two revenue paths (cosmic-history report + permaculture app-plan generator)' },
+				{ done: false, text: 'Email capture form on zodiyuga.com (lead magnet for the paid products)' },
+			],
+		},
+		{
+			name: 'Phase 2: Swiss Ephemeris + Real Data',
+			status: 'pending',
+			items: [
+				{ done: false, text: 'Swiss Ephemeris GDExtension (C++ wrapper)' },
+				{ done: false, text: 'Replace approximate orbits with real ephemeris' },
+				{ done: false, text: 'Retrograde detection and indicators' },
+				{ done: false, text: 'House division overlay (Placidus, Whole Sign, Equal)' },
+				{ done: false, text: 'Aspect line rendering' },
+				{ done: false, text: 'Planetary glow shaders' },
+				{ done: false, text: 'Constellation overlay images' },
+				{ done: false, text: 'Date navigation (scrub, jump to date)' },
+				{ done: false, text: 'Zoom and pan for wheel view' },
+				{ done: false, text: 'Planet info tooltips' },
+			],
+		},
+		{
+			name: 'Phase 3: Timeline',
+			status: 'in_progress',
+			items: [
+				{ done: true, text: 'Timeline screw engine ported to Godot' },
+				{ done: true, text: 'Conjunction bands (Saturn-Jupiter data loaded)' },
+				{ done: true, text: 'Generational lanes (Prophet/Nomad/Hero/Artist)' },
+				{ done: true, text: 'Historical event database (3 JSON files)' },
+				{ done: true, text: 'History graph 3D mode with scope layers' },
+				{ done: true, text: 'Element bands above timeline screw' },
+				{ done: true, text: 'Saeculum wave with generation labels' },
+				{ done: false, text: 'Category toggle checkboxes' },
+				{ done: false, text: 'Seasonal glow rail' },
+				{ done: false, text: 'Bidirectional wheel-timeline sync' },
+			],
+		},
+		{
+			name: 'Phase 4: Features',
+			status: 'pending',
+			items: [
+				{ done: false, text: 'Personal natal chart data entry + storage' },
+				{ done: false, text: 'Personal life arc overlay on timeline' },
+				{ done: false, text: 'Planting calendar matrix' },
+				{ done: false, text: 'Auspicious elections tool' },
+				{ done: false, text: 'Settings panel' },
+				{ done: false, text: 'Glassmorphism UI theme' },
+			],
+		},
+		{
+			name: 'Phase 5: Reports & Export',
+			status: 'in_progress',
+			items: [
+				{ done: true, text: 'Python report generator pipeline (19 scripts, 6,992 lines)' },
+				{ done: true, text: 'Chart page with aspect markers + constellation paths' },
+				{ done: true, text: 'Visual snapshot page (house boxes, key aspects)' },
+				{ done: true, text: 'Full report assembly (page 1-3)' },
+				{ done: false, text: 'Godot-native PDF generation' },
+				{ done: false, text: 'Report preview in-app' },
+				{ done: false, text: 'Export chart as PNG/SVG from Godot' },
+			],
+		},
+		{
+			name: 'Phase 6: Polish & Launch',
+			status: 'pending',
+			items: [
+				{ done: false, text: 'Performance optimization (60fps target)' },
+				{ done: false, text: 'Cross-platform testing' },
+				{ done: false, text: 'Installer/packaging' },
+				{ done: false, text: 'Licensing/activation system' },
+				{ done: false, text: 'Auto-updater' },
+				{ done: false, text: 'System tray with transit alerts' },
+				{ done: false, text: 'Launch: $29 one-time / $4.99/mo subscription' },
+			],
+		},
+	],
+};
+
+// Render
+let html = '';
+html += '<div class="updates-header">';
+html += '<div class="updates-engine">Engine: <strong>Godot 4.7</strong></div>';
+html += '<div class="updates-status">Status: <span class="status-badge status-active">Active Prototyping</span></div>';
+html += '</div>';
+
+GODOT_STATUS.phases.forEach(phase => {
+	const doneCount = phase.items.filter(i => i.done).length;
+	const totalCount = phase.items.length;
+	const pct = Math.round(doneCount / totalCount * 100);
+	let statusClass = 'phase-pending';
+	if (phase.status === 'complete') statusClass = 'phase-complete';
+	else if (phase.status === 'in_progress') statusClass = 'phase-in-progress';
+	html += '<div class="updates-phase ' + statusClass + '">';
+	html += '<div class="updates-phase-header">';
+	html += '<span class="updates-phase-name">' + phase.name + '</span>';
+	html += '<span class="updates-phase-pct">' + doneCount + '/' + totalCount + ' (' + pct + '%)</span>';
+	html += '</div>';
+	html += '<div class="updates-phase-bar"><div class="updates-phase-fill" style="width:' + pct + '%"></div></div>';
+	html += '<ul class="updates-items">';
+	phase.items.forEach(item => {
+		const icon = item.done ? '&#x2705;' : '&#x2B1C;';
+		html += '<li class="updates-item ' + (item.done ? 'item-done' : 'item-pending') + '">' + icon + ' ' + item.text + '</li>';
+	});
+	html += '</ul></div>';
+});
+updatesList.innerHTML = html;
+
+function openUpdates() {
+	updatesModal.setAttribute('aria-hidden', 'false');
+	if (updatesBackdrop) updatesBackdrop.style.pointerEvents = 'none';
+	if (updatesCard) updatesCard.style.pointerEvents = 'auto';
+	// Position card below the button
+	const r = updatesBtn.getBoundingClientRect();
+	const margin = 8;
+	const cardW = updatesCard.offsetWidth || 360;
+	const cardH = updatesCard.offsetHeight || 400;
+	const left = Math.min(Math.max(r.left, margin), window.innerWidth - cardW - margin);
+	const top = Math.min(Math.max(r.bottom + 4, margin), window.innerHeight - cardH - margin);
+	updatesCard.style.position = 'fixed';
+	updatesCard.style.left = left + 'px';
+	updatesCard.style.top = top + 'px';
+	updatesCard.style.margin = '0';
+	updatesCard.style.transform = 'none';
+}
+
+function closeUpdates() {
+	updatesModal.setAttribute('aria-hidden', 'true');
+	if (updatesBackdrop) updatesBackdrop.style.pointerEvents = '';
+	if (updatesCard) updatesCard.style.pointerEvents = '';
+}
+
+updatesBtn.addEventListener('click', function(e) {
+	e.stopPropagation();
+	const isOpen = updatesModal.getAttribute('aria-hidden') === 'false';
+	if (isOpen) closeUpdates(); else openUpdates();
+});
+
+updatesClose.addEventListener('click', closeUpdates);
+
+updatesModal.addEventListener('click', function(ev) {
+	const t = ev.target;
+	if (t && t.getAttribute && t.getAttribute('data-close') === 'updates') closeUpdates();
+});
+
+window.addEventListener('keydown', function(ev) {
+	if (ev.key === 'Escape' && updatesModal.getAttribute('aria-hidden') === 'false') closeUpdates();
+});
+
+// Close on click outside card
+document.addEventListener('click', function(ev) {
+	if (updatesModal.getAttribute('aria-hidden') !== 'false') return;
+	if (!updatesCard.contains(ev.target) && ev.target !== updatesBtn) {
+		closeUpdates();
+	}
+});
+})();
+</script>
+
 <script src="../shared/subscribe-modal.js" defer></script>
 </body>
 	
