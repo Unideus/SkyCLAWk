@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Informe de Historia Cósmica — Tu Vida a Través del Lente de los Planetas</title>
+  <style>
+    :root {
+      --bg: #05060a;
+      --panel: rgba(11, 15, 24, 0.92);
+      --panel-border: rgba(173, 142, 94, 0.28);
+      --muted: rgba(164, 173, 190, 0.7);
+      --text: #edf1fb;
+      --gold: #d8b56a;
+      --gold-soft: rgba(216, 181, 106, 0.18);
+      --gold-glow: rgba(216, 181, 106, 0.08);
+      --active: #8dd1ff;
+      --active-soft: rgba(141, 209, 255, 0.2);
+      --good: #90d59a;
+      --button: rgba(24, 30, 42, 0.92);
+      --button-hover: rgba(32, 40, 58, 0.96);
+      --field: rgba(15, 21, 31, 0.96);
+      --shadow: rgba(0, 0, 0, 0.38);
+      --card-bg: rgba(11, 15, 24, 0.85);
+      --accent-red: #c0392b;
+      --accent-blue: #1976d2;
+      --accent-earth: #2e7d32;
+      --accent-air: #fbc02d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Trebuchet MS", "Gill Sans", "Segoe UI", sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 20% 10%, rgba(44, 71, 104, 0.15), transparent 40%),
+        radial-gradient(ellipse at 80% 20%, rgba(96, 66, 28, 0.12), transparent 35%),
+        radial-gradient(ellipse at 50% 80%, rgba(216, 181, 106, 0.04), transparent 50%);
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .eyebrow {
+      text-align: center;
+      padding: 28px 0 0;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.7;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 40px 0 32px;
+    }
+
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span { color: var(--gold); }
+
+    .hero .subhead {
+      font-size: clamp(15px, 2.2vw, 19px);
+      color: var(--muted);
+      max-width: 680px;
+      margin: 0 auto 24px;
+      line-height: 1.5;
+    }
+
+    .hero .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .hero .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--button);
+    }
+
+    .hero .badge .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+    .hero .badge .dot.gold { background: var(--gold); }
+    .hero .badge .dot.blue { background: var(--accent-blue); }
+    .hero .badge .dot.green { background: var(--accent-earth); }
+
+    .hero .cta-primary {
+      display: inline-block;
+      padding: 14px 40px;
+      background: var(--gold);
+      color: #05060a;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .hero .cta-primary:hover {
+      background: #e6c47a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(216, 181, 106, 0.3);
+    }
+
+    .hero .price-tag {
+      margin-top: 14px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .hero .price-tag strong { color: var(--gold); font-size: 20px; }
+
+    .section { padding: 48px 0; }
+
+    .section h2 {
+      font-size: clamp(22px, 3.5vw, 30px);
+      color: var(--text);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .section h2 .gold { color: var(--gold); }
+
+    .section .subtitle {
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    .chart-preview {
+      text-align: center;
+      margin: 0 auto;
+      max-width: 600px;
+    }
+
+    .chart-preview img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      border: 1px solid var(--panel-border);
+      box-shadow: 0 8px 40px var(--shadow);
+    }
+
+    .chart-preview .caption {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .inside-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+
+    .inside-card {
+      background: var(--card-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+
+    .inside-card:hover { border-color: rgba(173, 142, 94, 0.5); }
+
+    .inside-card .icon { font-size: 24px; margin-bottom: 8px; }
+    .inside-card h3 { font-size: 15px; color: var(--gold); margin-bottom: 6px; }
+    .inside-card p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    .sample-chapter {
+      background: var(--card-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 28px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .sample-chapter .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--gold);
+      opacity: 0.6;
+      margin-bottom: 12px;
+    }
+
+    .sample-chapter p {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    .sample-chapter p:last-child { margin-bottom: 0; }
+
+    .sample-chapter .ellipsis {
+      color: var(--gold);
+      opacity: 0.5;
+      text-align: center;
+      font-size: 20px;
+      letter-spacing: 6px;
+    }
+
+    .pricing-card {
+      max-width: 420px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border: 1px solid var(--gold);
+      border-radius: 16px;
+      padding: 36px 32px;
+      text-align: center;
+      position: relative;
+    }
+
+    .pricing-card .price {
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .pricing-card .price-label {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .pricing-card .features {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 24px;
+    }
+
+    .pricing-card .features li {
+      padding: 6px 0;
+      font-size: 13px;
+      color: var(--text);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .pricing-card .features li::before {
+      content: "✓";
+      color: var(--good);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .pricing-card .cta-primary {
+      display: inline-block;
+      width: 100%;
+      padding: 14px 24px;
+      background: var(--gold);
+      color: #05060a;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 8px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pricing-card .cta-primary:hover {
+      background: #e6c47a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(216, 181, 106, 0.3);
+    }
+
+    .pricing-card .note {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .order-form {
+      max-width: 520px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 32px;
+    }
+
+    .order-form .form-row { margin-bottom: 16px; }
+
+    .order-form label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .order-form input,
+    .order-form select,
+    .order-form textarea {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--field);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    .order-form input:focus,
+    .order-form select:focus,
+    .order-form textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    .order-form .form-row-inline {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .order-form .form-row-half {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .order-form .submit-btn {
+      width: 100%;
+      padding: 14px 24px;
+      background: var(--gold);
+      color: #05060a;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .order-form .submit-btn:hover { background: #e6c47a; }
+
+    .order-form .form-note {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .order-form .form-status {
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      text-align: center;
+    }
+    .order-form .form-status.success {
+      background: rgba(39, 174, 96, 0.15);
+      border: 1px solid rgba(39, 174, 96, 0.3);
+      color: #90d59a;
+    }
+    .order-form .form-status.error {
+      background: rgba(192, 57, 43, 0.15);
+      border: 1px solid rgba(192, 57, 43, 0.3);
+      color: #e74c3c;
+    }
+
+    .faq-list { max-width: 680px; margin: 0 auto; }
+
+    .faq-item {
+      border-bottom: 1px solid rgba(173, 142, 94, 0.15);
+      padding: 16px 0;
+    }
+
+    .faq-item:last-child { border-bottom: none; }
+
+    .faq-item .q {
+      font-size: 15px;
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .faq-item .q::after {
+      content: "+";
+      color: var(--gold);
+      font-size: 18px;
+      transition: transform 0.2s;
+    }
+
+    .faq-item.open .q::after { content: "−"; }
+
+    .faq-item .a {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .faq-item.open .a { display: block; }
+
+    .footer {
+      text-align: center;
+      padding: 40px 0 48px;
+      border-top: 1px solid rgba(173, 142, 94, 0.12);
+      margin-top: 16px;
+    }
+
+    .footer p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .footer .brand { color: var(--gold); font-size: 13px; margin-bottom: 8px; }
+
+    .lang-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      gap: 4px;
+    }
+
+    .lang-toggle a {
+      padding: 6px 12px;
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--panel-border);
+      border-radius: 6px;
+      background: var(--button);
+      transition: all 0.2s;
+    }
+
+    .lang-toggle a.active { color: var(--gold); border-color: var(--gold); background: var(--gold-soft); }
+    .lang-toggle a:hover { border-color: rgba(173, 142, 94, 0.5); }
+
+    @media (max-width: 600px) {
+      .container { padding: 0 16px; }
+      .order-form .form-row-inline { grid-template-columns: 1fr; }
+      .order-form .form-row-half { grid-template-columns: 1fr; }
+      .pricing-card { padding: 24px 20px; }
+      .lang-toggle { top: 12px; right: 12px; }
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(173, 142, 94, 0.2); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(173, 142, 94, 0.35); }
+  </style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<div class="lang-toggle">
+  <a href="index.html" data-lang="en">EN</a>
+  <a href="#" class="active" data-lang="es">ES</a>
+</div>
+
+<div class="container">
+  <div class="eyebrow">Informe Personalizado de Historia Cósmica</div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>Tu Vida a Través del <span>Lente de los Planetas</span></h1>
+    <p class="subhead">
+      Un PDF de 20 páginas que mapea tu carta natal en el ciclo de 200 años de la conjunción Saturno-Júpiter,
+      el cambio elemental de Tierra a Aire, y la transición Yuga — calibrado contra los datos de efemérides
+      de la <strong>NASA JPL Horizons</strong>. Términos comunes occidentales con referencias cruzadas
+      a términos nativos (Yuga / Saeculum).
+    </p>
+    <div class="badge-row">
+      <span class="badge"><span class="dot gold"></span> NASA JPL DE440</span>
+      <span class="badge"><span class="dot blue"></span> Más de 200 Años</span>
+      <span class="badge"><span class="dot green"></span> PDF Enviado por Email</span>
+    </div>
+    <a href="#order" class="cta-primary">Obtén tu Informe — $19</a>
+    <div class="price-tag">Compra única. <strong>$19</strong>. Sin suscripción.</div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="section">
+    <h2>Mira lo que Incluye</h2>
+    <p class="subtitle">Tu carta natal con superposición de constelaciones, cúspides de casas y líneas de aspectos — generada con datos de la Efemérides Suiza.</p>
+    <div class="chart-preview">
+      <img src="chart_sample.png" alt="Ejemplo de carta natal" loading="lazy">
+      <div class="caption">Ejemplo: Ian Beggs — 1 Ene 1975, 13:03 HST, Kailua-Kona, HI</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="section">
+    <h2>Qué Incluye el Informe</h2>
+    <p class="subtitle">Seis secciones que van desde el cielo colectivo hasta tu firma personal.</p>
+    <div class="inside-grid">
+      <div class="inside-card">
+        <div class="icon">🌀</div>
+        <h3>Rueda de Eras</h3>
+        <p>La conjunción Saturno-Júpiter de tu generación, el arquetipo Saeculum y la época elemental en que naciste — el clima colectivo antes de la carta personal.</p>
+      </div>
+      <div class="inside-card">
+        <div class="icon">📊</div>
+        <h3>Tabla de Aspectos</h3>
+        <p>Cada aspecto planetario mayor en tu carta — conjunciones, sextiles, cuadraturas, trígonos, oposiciones — con orbes, glifos y significado en lenguaje sencillo.</p>
+      </div>
+      <div class="inside-card">
+        <div class="icon">📖</div>
+        <h3>Glosario</h3>
+        <p>Términos clave definidos en lenguaje claro: Metrónomo, Retorno de Saturno, Oposición de Urano, Conjunción Saturno-Júpiter, Saeculum, Yuga (Dvapara Yuga, Kali Yuga).</p>
+      </div>
+      <div class="inside-card">
+        <div class="icon">📍</div>
+        <h3>Marcadores de Vida</h3>
+        <p>Fechas clave en tu línea de tiempo — Retornos de Saturno, Oposiciones de Urano, conjunciones mayores — mapeadas a tus fases de vida desde la niñez hasta la vejez.</p>
+      </div>
+      <div class="inside-card">
+        <div class="icon">🔄</div>
+        <h3>Ventanas de Retorno</h3>
+        <p>Cuándo cada planeta regresa a su posición natal en tu vida — el reloj personal que mide tu desarrollo contra el metrónomo celeste.</p>
+      </div>
+      <div class="inside-card">
+        <div class="icon">✍️</div>
+        <h3>Narrativa Personal</h3>
+        <p>Una síntesis escrita de tu carta — la geometría de tu alma, tu firma natal y cómo los macrociclos de tu era de nacimiento moldean tu misión de vida.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="section">
+    <h2>Lee una Muestra</h2>
+    <p class="subtitle">Esta es la voz real del informe — la apertura de la sección Clima Generacional.</p>
+    <div class="sample-chapter">
+      <div class="label">De la Sección 3: El Clima Generacional — El Saeculum</div>
+      <p>Para entender la psique individual, primero debes mirar la estación colectiva de tu nacimiento. La historia no se mueve en línea recta; respira en un ritmo histórico de cuatro etapas llamado el Saeculum. Entraste al mundo durante una fase específica de este ciclo — un período que moldeó las suposiciones, presiones y posibilidades que definirían el carácter de tu generación.</p>
+      <p>Tu nacimiento ocurrió en el campo estructural de una conjunción Saturno-Júpiter — el momento preciso en que los metrónomos celestiales reiniciaron el reloj generacional. Cuando estos dos gobernantes planetarios se encontraron en su ciclo de 20 años, anclaron un contrato social específico: un conjunto de reglas sobre lo que el mundo recompensa, lo que castiga y lo que espera de ti.</p>
+      <p>El informe traza este hilo desde lo colectivo hasta lo personal — desde el arquetipo generacional, a través de la época elemental, cruzando el umbral Yuga, y hasta la geometría de tu propia carta natal. Cada escala informa a la siguiente.</p>
+      <div class="ellipsis">· · ·</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="section">
+    <h2>Un Informe. <span class="gold">Un Precio.</span></h2>
+    <p class="subtitle">Sin suscripción. Sin cuenta. Sin costos recurrentes.</p>
+    <div class="pricing-card">
+      <div class="price">$19</div>
+      <div class="price-label">Compra única</div>
+      <ul class="features">
+        <li>PDF de 20 páginas — carta natal + narrativa + apéndice</li>
+        <li>Calibrado contra efemérides NASA JPL DE440</li>
+        <li>Disponible en inglés o español</li>
+        <li>Enviado a tu email en minutos</li>
+        <li>Un informe por carta natal — la tuya o la de alguien más</li>
+      </ul>
+      <a href="#order" class="cta-primary">Ordena tu Informe</a>
+      <div class="note">Formato PDF. ~20 páginas. Lee en cualquier dispositivo.</div>
+    </div>
+  </div>
+</div>
+
+<div class="container" id="order">
+  <div class="section">
+    <h2>Ordena tu Informe</h2>
+    <p class="subtitle">Ingresa los datos de nacimiento. Generaremos tu informe y te enviaremos el PDF por email.</p>
+    <form class="order-form" id="reportForm">
+      <div id="formStatus" class="form-status" style="display:none;"></div>
+      <div class="form-row">
+        <label for="name">Nombre Completo</label>
+        <input type="text" id="name" name="name" required placeholder="Ej: María García">
+      </div>
+      <div class="form-row">
+        <label for="email">Correo Electrónico</label>
+        <input type="email" id="email" name="email" required placeholder="maria@ejemplo.com">
+      </div>
+      <div class="form-row">
+        <label for="lang">Idioma del Informe</label>
+        <select id="lang" name="lang">
+          <option value="es">Español</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Fecha y Hora de Nacimiento</label>
+        <div class="form-row-inline">
+          <input type="number" id="year" name="year" placeholder="Año" required min="1900" max="2030">
+          <input type="number" id="month" name="month" placeholder="Mes" required min="1" max="12">
+          <input type="number" id="day" name="day" placeholder="Día" required min="1" max="31">
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Hora de Nacimiento</label>
+        <div class="form-row-inline">
+          <input type="number" id="hour" name="hour" placeholder="Hora (0-23)" required min="0" max="23">
+          <input type="number" id="min" name="min" placeholder="Minuto" required min="0" max="59">
+          <select id="tz" name="tz">
+            <option value="EST">EST (UTC-5)</option>
+            <option value="EDT">EDT (UTC-4)</option>
+            <option value="CST">CST (UTC-6)</option>
+            <option value="CDT">CDT (UTC-5)</option>
+            <option value="MST">MST (UTC-7)</option>
+            <option value="MDT">MDT (UTC-6)</option>
+            <option value="PST">PST (UTC-8)</option>
+            <option value="PDT">PDT (UTC-7)</option>
+            <option value="HST">HST (UTC-10)</option>
+            <option value="GMT">GMT/UTC</option>
+            <option value="IST">IST (UTC+5:30)</option>
+            <option value="COT">COT (UTC-5)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Lugar de Nacimiento</label>
+        <div class="form-row-half">
+          <input type="text" id="city" name="city" placeholder="Ciudad" required>
+          <input type="text" id="state" name="state" placeholder="Estado / Región">
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="lat">Latitud</label>
+        <input type="number" id="lat" name="lat" step="0.01" placeholder="Ej: 41.88" required>
+      </div>
+      <div class="form-row">
+        <label for="lon">Longitud</label>
+        <input type="number" id="lon" name="lon" step="0.01" placeholder="Ej: -87.63" required>
+      </div>
+      <div class="form-row">
+        <label for="scope">Alcance del Informe (opcional)</label>
+        <textarea id="scope" name="scope" rows="2" placeholder="Ej: 'Enfócate en carrera y relaciones' o 'Quiero entender mi retorno de Saturno'" style="resize:vertical;"></textarea>
+      </div>
+      <button type="submit" class="submit-btn" id="formSubmitBtn">Generar mi Informe — $19</button>
+      <div class="form-note">Tu informe se generará y se enviará a tu email en unos minutos.</div>
+    </form>
+  </div>
+</div>
+
+<div class="container">
+  <div class="section">
+    <h2>Preguntas Frecuentes</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="q">¿Qué datos necesitas de mí?</div>
+        <div class="a">Tu fecha de nacimiento completa, la hora exacta y el lugar de nacimiento. La hora es importante — determina tu signo ascendente y las cúspides de las casas. Si no sabes tu hora de nacimiento, podemos generar un informe parcial usando el amanecer como valor predeterminado, pero las posiciones de las casas y el signo ascendente serán aproximados.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">¿Cómo se genera el informe?</div>
+        <div class="a">El informe es generado por un motor Python que utiliza la biblioteca de Efemérides Suiza, calibrada contra los datos de efemérides NASA JPL DE440. La rueda de la carta se renderiza como un gráfico vectorial, y la narrativa se ensambla a partir de plantillas específicas para cada arquetipo generacional y signo ascendente. No se utiliza IA — cada palabra está escrita a mano.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">¿El informe es reembolsable?</div>
+        <div class="a">Sí. Si el informe no cumple con tus expectativas, envíanos un correo electrónico dentro de los 7 días y te reembolsaremos tus $19. Sin preguntas. El informe es una compra única — no hay suscripción que cancelar.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">¿En qué formato está el PDF?</div>
+        <div class="a">PDF estándar (~20 páginas, ~450 KB). Legible en cualquier dispositivo — teléfono, tableta, laptop o computadora de escritorio. La rueda de la carta está incrustada como un gráfico vectorial de alta resolución. Puedes imprimirlo, compartirlo o guardarlo en tu dispositivo.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">¿Inglés o español?</div>
+        <div class="a">Ambos. Selecciona tu idioma al hacer el pedido. Las versiones en inglés y español tienen la misma estructura, los mismos datos de la carta y la misma profundidad narrativa. La versión en español incluye un apéndice completamente traducido (casas, elementos, cualidades, significados de los aspectos).</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="footer">
+    <p class="brand">Zodi-Yuga Holdings</p>
+    <p>Mecánica celeste basada en datos. Código abierto donde sea posible. El Informe de Historia Cósmica es un producto del Motor de Relaciones SkyCLAWk — un instrumento profesional para visualizar la relación entre el zodíaco tropical, las constelaciones sidéreas, el ciclo de precesión y las edades Yuga. Informe financiado por la compañía, no por suscripciones.</p>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.faq-item .q').forEach(function(q) {
+  q.addEventListener('click', function() {
+    this.parentElement.classList.toggle('open');
+  });
+});
+
+document.getElementById('reportForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('formSubmitBtn');
+  const status = document.getElementById('formStatus');
+  btn.disabled = true;
+  btn.textContent = 'Generando...';
+  status.style.display = 'block';
+  status.className = 'form-status';
+  status.textContent = 'Generando tu informe... esto toma unos 30 segundos.';
+
+  const data = {
+    name: document.getElementById('name').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    year: parseInt(document.getElementById('year').value),
+    month: parseInt(document.getElementById('month').value),
+    day: parseInt(document.getElementById('day').value),
+    hour: parseInt(document.getElementById('hour').value),
+    min: parseInt(document.getElementById('min').value),
+    tz: document.getElementById('tz').value,
+    lat: parseFloat(document.getElementById('lat').value),
+    lon: parseFloat(document.getElementById('lon').value),
+    location: document.getElementById('city').value.trim() + ', ' + document.getElementById('state').value.trim(),
+    lang: document.getElementById('lang').value,
+    scope: document.getElementById('scope').value.trim(),
+  };
+
+  try {
+    const resp = await fetch('https://signandsoil.online/api/cosmic-report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const result = await resp.json();
+    if (resp.ok) {
+      status.className = 'form-status success';
+      status.textContent = '✅ ¡Informe generado! Revisa tu email (puede tardar unos minutos).';
+      document.getElementById('reportForm').reset();
+    } else {
+      status.className = 'form-status error';
+      status.textContent = 'Error: ' + (result.error || 'Algo salió mal. Intenta de nuevo.');
+    }
+  } catch (err) {
+    status.className = 'form-status error';
+    status.textContent = 'No se pudo conectar con el servidor. Intenta de nuevo más tarde.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generar mi Informe — $19';
+  }
+});
+</script>
+
+</body>
+</html>
