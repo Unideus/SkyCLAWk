@@ -21,7 +21,7 @@ Su generación, la Generación X, encarna el Arquetipo Nómada. Como joven de ar
 
 [SECTION_4_TABLE]
 
-5. El Cambio Epochal: De la Tierra Material al Aire en Red
+5. El Cambio de Época: De la Tierra Material al Aire en Red
 Más allá del ritmo generacional de corto plazo del Saeculum se encuentra un motor civilizacional masivo: los Grandes Ciclos Elementales. Durante aproximadamente dos siglos a la vez, las alineaciones continuas de Júpiter y Saturno ocurren exclusivamente dentro de signos de un solo elemento. Su vida abarca uno de los puntos de inflexión históricos más raros de la historia humana: la muerte literal de la Era de Tierra material y el nacimiento de la Era de Aire en red.
 
 Desde principios del siglo XIX hasta 2020, la humanidad operó enteramente bajo la Era de Tierra. Esta larga época dictó las reglas de la civilización global: fue la era del carbón, el acero, los ferrocarriles transcontinentales, la industria pesada, la expansión suburbana física y el poder estatal centralizado. La primera fractura en este paradigma material apareció durante su infancia con la conjunción de Aire en Libra de 1980, que lanzó la computadora personal y la infraestructura temprana de internet. Le siguió la conjunción de 2000 en Tauro, que sirvió como la conjunción final de Tierra para los próximos 800 años, un evento que ancló el Desenredo y expuso los límites últimos de la extracción finita de recursos materiales. El reinicio duro llegó en 2020 cuando Saturno y Júpiter se encontraron en Acuario, bloqueando permanentemente el reloj civilizatorio en la Era de Aire hasta el año 2219.
@@ -48,6 +48,7 @@ Su carta natal personal no es un fragmento del patrón cósmico. Es el patrón e
 [NATAL_SIGNATURE]
 
 [MOON_SIGN]
+[ASC_SIGN]
 
 8. Su Línea de Vida y Marcadores Clave
 La línea de tiempo generacional traduce los macrociclos en fases vitales para que pueda ubicar la infancia, la adultez, la mediana edad y la vejez dentro de la misma arquitectura histórica.

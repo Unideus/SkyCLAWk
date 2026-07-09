@@ -311,6 +311,24 @@ ASC_SIGN_INTERPRETATIONS = {
     "Pisces": "a sensitive, imaginative, and boundary-dissolving approach to life. You meet the world through empathy and creative surrender, attuning to currents that others cannot perceive",
 }
 
+# Spanish versions of the ASC interpretations — keep the same meaning
+# but phrased in a voice that flows naturally in Spanish, using the
+# informal "tu" pronoun to match the rest of the report.
+ASC_SIGN_INTERPRETATIONS_ES = {
+    "Aries": "un enfoque pionero, directo y orientado a la acción. Enfrentas el mundo de frente, con coraje e iniciativa, y tu primer instinto es liderar en vez de seguir",
+    "Taurus": "un enfoque estable, conectado y sensorial de la vida. Conoces el mundo a través de la paciencia y la presencia, construyendo seguridad con resultados tangibles y resistencia inquebrantable",
+    "Gemini": "un enfoque curioso, comunicativo y adaptable. Conoces el mundo a través del lenguaje y la conexión, reuniendo información y traduciendo entre múltiples perspectivas",
+    "Cancer": "un enfoque protector, emocional y nutriente. Conoces el mundo a través del cuidado y el sentido de pertenencia, creando contenedores seguros para ti y para quienes te rodean",
+    "Leo": "un enfoque cálido, expresivo y creativo. Conoces el mundo con confianza y autoridad natural, brillando a través de la autoexpresión creativa y el liderazgo generoso",
+    "Virgo": "un enfoque preciso, analítico y orientado al servicio. Conoces el mundo a través de la habilidad y el discernimiento, ubicando la falla oculta y llevando orden sistemático al caos",
+    "Libra": "un enfoque equilibrado, relacional y estético. Conoces el mundo a través de la alianza y la armonía, mediando fuerzas opuestas y diseñando intercambios justos",
+    "Scorpio": "un enfoque intenso, estratégico y transformador. Conoces el mundo a través de la profundidad y la inteligencia investigadora, descubriendo lo oculto y ejerciendo el poder con precisión",
+    "Sagittarius": "un enfoque expansivo, filosófico y buscador de libertad. Conoces el mundo a través de la exploración y la construcción de sentido, persiguiendo la verdad a lo largo de horizontes vastos",
+    "Capricorn": "un enfoque disciplinado, estructural y ambicioso. Conoces el mundo a través de la responsabilidad y la planificación de largo plazo, construyendo sistemas duraderos con dominio paciente",
+    "Aquarius": "un enfoque independiente, innovador y orientado a la comunidad. Conoces el mundo a través del desapego con principios y el pensamiento adelantado, reformando sistemas para el beneficio colectivo",
+    "Pisces": "un enfoque sensible, imaginativo y disolvedor de fronteras. Conoces el mundo a través de la empatía y la entrega creativa, sintonizando corrientes que otros no pueden percibir",
+}
+
 
 # ── Language strings ──────────────────────────────────────────────────────────
 LANG = "en"
@@ -429,6 +447,7 @@ ES = {
     "page_of": "Page {n} of {total}",
     "moon_para": "\nYour Moon in {moon} shapes the inner emotional weather beneath the Sun identity. Where the Sun is how you shine, the Moon is how you feel. This placement gives you {interp}. The Moon sign is the private instrument through which you process the macro-weather described above - it colors how you receive, digest, and respond to the structural pressures of your era.\n",
     "moon_para_es": "\nTu Luna en {moon} da forma al clima emocional interno bajo la identidad solar. Donde el Sol es cómo brillas, la Luna es cómo sientes. Esta posición te da {interp}. El signo lunar es el instrumento privado a través del cual procesas el macroclima descrito arriba — colorea cómo recibes, digieres y respondes a las presiones estructurales de tu era.\n",
+    "asc_para_es": "\nTu Ascendente en {asc} es la lente a través de la cual todo esto entra en tu vida. Si el Sol es tu identidad central y la Luna es tu clima interno, el Ascendente es la puerta — la forma en que el mundo te ve por primera vez y la forma en que tú lo conoces. Te da {interp}. Esta es la primera línea de tu carta, la interfaz donde los patrones cósmicos se convierten en experiencia personal. Cada planeta de tu carta se filtra a través de este signo ascendente antes de llegar al resto de tu vida.\n",
     "narrative_not_found": "<h2>1. Your Cosmic Snapshot</h2><p>Prose template not found for {arch} / {sun}.</p>",
     "chart_house_system": "Signo Completo",
 }
@@ -517,8 +536,14 @@ def load_narrative(archetype, sun_sign, moon_sign=None, asc_sign=None, lang="en"
     macro = macro.replace("[MOON_SIGN]", moon_para)
     # Inject ASC sign paragraph
     if asc_sign:
-        asc_interp = ASC_SIGN_INTERPRETATIONS.get(asc_sign, "a distinct personal signature and way of meeting the world")
-        asc_para = f"\nYour Ascendant in {asc_sign} is the lens through which all of this enters your life. If the Sun is your core identity and the Moon is your inner weather, the Ascendant is the doorway — the way the world first sees you and the way you first meet it. It gives you {asc_interp}. This is the front line of your chart, the interface where cosmic patterns become personal experience. Every planet in your chart is filtered through this rising sign before it reaches the rest of your life.\n"
+        if lang == "es":
+            asc_interp = ASC_SIGN_INTERPRETATIONS_ES.get(asc_sign, "una firma personal distintiva y una forma propia de conocer el mundo")
+            # Translate the asc sign name to Spanish for the paragraph
+            asc_sign_disp = ES_SIGNS.get(asc_sign, asc_sign)
+            asc_para = ES["asc_para_es"].format(asc=asc_sign_disp, interp=asc_interp)
+        else:
+            asc_interp = ASC_SIGN_INTERPRETATIONS.get(asc_sign, "a distinct personal signature and way of meeting the world")
+            asc_para = f"\nYour Ascendant in {asc_sign} is the lens through which all of this enters your life. If the Sun is your core identity and the Moon is your inner weather, the Ascendant is the doorway — the way the world first sees you and the way you first meet it. It gives you {asc_interp}. This is the front line of your chart, the interface where cosmic patterns become personal experience. Every planet in your chart is filtered through this rising sign before it reaches the rest of your life.\n"
         macro = macro.replace("[ASC_SIGN]", asc_para)
         macro = macro.replace("{asc_sign}", asc_sign)
     else:
