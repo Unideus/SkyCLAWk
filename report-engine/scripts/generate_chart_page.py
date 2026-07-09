@@ -687,10 +687,12 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
         svg += f'<rect x="{ax:.0f}" y="{angle_y:.0f}" width="{ANGLE_BOX_W}" height="{ANGLE_BOX_H}" rx="3" fill="white" stroke="{mc_color}" stroke-width="1.5"/>'
         abx = ax + ANGLE_BOX_W / 2
         aby = angle_y + ANGLE_BOX_H / 2
+        # AC is always the cusp of House 1; MC is always the cusp of House 10
+        angle_house = 1 if angle_obj["name"] == "AC" else 10
         deg_str = f'{angle_obj["sign"]} {angle_obj["deg"]}&#176;{angle_obj["min"]:02d}&#39;'
         svg += f'<text x="{abx:.0f}" y="{aby - 8:.0f}" font-size="22" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#222">{angle_obj["name"]}</text>'
         svg += f'<text x="{abx:.0f}" y="{aby + 8:.0f}" font-size="9" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#444">{deg_str}</text>'
-        svg += f'<text x="{abx:.0f}" y="{aby + 18:.0f}" font-size="7" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#333">{angle_obj["element"]} &#183; {angle_obj["quality"]}</text>'
+        svg += f'<text x="{abx:.0f}" y="{aby + 18:.0f}" font-size="7" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#333">H{angle_house} &#183; {angle_obj["element"]} &#183; {angle_obj["quality"]}</text>'
 
     # ── Planet rows ──
     for row_idx, names in enumerate(row_configs):

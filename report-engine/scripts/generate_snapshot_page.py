@@ -134,8 +134,9 @@ PLANET_COLORS = {
 def planet_glyph_svg(planet, color=None, size=56, outline_color=None, outline_grow=1.06, drop_shadow=False):
     """Render a planet glyph. If no color given, uses galvanic-aligned planet color.
 
-    If drop_shadow=True, adds a white halo + dark drop shadow behind the glyph for
-    legibility against colored backgrounds (used in the Big-3 house boxes on page 3).
+    If drop_shadow=True, adds a soft white halo + soft dark drop shadow behind the glyph
+    for legibility against colored backgrounds (used in the Big-3 house boxes on page 3).
+    Uses SVG <filter> with feGaussianBlur for a real soft feather (not stroked outlines).
     """
     if color is None:
         color = PLANET_COLORS.get(planet, "#222")
@@ -143,17 +144,25 @@ def planet_glyph_svg(planet, color=None, size=56, outline_color=None, outline_gr
     if not info:
         return ""
     if drop_shadow:
-        # Three layers (back to front):
-        # 1. Dark drop shadow (offset, dark stroke) — gives depth
-        # 2. White halo (centered, thick white stroke) — lifts glyph off background
-        # 3. Colored glyph (fill, on top)
-        # Stroke widths are in ABSOLUTE SVG units (not glyph units) so they remain
-        # visible regardless of glyph scale.
-        shadow = glyph_svg_stroke(info["d"], info["bbox"], size, "rgba(0,0,0,0.55)",
-                                   stroke_w=2.5, dx=1.5, dy=1.5)
-        halo = glyph_svg_stroke(info["d"], info["bbox"], size, "white", stroke_w=5.0)
-        main = glyph_svg_path(info["d"], info["bbox"], size, color)
-        return f'<g>{shadow}{halo}{main}</g>'
+        # Single soft black drop shadow. ONE stroked outline, not stacked.
+        # v52 stacked 4 strokes which produced concentric rings ("2 circles").
+        # This is just one stroke: solid black, soft width, modest offset.
+        path_d = info["d"]
+        xMin, yMin, xMax, yMax = info["bbox"]
+        w, h = xMax - xMin, yMax - yMin
+        scale = size / max(w, h) if max(w, h) > 0 else 1
+        # One single shadow stroke: 5 SVG units wide, offset (4, 4), opacity 0.75
+        shadow_tx = (size - w * scale) / 2 - xMin * scale + 4
+        shadow_ty = (size - h * scale) / 2 + scale * yMax + 4
+        shadow = (f'<g transform="translate({shadow_tx:.2f},{shadow_ty:.2f}) scale({scale:.6f},-{scale:.6f})">'
+                  f'<path d="{path_d}" fill="none" stroke="rgba(0,0,0,0.75)" '
+                  f'stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/></g>')
+        # Main glyph
+        tx = (size - w * scale) / 2 - xMin * scale
+        ty = (size - h * scale) / 2 + scale * yMax
+        main = (f'<g transform="translate({tx:.2f},{ty:.2f}) scale({scale:.6f},-{scale:.6f})">'
+                f'<path d="{path_d}" fill="{color}" stroke="none"/></g>')
+        return f'<g>{shadow}{main}</g>'
     main = glyph_svg_path(info["d"], info["bbox"], size, color)
     if outline_color:
         outline = glyph_svg_path(info["d"], info["bbox"], size * outline_grow, outline_color)
@@ -165,6 +174,7 @@ def aspect_glyph_svg(aspect, color, size=16):
     return glyph_svg_path(info["d"], info["bbox"], size, color) if info else ""
 
 SAECULUM_BOUNDARIES = [
+    (2425167.50, {"name":"Builder","archetype":"Prophet","conj_year":1928,"conj_sign":"Leo","conj_element":"Fire","turning":"Crisis"}),
     (2429849.56, {"name":"Boomer","archetype":"Prophet","conj_year":1940,"conj_sign":"Taurus","conj_element":"Earth","turning":"Crisis"}),
     (2437349.50, {"name":"Gen X","archetype":"Nomad","conj_year":1961,"conj_sign":"Capricorn","conj_element":"Earth","turning":"High"}),
     (2444605.39, {"name":"Millennial","archetype":"Hero","conj_year":1981,"conj_sign":"Libra","conj_element":"Air","turning":"Awakening"}),
@@ -172,10 +182,61 @@ SAECULUM_BOUNDARIES = [
     (2459205.26, {"name":"Gen Alpha","archetype":"Prophet_GenAlpha","conj_year":2020,"conj_sign":"Aquarius","conj_element":"Air","turning":"Crisis"}),
 ]
 
+MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+ES_MONTHS = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"]
+
+def find_sj_conjunctions(year, tol=0.5):
+    """Find all exact Saturn-Jupiter conjunctions in a calendar year.
+
+    Returns list of (jd, sign_name, lon, orb_deg). When Saturn and Jupiter are
+    near-conjunct with one in retrograde, there can be 2-3 exact passes; the
+    snapshot displays all of them and notes the retrograde triple-pass when
+    present.
+    """
+    jd_start = swe.julday(year, 1, 1, 0)
+    jd_end   = swe.julday(year+1, 1, 1, 0)
+    candidates = []
+    for d in range(int(jd_start), int(jd_end)+1):
+        sat, _ = swe.calc_ut(d, swe.SATURN, swe.FLG_SWIEPH)
+        jup, _ = swe.calc_ut(d, swe.JUPITER, swe.FLG_SWIEPH)
+        sat_lon = sat[0] % 360
+        jup_lon = jup[0] % 360
+        diff = (sat_lon - jup_lon + 180) % 360 - 180
+        candidates.append((d, abs(diff), sat_lon, jup_lon))
+    # Local minima of |diff|
+    minimas = []
+    for i in range(1, len(candidates)-1):
+        if candidates[i][1] < candidates[i-1][1] and candidates[i][1] < candidates[i+1][1]:
+            minimas.append(candidates[i])
+    refined = []
+    for jd_approx, _, _, _ in minimas:
+        lo, hi = jd_approx - 1, jd_approx + 1
+        for _ in range(50):
+            mid = (lo + hi) / 2
+            sat, _ = swe.calc_ut(mid, swe.SATURN, swe.FLG_SWIEPH)
+            jup, _ = swe.calc_ut(mid, swe.JUPITER, swe.FLG_SWIEPH)
+            diff = (sat[0] - jup[0] + 180) % 360 - 180
+            sat_lo, _ = swe.calc_ut(lo, swe.SATURN, swe.FLG_SWIEPH)
+            jup_lo, _ = swe.calc_ut(lo, swe.JUPITER, swe.FLG_SWIEPH)
+            diff_lo = ((sat_lo[0] - jup_lo[0]) % 360 + 180) % 360 - 180
+            if abs(diff_lo) < abs(diff):
+                hi = mid
+            else:
+                lo = mid
+        sat, _ = swe.calc_ut(lo, swe.SATURN, swe.FLG_SWIEPH)
+        sat_lon = sat[0] % 360
+        sign_idx = int(sat_lon // 30)
+        sign_name = SIGNS[sign_idx]
+        # Final orb
+        jup, _ = swe.calc_ut(lo, swe.JUPITER, swe.FLG_SWIEPH)
+        diff_final = (sat_lon - jup[0] % 360 + 180) % 360 - 180
+        refined.append((lo, sign_name, sat_lon, abs(diff_final)))
+    return [(jd, sign, lon, orb) for jd, sign, lon, orb in refined if orb < tol]
+
 ES_SIGNS = {"Aries":"Aries","Taurus":"Tauro","Gemini":"Géminis","Cancer":"Cáncer","Leo":"Leo","Virgo":"Virgo","Libra":"Libra","Scorpio":"Escorpio","Sagittarius":"Sagitario","Capricorn":"Capricornio","Aquarius":"Acuario","Pisces":"Piscis"}
 ES_ELEMENTS = {"Fire":"Fuego","Earth":"Tierra","Air":"Aire","Water":"Agua"}
 ES_QUALITIES = {"Cardinal":"Cardinal","Fixed":"Fijo","Mutable":"Mutable"}
-ES_GEN_NAMES = {"Boomer":"Boomer","Gen X":"Gen X","Millennial":"Millennial","Gen Z":"Gen Z","Gen Alpha":"Gen Alpha","Unknown":"Desconocida"}
+ES_GEN_NAMES = {"Builder":"Constructor","Boomer":"Boomer","Gen X":"Gen X","Millennial":"Millennial","Gen Z":"Gen Z","Gen Alpha":"Gen Alpha","Unknown":"Desconocida"}
 ES_ARCH_NAMES = {"Prophet":"Profeta","Nomad":"Nómada","Hero":"Héroe","Artist":"Artista","Prophet_GenAlpha":"Profeta","Unknown":"Desconocido"}
 ES_TURNING_NAMES = {"High":"Alto","Awakening":"Despertar","Unraveling":"Desenredo","Crisis":"Crisis","Unknown":"Desconocido"}
 
@@ -247,7 +308,7 @@ def get_aspects(planets):
 
 def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
                         year, month, day, hour, minute, tz_offset, tz_label,
-                        recipient_name="", lang="en"):
+                        recipient_name="", lang="en", solar_chart=False):
     """Build the snapshot page HTML."""
 
     utc_hour_frac = (hour + tz_offset) + minute / 60.0
@@ -258,6 +319,13 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
     mc = ascmc[1]
     saec = get_saeculum(jd)
     aspects = get_aspects(planets)
+
+    # If --solar-chart, rotate cusps so ASC = 0° Aries
+    if solar_chart:
+        rotation = (360.0 - asc) % 360.0
+        cusps = [(c + rotation) % 360.0 for c in cusps]
+        asc = 0.0
+        mc = (mc + rotation) % 360.0
 
     sun_sign = sign_from_lon(next(p["lon_num"] for p in planets if p["name"] == "Sun"))
     moon_sign = sign_from_lon(next(p["lon_num"] for p in planets if p["name"] == "Moon"))
@@ -277,6 +345,25 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
     moon_house = house_from_lon(moon_lon, cusps)
     asc_house = 1
 
+    # House life-area mapping (traditional Hellenistic whole-sign topics)
+    HOUSE_AREAS = {
+        1:  "Self & Body",
+        2:  "Resources & Values",
+        3:  "Siblings & Communication",
+        4:  "Home & Family",
+        5:  "Children & Creativity",
+        6:  "Health & Service",
+        7:  "Partnership & Marriage",
+        8:  "Death & Inheritance",
+        9:  "Travel & Higher Mind",
+        10: "Career & Public Role",
+        11: "Friends & Community",
+        12: "Enemies & Self-Undoing",
+    }
+    sun_house_area  = f"House of {HOUSE_AREAS.get(sun_house, 'Life')}"
+    moon_house_area = f"House of {HOUSE_AREAS.get(moon_house, 'Life')}"
+    asc_house_area  = f"House of {HOUSE_AREAS.get(1, 'Life')}"
+
     # Glyphs and colors — SVG path-based (no font matching needed)
     sun_color = ELEMENT_COLORS.get(ELEMENTS.get(sun_sign, ''), '#333')
     moon_color = ELEMENT_COLORS.get(ELEMENTS.get(moon_sign, ''), '#333')
@@ -287,13 +374,13 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
     sun_light = LIGHT_ELEMENT.get(sun_color, '#e8e8e8')
     moon_light = LIGHT_ELEMENT.get(moon_color, '#e8e8e8')
     asc_light = LIGHT_ELEMENT.get(asc_color, '#e8e8e8')
-    # Sun/Moon glyphs get drop shadows (white halo + dark shadow) for legibility
-    # against the colored house-box backgrounds at the top of page 3.
-    sun_glyph_svg = planet_glyph_svg("Sun", PLANET_COLORS["Sun"], 48, drop_shadow=True)
-    moon_glyph_svg = planet_glyph_svg("Moon", PLANET_COLORS["Moon"], 48, drop_shadow=True)
-    sun_sign_svg = sign_glyph_svg(sun_sign, sun_light, 80, outline_color=sun_color, interior_color=sun_light)
-    moon_sign_svg = sign_glyph_svg(moon_sign, moon_light, 80, outline_color=moon_color, interior_color=moon_light)
-    asc_sign_svg = sign_glyph_svg(asc_sign, asc_light, 80, outline_color=asc_color, interior_color=asc_light)
+    # Planet glyphs centered in the cell (48-unit glyph centered at 60,65)
+    sun_glyph_svg = planet_glyph_svg("Sun", PLANET_COLORS["Sun"], 48, drop_shadow=False)
+    moon_glyph_svg = planet_glyph_svg("Moon", "#000000", 48, drop_shadow=False)  # Moon: black
+    # Sign glyphs at 70% of 4x (size 140, was 200) — drawn BEFORE polygon so it sits behind the house outline
+    sun_sign_svg = sign_glyph_svg(sun_sign, sun_light, 140, outline_color=sun_color, interior_color=sun_light)
+    moon_sign_svg = sign_glyph_svg(moon_sign, moon_light, 140, outline_color=moon_color, interior_color=moon_light)
+    asc_sign_svg = sign_glyph_svg(asc_sign, asc_light, 140, outline_color=asc_color, interior_color=asc_light)
 
     # Degree positions
     sun_deg = int(degree_in_sign(sun_lon))
@@ -342,7 +429,20 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
         title = "Instantánea Cósmica"
         gen_text = f"{ES_GEN_NAMES.get(saec['name'],saec['name'])} / {ES_ARCH_NAMES.get(saec['archetype'],saec['archetype'])}"
         turning_text = ES_TURNING_NAMES.get(saec['turning'], saec['turning'])
-        anchor_text = f"{saec['conj_year']} {ES_SIGNS.get(saec['conj_sign'],saec['conj_sign'])} {ES_ELEMENTS.get(saec['conj_element'],saec['conj_element'])}"
+        # S/J conjunction date(s) and retrograde blurb
+        _conjs = find_sj_conjunctions(saec['conj_year'])
+        # Date string includes the year (the leading element+sign already provides context)
+        _conj_date_strs = [f"{ES_MONTHS[out[1]-1]} {out[2]}, {out[0]}" for jd, _, _, _ in _conjs for out in [swe.revjul(jd)]] if _conjs else []
+        if len(_conjs) == 1:
+            anchor_text = f"{ES_ELEMENTS.get(saec['conj_element'],saec['conj_element'])}, {ES_SIGNS.get(saec['conj_sign'],saec['conj_sign'])} — {_conj_date_strs[0]}"
+            anchor_blurb = ""
+        elif len(_conjs) >= 2:
+            joined = " · ".join(_conj_date_strs)
+            anchor_text = f"{ES_ELEMENTS.get(saec['conj_element'],saec['conj_element'])}, {ES_SIGNS.get(saec['conj_sign'],saec['conj_sign'])}"
+            anchor_blurb = f"Tres pasos por retrogradación ({joined})" if len(_conjs) >= 3 else f"Doble paso por retrogradación ({joined})"
+        else:
+            anchor_text = f"{ES_ELEMENTS.get(saec['conj_element'],saec['conj_element'])}, {ES_SIGNS.get(saec['conj_sign'],saec['conj_sign'])}"
+            anchor_blurb = ""
         sun_label = f"Sol en {ES_SIGNS.get(sun_sign, sun_sign)}"
         moon_label = f"Luna en {ES_SIGNS.get(moon_sign, moon_sign)}"
         asc_label = f"{ES_SIGNS.get(asc_sign, asc_sign)} Ascendente"
@@ -371,7 +471,20 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
         title = "Cosmic Snapshot"
         gen_text = f"{saec['name']} / {saec['archetype']}"
         turning_text = saec['turning']
-        anchor_text = f"{saec['conj_year']} {saec['conj_sign']} {saec['conj_element']}"
+        # S/J conjunction date(s) and retrograde blurb
+        _conjs = find_sj_conjunctions(saec['conj_year'])
+        # Date string includes the year (the leading element+sign already provides context)
+        _conj_date_strs = [f"{MONTHS[out[1]-1]} {out[2]}, {out[0]}" for jd, _, _, _ in _conjs for out in [swe.revjul(jd)]] if _conjs else []
+        if len(_conjs) == 1:
+            anchor_text = f"{saec['conj_element']}, {saec['conj_sign']} — {_conj_date_strs[0]}"
+            anchor_blurb = ""
+        elif len(_conjs) >= 2:
+            joined = " · ".join(_conj_date_strs)
+            anchor_text = f"{saec['conj_element']}, {saec['conj_sign']}"
+            anchor_blurb = f"Triple pass from retrograde ({joined})" if len(_conjs) >= 3 else f"Double pass from retrograde ({joined})"
+        else:
+            anchor_text = f"{saec['conj_element']}, {saec['conj_sign']}"
+            anchor_blurb = ""
         sun_label = f"Sun in {sun_sign}"
         moon_label = f"Moon in {moon_sign}"
         asc_label = f"{asc_sign} Rising"
@@ -449,12 +562,22 @@ body {{ background:#ffffff; margin:0; padding:0; font-family:Georgia,"DejaVu Ser
     height:130px;
     margin:0 auto;
     position:relative;
+    overflow:visible;
+}}
+.house-wrap svg {{
+    overflow:visible;
 }}
 .triad-col .label {{
     font-size:11pt;
     font-weight:bold;
     color:#1a3a5c;
-    margin-top:10px;
+    margin-top:22px;
+}}
+.triad-col .house-area {{
+    font-size:9pt;
+    color:#555;
+    font-style:italic;
+    margin-top:2px;
 }}
 .triad-col .sublabel {{
     font-size:8pt;
@@ -495,6 +618,13 @@ body {{ background:#ffffff; margin:0; padding:0; font-family:Georgia,"DejaVu Ser
 .info-cell.value {{
     width:65%;
     color:#333;
+}}
+.anchor-blurb {{
+    font-size:8pt;
+    color:#666;
+    font-style:italic;
+    margin-top:3px;
+    line-height:1.3;
 }}
 /* ── Key Aspects — boxes matching chart page planet box style ── */
 .aspects-section {{
@@ -572,40 +702,43 @@ body {{ background:#ffffff; margin:0; padding:0; font-family:Georgia,"DejaVu Ser
 <div class="triad">
 <div class="triad-col">
 <div class="house-wrap">
-<svg width="120" height="130" viewBox="0 0 120 130">
-<polygon points="60,8 112,42 112,122 8,122 8,42" fill="none" stroke="{sun_color}" stroke-width="2.5" stroke-linejoin="round"/>
-<g transform="translate(20,25)">{sun_sign_svg}</g>
-<g transform="translate(54,50)">{sun_glyph_svg}</g>
-<text x="12" y="117" font-size="28" font-family="DejaVu Sans, sans-serif" fill="#666">H{sun_house}</text>
+<svg width="120" height="130" viewBox="0 0 120 130" overflow="visible">
+<g transform="translate(-10,-5)">{sun_sign_svg}</g>
+<polygon points="60,8 112,42 112,122 8,122 8,42" fill="none" stroke="#000000" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="60" y="40" font-size="24" font-weight="bold" text-anchor="middle" font-family="DejaVu Sans, sans-serif" fill="#666">{sun_house}</text>
+<g transform="translate(36,58)">{sun_glyph_svg}</g>
 </svg>
 </div>
 <div class="label">{sun_label}</div>
+<div class="house-area">{sun_house_area}</div>
 <div class="sublabel">{sun_elem}</div>
 <div class="degree">{deg_fmt}</div>
 </div>
 <div class="triad-col">
 <div class="house-wrap">
-<svg width="120" height="130" viewBox="0 0 120 130">
-<polygon points="60,8 112,42 112,122 8,122 8,42" fill="none" stroke="{moon_color}" stroke-width="2.5" stroke-linejoin="round"/>
-<g transform="translate(20,25)">{moon_sign_svg}</g>
-<g transform="translate(64,50)">{moon_glyph_svg}</g>
-<text x="12" y="117" font-size="28" font-family="DejaVu Sans, sans-serif" fill="#666">H{moon_house}</text>
+<svg width="120" height="130" viewBox="0 0 120 130" overflow="visible">
+<g transform="translate(-10,-5)">{moon_sign_svg}</g>
+<polygon points="60,8 112,42 112,122 8,122 8,42" fill="none" stroke="#000000" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="60" y="40" font-size="24" font-weight="bold" text-anchor="middle" font-family="DejaVu Sans, sans-serif" fill="#666">{moon_house}</text>
+<g transform="translate(36,58)">{moon_glyph_svg}</g>
 </svg>
 </div>
 <div class="label">{moon_label}</div>
+<div class="house-area">{moon_house_area}</div>
 <div class="sublabel">{moon_elem}</div>
 <div class="degree">{moon_deg_fmt}</div>
 </div>
 <div class="triad-col">
 <div class="house-wrap">
-<svg width="120" height="130" viewBox="0 0 120 130">
-<polygon points="60,8 112,42 112,122 8,122 8,42" fill="none" stroke="{asc_color}" stroke-width="2.5" stroke-linejoin="round"/>
-<g transform="translate(20,25)">{asc_sign_svg}</g>
-<text x="12" y="117" font-size="28" font-family="DejaVu Sans, sans-serif" fill="#666">H{asc_house}</text>
-<text x="80" y="75" font-size="37" font-weight="bold" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#222" stroke="white" stroke-width="1.2" paint-order="stroke">AC</text>
+<svg width="120" height="130" viewBox="0 0 120 130" overflow="visible">
+<g transform="translate(-10,-5)">{asc_sign_svg}</g>
+<polygon points="60,8 112,42 112,122 8,122 8,42" fill="none" stroke="#000000" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="60" y="40" font-size="24" font-weight="bold" text-anchor="middle" font-family="DejaVu Sans, sans-serif" fill="#666">{asc_house}</text>
+<text x="60" y="82" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#000000" stroke="white" stroke-width="1.2" paint-order="stroke">AC</text>
 </svg>
 </div>
 <div class="label">{asc_label}</div>
+<div class="house-area">{asc_house_area}</div>
 <div class="sublabel">{asc_elem}</div>
 <div class="degree">{asc_deg_fmt}</div>
 </div>
@@ -625,7 +758,7 @@ body {{ background:#ffffff; margin:0; padding:0; font-family:Georgia,"DejaVu Ser
 </div>
 <div class="info-row">
 <div class="info-cell label">{anchor_label}</div>
-<div class="info-cell value">{anchor_text}</div>
+<div class="info-cell value">{anchor_text}{f'<div class="anchor-blurb">{anchor_blurb}</div>' if anchor_blurb else ''}</div>
 </div>
 <div class="info-row">
 <div class="info-cell label">{era_label_short}</div>
