@@ -1,9 +1,9 @@
 # SkyCLAWk Cloudflare Pages _redirects
-# Root → generational
-/ /generational/ 301
-
 # API: subscribe endpoint (Cloudflare Pages Function)
 /subscribe /subscribe 200
+
+# Root → generational
+/ /generational/ 301
 
 # Generational
 /generational/ /generational/index.html 200
@@ -29,10 +29,16 @@
 /cosmic-report/ /cosmic-report/index.html 200
 /cosmic-report/* /cosmic-report/:splat 200
 
+# Cymatics
+/cymatics /cymatics/index.html 200
+/cymatics/ /cymatics/index.html 200
+/cymatics/* /cymatics/:splat 200
+
+# Gematria
+/gematria /gematria/index.html 200
+/gematria/ /gematria/index.html 200
+/gematria/* /gematria/:splat 200
+
 # Swiss Ephemeris WASM + data files
 /ephe/* /ephe/:splat 200
-/auspicious/wasm/* /auspicious/wasm/:splat 200
-
-# Wheel popout
-/wheel/ /wheel/index.html 200
-/wheel/* /wheel/:splat 200
+/swiss_eph.wasm /swiss_eph.wasm 200

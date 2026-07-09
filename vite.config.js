@@ -19,6 +19,8 @@ export default defineConfig({
         auspicious: resolve(__dirname, 'auspicious/index.html'),
         wheel: resolve(__dirname, 'wheel/index.html'),
         cosmicReport: resolve(__dirname, 'cosmic-report/index.html'),
+        cymatics: resolve(__dirname, 'cymatics/index.html'),
+        gematria: resolve(__dirname, 'gematria/index.html'),
       },
     },
     outDir: 'dist',
