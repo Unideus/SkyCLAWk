@@ -538,8 +538,14 @@ def prose_to_html(prose):
     ]
     for sh in sub_headings:
         prose = re.sub(r'^' + re.escape(sh) + r'$', r'<h3>' + sh + r'</h3>', prose, flags=re.MULTILINE)
+    # Bold label lines (Practice/Práctica, Reason/Razón, Plain-language/Conclusión)
+    # These get their own paragraph with the label wrapped in <strong> so the
+    # rendering matches the English template's "Practice: ... / Reason: ..."
+    # structure: each label on its own line, then the explanation on the next.
     prose = re.sub(r'^(Practice:.*)$', r'<p><strong>\1</strong></p>', prose, flags=re.MULTILINE)
     prose = re.sub(r'^(Reason:.*)$', r'<p><em>\1</em></p>', prose, flags=re.MULTILINE)
+    prose = re.sub(r'^(Pr[áa]ctica:.*)$', r'<p><strong>\1</strong></p>', prose, flags=re.MULTILINE)
+    prose = re.sub(r'^(Raz[oó]n:.*)$', r'<p><em>\1</em></p>', prose, flags=re.MULTILINE)
     paragraphs = re.split(r'\n\n+', prose.strip())
     result = []
     for p in paragraphs:
