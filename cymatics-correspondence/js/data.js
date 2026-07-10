@@ -4101,8 +4101,439 @@ export const CORRESPONDENCE_DATA = {
         "dark": 15
       }
     }
+  },
+  "author_models": {
+    "version": "1.0",
+    "compiled_date": "2026-07-09",
+    "schema_note": "Claim-level author models for the cymatic correspondence lab. Each model contains only explicit claims from the named source. Missing claims are absent, not inferred.",
+    "sources": [
+      {
+        "id": "chladni",
+        "name": "Ernst Chladni",
+        "short_name": "Chladni",
+        "dates": "1756-1827",
+        "key_work": "Entdeckungen \u00fcber die Theorie des Klanges (1787)",
+        "epistemic_status": "primary",
+        "notes": "Original discoverer of cymatic patterns. His work describes the method and common figures, but a complete Hz\u2192pattern table is not present in our current source_texts.",
+        "claims": {
+          "frequency_claims": [],
+          "pattern_claims": [
+            {
+              "pattern": "Single straight line",
+              "description": "Simplest sand figure on a vibrating plate",
+              "source_ref": "sources/chladni.md"
+            },
+            {
+              "pattern": "Cross",
+              "description": "Produced by a particular mode of vibration",
+              "source_ref": "sources/chladni.md"
+            },
+            {
+              "pattern": "Six-pointed star (hexagram)",
+              "description": "Six-pointed star from another mode",
+              "source_ref": "sources/chladni.md"
+            },
+            {
+              "pattern": "Five-petaled flower",
+              "description": "Five-petaled pattern",
+              "source_ref": "sources/chladni.md"
+            },
+            {
+              "pattern": "Mandala-like patterns",
+              "description": "Complex multi-fold symmetric patterns",
+              "source_ref": "sources/chladni.md"
+            }
+          ],
+          "correspondence_claims": [],
+          "direct_quotes": [
+            {
+              "text": "The vibrations of a sound are able to produce patterns in the loose particles scattered on a vibrating plate, which patterns are determined by the frequency of the sound. The different patterns correspond to different tones.",
+              "source_ref": "sources/chladni.md"
+            }
+          ]
+        }
+      },
+      {
+        "id": "hans_jenny",
+        "name": "Hans Jenny",
+        "short_name": "Jenny",
+        "dates": "1904-1972",
+        "key_work": "Cymatics (1967, 1972)",
+        "epistemic_status": "primary",
+        "notes": "Systematic cymatics across media (water, sand, pastes). Specific Hz values are sparse in our current dossier; the work is photograph-heavy.",
+        "claims": {
+          "frequency_claims": [],
+          "pattern_claims": [
+            {
+              "pattern": "Triadic structure",
+              "description": "Most cymatic patterns resolve into center, transition, boundary",
+              "source_ref": "sources/hans_jenny.md"
+            },
+            {
+              "pattern": "Water drop patterns",
+              "description": "Volume I plates 1-50",
+              "source_ref": "sources/hans_jenny.md"
+            },
+            {
+              "pattern": "Sand on plate patterns",
+              "description": "Volume I plates 100-150",
+              "source_ref": "sources/hans_jenny.md"
+            },
+            {
+              "pattern": "Pattern transition dynamics",
+              "description": "Volume II plates 1-30",
+              "source_ref": "sources/hans_jenny.md"
+            },
+            {
+              "pattern": "Biological/chemical applications",
+              "description": "Volume II plates 60-80",
+              "source_ref": "sources/hans_jenny.md"
+            }
+          ],
+          "correspondence_claims": [
+            {
+              "axis": "form",
+              "claim": "Form follows vibration \u2014 geometric patterns are the visible expression of the invisible frequency",
+              "source_ref": "sources/hans_jenny.md"
+            }
+          ],
+          "direct_quotes": [
+            {
+              "text": "When a transducer is placed on a brass plate and a constant frequency applied, the plate becomes covered with sand. The sand arranges itself in a geometric pattern. The pattern depends on the frequency.",
+              "source_ref": "sources/hans_jenny.md"
+            }
+          ]
+        }
+      },
+      {
+        "id": "cymascope",
+        "name": "John Stuart Reid / Cymascope",
+        "short_name": "Cymascope",
+        "dates": "1997-present",
+        "key_work": "CymaScope digital cymatics instrument",
+        "epistemic_status": "primary",
+        "notes": "Modern digital cymatics. Our local Cymascope text is mostly navigation chrome; specific Hz claims are in the dossier but need primary-page verification.",
+        "claims": {
+          "frequency_claims": [
+            {
+              "hz": 440,
+              "claim": "A440 applied to water produces a hexagonal arrangement of triangular shapes",
+              "epistemic_status": "primary",
+              "source_ref": "sources/cymascope.md"
+            },
+            {
+              "hz": 528,
+              "claim": "528 Hz produces a stylized heart pattern in some water samples",
+              "epistemic_status": "primary",
+              "source_ref": "sources/cymascope.md"
+            },
+            {
+              "hz": 7.83,
+              "claim": "Schumann fundamental produces a barely visible cymatic pattern; harmonics (e.g. 62.64 Hz) make it visible",
+              "epistemic_status": "primary",
+              "source_ref": "sources/cymascope.md"
+            }
+          ],
+          "pattern_claims": [
+            {
+              "pattern": "CymaGlyphs",
+              "description": "3D cymatic patterns not visible to the eye",
+              "source_ref": "sources/cymascope.md"
+            },
+            {
+              "pattern": "Water signature",
+              "description": "Different water types produce different cymatic signatures",
+              "source_ref": "sources/cymascope.md"
+            },
+            {
+              "pattern": "DNA signature",
+              "description": "Adding DNA to water changes the cymatic pattern",
+              "source_ref": "sources/cymascope.md"
+            }
+          ],
+          "correspondence_claims": [
+            {
+              "axis": "form",
+              "claim": "Water molecules are tetrahedral; natural cymatic pattern of water is hexagonal",
+              "source_ref": "sources/cymascope.md"
+            }
+          ],
+          "direct_quotes": []
+        }
+      },
+      {
+        "id": "bassforge",
+        "name": "BassForge / Tyler Engle",
+        "short_name": "BassForge",
+        "dates": "2020s-present",
+        "key_work": "Conscious Signal Linked to the Planets Frequency (2026-07-07)",
+        "epistemic_status": "secondary",
+        "notes": "Popular explainer. Claims are about mechanism (Schumann, binaural beats, calcium flux), not a cymatic pattern atlas.",
+        "claims": {
+          "frequency_claims": [
+            {
+              "hz": 7.83,
+              "claim": "Schumann resonance fundamental; average frequency of Earth's ionosphere cavity",
+              "epistemic_status": "primary",
+              "source_ref": "sources/bassforge_conscious_signal.md"
+            },
+            {
+              "hz": 14.3,
+              "claim": "Schumann 2nd harmonic",
+              "epistemic_status": "primary",
+              "source_ref": "sources/bassforge_conscious_signal.md"
+            },
+            {
+              "hz": 20.8,
+              "claim": "Schumann 3rd harmonic",
+              "epistemic_status": "primary",
+              "source_ref": "sources/bassforge_conscious_signal.md"
+            },
+            {
+              "hz": 27.3,
+              "claim": "Schumann 4th harmonic",
+              "epistemic_status": "primary",
+              "source_ref": "sources/bassforge_conscious_signal.md"
+            }
+          ],
+          "pattern_claims": [],
+          "correspondence_claims": [
+            {
+              "axis": "frequency",
+              "claim": "Binaural beats: two offset tones create a difference frequency in the brainstem/thalamus; e.g. 100 Hz + 107.83 Hz \u2192 perceived 7.83 Hz beat",
+              "epistemic_status": "primary",
+              "source_ref": "sources/bassforge_conscious_signal.md"
+            },
+            {
+              "axis": "frequency",
+              "claim": "Calcium ion flux in brain tissue may be modulated by ELF fields; learning, memory, gene expression are Ca2+-dependent",
+              "epistemic_status": "speculative",
+              "source_ref": "sources/bassforge_conscious_signal.md"
+            }
+          ],
+          "direct_quotes": [
+            {
+              "text": "There's a resonance in the ionosphere where that happens. It's called the Schuman resonance. The frequency going around the planet is ironically in the same frequency range as the human mind operates. The average frequency is 7.83 herz, but it varies by region.",
+              "source_ref": "sources/bassforge_conscious_signal.md"
+            }
+          ]
+        }
+      },
+      {
+        "id": "randy_masters",
+        "name": "Randy Masters",
+        "short_name": "Masters",
+        "dates": "1940s-present",
+        "key_work": "Universal Song / Resonant Living",
+        "epistemic_status": "secondary",
+        "notes": "Teacher of harmonic sound and sacred geometry. Doctrine is qualitative; specific tuning fork Hz values exist in his product line but are not fully extracted in our archive.",
+        "claims": {
+          "frequency_claims": [
+            {
+              "hz": 432,
+              "claim": "A=432 Hz as natural/Pythagorean tuning",
+              "epistemic_status": "correspondence",
+              "source_ref": "sources/randy_masters.md"
+            }
+          ],
+          "pattern_claims": [
+            {
+              "pattern": "Sacred geometry ratios",
+              "description": "Uses 6:5, golden ratio, pyramid harmonics",
+              "source_ref": "sources/randy_masters.md"
+            },
+            {
+              "pattern": "Tuning fork calibrated frequencies",
+              "description": "Produces tuning forks, chimes, CDs calibrated to specific natural frequencies",
+              "source_ref": "sources/randy_masters.md"
+            }
+          ],
+          "correspondence_claims": [
+            {
+              "axis": "form",
+              "claim": "Universal Song \u2014 geometry, music, color, form all emerge from cosmic harmonics",
+              "source_ref": "sources/randy_masters.md"
+            },
+            {
+              "axis": "frequency",
+              "claim": "Pyramids, sacred sites, and ancient architecture encode harmonic ratios",
+              "source_ref": "sources/randy_masters.md"
+            }
+          ],
+          "direct_quotes": [
+            {
+              "text": "His Universal Song classes help connect the dots of a far more loving and intelligent universe leading to more respect for our, and other worlds.",
+              "source_ref": "sources/randy_masters.md"
+            }
+          ]
+        }
+      },
+      {
+        "id": "robert_edward_grant",
+        "name": "Robert Edward Grant",
+        "short_name": "Grant",
+        "dates": "1972-present",
+        "key_work": "The Precise Geometrical Correspondence to the Perfect 5th Tuned to the 432 Hz Frequency (2019)",
+        "epistemic_status": "primary",
+        "notes": "Mathematical 432 Hz doctrine. Provides ratios and geometric correspondences, not empirical cymatic Hz\u2192pattern measurements.",
+        "claims": {
+          "frequency_claims": [
+            {
+              "hz": 432,
+              "claim": "A=432 Hz: 12 notes of the octave correspond precisely to internal angles of regular polygons",
+              "epistemic_status": "primary",
+              "source_ref": "sources/robert_edward_grant.md"
+            },
+            {
+              "hz": 440,
+              "claim": "A=440 Hz: same correspondence is approximate, off by ~0.9% per interval",
+              "epistemic_status": "primary",
+              "source_ref": "sources/robert_edward_grant.md"
+            },
+            {
+              "hz": 7.83,
+              "claim": "432 Hz is the 54th harmonic of the Schumann resonance (7.83 Hz)",
+              "epistemic_status": "correspondence",
+              "source_ref": "sources/robert_edward_grant.md"
+            }
+          ],
+          "pattern_claims": [
+            {
+              "pattern": "Icositetragon (24-gon)",
+              "description": "Internal angle 165\u00b0, central angle 15\u00b0; encodes 24 hours, 24 zodiac divisions, 24 Greek letters",
+              "source_ref": "sources/robert_edward_grant.md"
+            },
+            {
+              "pattern": "Fractal roots of numbers",
+              "description": "nth roots of numbers produce wave structures identical to Chladni figures",
+              "source_ref": "sources/robert_edward_grant.md"
+            },
+            {
+              "pattern": "Platonic solid \u2192 planetary orbit ratios",
+              "description": "Kepler-style geometry of harmony",
+              "source_ref": "sources/robert_edward_grant.md"
+            }
+          ],
+          "correspondence_claims": [
+            {
+              "axis": "frequency",
+              "claim": "Unison (1:1) = monogon, octave (2:1) = digon, fifth (3:2) = triangle, fourth (4:3) = square, major third (5:4) = pentagon, minor third (6:5) = hexagon, major second (9:8) = octagon",
+              "source_ref": "sources/robert_edward_grant.md"
+            },
+            {
+              "axis": "form",
+              "claim": "Icositetragon is the geometric basis of natural tuning",
+              "source_ref": "sources/robert_edward_grant.md"
+            }
+          ],
+          "direct_quotes": [
+            {
+              "text": "When the A note is tuned to 432 Hz, the 12 notes of the octave correspond precisely to the internal angles of regular polygonal shapes. This is the geometric correspondence of the natural tuning.",
+              "source_ref": "sources/robert_edward_grant.md"
+            }
+          ]
+        }
+      },
+      {
+        "id": "crrow777",
+        "name": "Crrow777 Radio",
+        "short_name": "Crrow777",
+        "dates": "2010s-present",
+        "key_work": "Crrow777 Radio cymatics episodes and EP 682 blog",
+        "epistemic_status": "secondary",
+        "notes": "Popular synthesis of Hermetic principles, cymatics, 432 Hz, Solfeggio, sacred geometry, and Rosslyn Chapel.",
+        "claims": {
+          "frequency_claims": [
+            {
+              "hz": 432,
+              "claim": "Natural tuning aligned with cosmos and body",
+              "epistemic_status": "correspondence",
+              "source_ref": "sources/crrow777_cymatics.md"
+            },
+            {
+              "hz": 440,
+              "claim": "Modern imposed standard, controversial",
+              "epistemic_status": "correspondence",
+              "source_ref": "sources/crrow777_cymatics.md"
+            },
+            {
+              "hz": 528,
+              "claim": "Love frequency / DNA repair (Solfeggio)",
+              "epistemic_status": "correspondence",
+              "source_ref": "sources/crrow777_cymatics.md"
+            },
+            {
+              "hz": 7.83,
+              "claim": "Schumann fundamental; Earth's heartbeat",
+              "epistemic_status": "primary",
+              "source_ref": "sources/crrow777_cymatics.md"
+            }
+          ],
+          "pattern_claims": [
+            {
+              "pattern": "Rosslyn Chapel cubes",
+              "description": "213 carved stone cubes correspond to Chladni figures at specific frequencies",
+              "source_ref": "sources/crrow777_cymatics.md"
+            },
+            {
+              "pattern": "13 musician angels",
+              "description": "Correspond to specific musical notes",
+              "source_ref": "sources/crrow777_cymatics.md"
+            }
+          ],
+          "correspondence_claims": [
+            {
+              "axis": "form",
+              "claim": "Vibration creates form \u2014 the Hermetic 3rd law",
+              "source_ref": "sources/crrow777_cymatics.md"
+            },
+            {
+              "axis": "color",
+              "claim": "Light colors = high vibrational/spiritual; dark colors = low vibrational/material; white = highest, black = lowest",
+              "epistemic_status": "unverified",
+              "source_ref": "sources/crrow777_cymatics.md"
+            },
+            {
+              "axis": "frequency",
+              "claim": "Solfeggio frequencies and 432 Hz are connected to the Schumann resonance and ancient tuning",
+              "source_ref": "sources/crrow777_cymatics.md"
+            }
+          ],
+          "direct_quotes": [
+            {
+              "text": "The truth will set us free. As we forge the new era, we must come back into balance with nature. We must move away from the old low-vibrational systems.",
+              "source_ref": "sources/crrow777_cymatics.md"
+            }
+          ]
+        }
+      }
+    ]
   }
 };
+
+export const AUTHOR_MODELS = CORRESPONDENCE_DATA.author_models;
+
+// ── Author model helpers ─────────────────────────────────────────────
+
+export function authorModel(id) {
+  return (AUTHOR_MODELS.sources || []).find(s => s.id === id) || null;
+}
+
+export function authorModels() {
+  return AUTHOR_MODELS.sources || [];
+}
+
+export function claimsForHz(authorId, hz, tolerance = 0.5) {
+  const model = authorModel(authorId);
+  if (!model) return [];
+  return (model.claims.frequency_claims || []).filter(c => Math.abs((c.hz || 0) - hz) < tolerance);
+}
+
+export function allAuthorHzClaims(authorId) {
+  const model = authorModel(authorId);
+  if (!model) return [];
+  return model.claims.frequency_claims || [];
+}
 
 // ── Cross-axis accessors (mirror cymatics_axes.py) ─────────────────────
 
@@ -4147,15 +4578,32 @@ export function lookupHz(hz) {
   const planetName = planetForHz(hz);
   if (planetName) result.planet = planetInfo(planetName);
   for (const section of CORRESPONDENCE_DATA.color.sections) {
-    if (section.id === 'cymascope_color_mapping') {
-      for (const row of sectionRows(section)) {
-        if (Math.abs((row.frequency_hz || 0) - hz) < 0.5) {
-          result.color = { color: row.color, pattern: row.pattern, source: 'Cymascope' };
-        }
+    for (const row of sectionRows(section)) {
+      const rowHz = row.frequency_hz || row.hz || row.tone_hz || null;
+      if (rowHz === null) continue;
+      if (Math.abs(rowHz - hz) < 0.5) {
+        const sourceName = sectionSourceName(section.id);
+        result.color = { color: row.color, pattern: row.pattern, source: sourceName };
       }
     }
   }
   return result;
+}
+
+function sectionSourceName(id) {
+  const names = {
+    'newton_7_colors': 'Newton',
+    'goethe_12_sector': 'Goethe',
+    'planetary_colors_7': 'Hermetic',
+    'elemental_colors_4': 'Aristotelian',
+    'solfeggio_colors_7': 'Solfeggio',
+    'crrow777_color_frequency_doctrine': 'Crrow777',
+    'cymascope_color_mapping': 'Cymascope',
+    'pythagorean_culpeper_note_color': 'Pythagorean/Culpeper',
+    'flower_color_doctrine': 'Crrow777 (plants)',
+    'color_cross_references': 'Cross-reference'
+  };
+  return names[id] || id.replace(/_/g, ' ');
 }
 
 export function planetInfo(name) {
@@ -4178,6 +4626,7 @@ export function lookup4d(hz) {
   if (info.color) {
     result.color = info.color.color;
     result.pattern = info.color.pattern;
+    result.source = info.color.source;
   }
   if (info.frequency_context) {
     const ctx = info.frequency_context;

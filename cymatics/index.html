@@ -4,9 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cymatic Correspondence Lab</title>
-  <script>p5.disableFriendlyErrors = true;</script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/addons/p5.sound.min.js"></script>
+  <script type="module">
+    import { AUTHOR_MODELS, authorModel, authorModels, claimsForHz, lookup4d } from '../cymatics-correspondence/js/data.js';
+    window.CYMATICS_DATA = { AUTHOR_MODELS, authorModel, authorModels, claimsForHz, lookup4d };
+  </script>
   <style>
     :root {
       --bg: #05060a;
@@ -145,24 +148,9 @@
       display: none !important;
     }
 
-    #panel.catalog-mode {
-      left: 24px;
-      right: 24px;
-      width: auto;
-      max-width: none;
-      background: rgba(8, 11, 18, 0.97);
-    }
 
-    #panel.catalog-mode .top-grid {
-      grid-template-columns: minmax(250px, 290px) minmax(0, 1fr);
-      align-items: stretch;
-      gap: 20px;
-    }
 
     #panel.catalog-mode .readout-card,
-    #panel.catalog-mode .audio-card {
-      min-height: 100%;
-    }
 
     #panel.catalog-mode .readout-card,
     #panel.catalog-mode .audio-card,
@@ -170,39 +158,16 @@
       background: rgba(11, 15, 24, 0.96);
     }
 
-    #panel.catalog-mode .audio-card {
-      padding: 18px;
-    }
 
-    #panel.catalog-mode .catalog-form-grid {
-      gap: 14px;
-    }
 
     #panel.catalog-mode .catalog-form-grid.three-up {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    #panel.catalog-mode .catalog-list {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-    }
 
-    #panel.catalog-mode .catalog-item {
-      gap: 12px;
-      padding: 16px;
-    }
 
-    #panel.catalog-mode .catalog-note {
-      font-size: 13px;
-    }
 
-    #panel.catalog-mode .footer-note {
-      max-width: 78ch;
-    }
 
-    #panel.catalog-mode .provenance-intro {
-      max-width: 82ch;
-    }
 
     .mode-switch-card {
       margin-bottom: 16px;
@@ -1172,11 +1137,140 @@
         align-self: flex-end;
       }
 
-      #panel.catalog-mode .catalog-list {
-        grid-template-columns: 1fr;
       }
+  
+    /* Author model + compare mode */
+    .author-card .field label {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 6px;
     }
-  </style>
+    .author-card select {
+      width: 100%;
+      padding: 8px 10px;
+      background: var(--field);
+      color: var(--text);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+    .author-readout {
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--muted);
+      background: rgba(13,18,27,0.7);
+      border: 1px solid rgba(173,142,94,0.12);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .author-readout .author-name {
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .author-readout .author-meta {
+      font-size: 11px;
+      opacity: 0.8;
+      margin-bottom: 8px;
+    }
+    .author-readout .claim {
+      padding: 6px 0;
+      border-top: 1px solid rgba(173,142,94,0.1);
+    }
+    .author-readout .claim:first-of-type {
+      border-top: none;
+    }
+    .author-readout .claim-hz {
+      color: var(--active);
+      font-weight: 600;
+    }
+    .author-readout .claim-type {
+      display: inline-block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+    .tag-primary { background: rgba(144,213,154,0.18); color: #90d59a; }
+    .tag-secondary { background: rgba(141,209,255,0.18); color: #8dd1ff; }
+    .tag-correspondence { background: rgba(216,181,106,0.18); color: var(--gold); }
+    .tag-speculative { background: rgba(255,120,120,0.15); color: #ff8a8a; }
+    .tag-unverified { background: rgba(180,180,180,0.15); color: #b4b4b4; }
+
+    #comparePanel {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      bottom: 24px;
+      width: min(320px, calc(100vw - 48px));
+      padding: 18px;
+      border: 1px solid var(--panel-border);
+      border-radius: 24px;
+      background: var(--panel);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 18px 50px var(--shadow);
+      overflow: auto;
+      z-index: 20;
+      display: none;
+    }
+    body.compare-active #comparePanel {
+      display: block;
+    }
+
+    #diffPanel {
+      position: fixed;
+      left: 24px;
+      right: 24px;
+      bottom: 24px;
+      max-height: 42vh;
+      padding: 18px 20px;
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      background: rgba(8,11,18,0.97);
+      box-shadow: 0 -12px 40px rgba(0,0,0,0.45);
+      overflow: auto;
+      z-index: 30;
+      display: none;
+    }
+    body.diff-open #diffPanel {
+      display: block;
+    }
+    #diffPanel .diff-bubble {
+      max-width: 640px;
+      margin: 10px 0;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(173,142,94,0.15);
+      background: rgba(13,18,27,0.9);
+    }
+    #diffPanel .diff-bubble strong {
+      color: var(--gold);
+    }
+    #diffPanel .diff-close {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .author-modal .help-grid {
+      grid-template-columns: 1fr;
+    }
+    .author-modal .author-readout {
+      max-height: 46vh;
+      overflow: auto;
+    }
+</style>
 </head>
 <body>
   <div id="app">
@@ -1188,7 +1282,7 @@
           <p class="subhead">Square and round plate explorer with tone, note, waveform, color, sacred geometry, solfeggio, and planetary presets.</p>
         </div>
         <button id="helpOpenButton" class="toggle help-trigger" type="button" aria-haspopup="dialog" aria-controls="helpModal">Help</button>
-        <a id="openAtlasButton" class="toggle atlas-trigger" href="/cymatics-correspondence/" target="_blank" rel="noopener" title="Open the Cymatic Correspondence Atlas (a navigable view of the 4-axis data model)">Correspondence Atlas →</a>
+        <a id="openAtlasButton" class="toggle atlas-trigger" href="/cymatics-correspondence/" title="Open the Cymatic Correspondence Atlas (a navigable view of the 4-axis data model)">Correspondence Atlas →</a>
       </div>
 
       <section class="section-card mode-switch-card">
@@ -1196,7 +1290,8 @@
         <div class="button-row">
           <button id="labModeToggle" class="toggle active">Lab Mode</button>
           <button id="musicModeToggle" class="toggle">Music Mode</button>
-          <button id="catalogModeToggle" class="toggle">Catalog Mode</button>
+          <button id="compareModeToggle" class="toggle">Compare Mode</button>
+          <button id="authorOpenButton" class="toggle" type="button" aria-haspopup="dialog" aria-controls="authorModal">Author</button>
         </div>
         <p id="modeStatus" class="footer-note">Lab mode shows plate patterns, correspondences, and single-frequency tone controls.</p>
       </section>
@@ -1272,6 +1367,13 @@
                 <button id="musicMicToggle" class="toggle">Use Mic</button>
               </div>
               <div class="music-meta">
+                <div class="slider-block" style="margin-bottom:0;">
+                  <div class="slider-top">
+                    <label for="musicVolumeSlider">Music Volume</label>
+                    <span id="musicVolumeValue" class="value">0.70</span>
+                  </div>
+                  <input id="musicVolumeSlider" type="range" min="0" max="1" step="0.01" value="0.70">
+                </div>
                 <div class="slider-block" style="margin-bottom:0;">
                   <div class="slider-top">
                     <label for="musicSmoothingSlider">Smoothing</label>
@@ -1371,6 +1473,8 @@
         </section>
       </div>
 
+      >
+
       <details class="section-card provenance-card">
         <summary>Provenance and Corrections</summary>
         <p class="provenance-intro">This page combines modeled acoustics, symbolic correspondences, and a few exploratory assumptions. The tags below show which is which so people can inspect the logic and suggest corrections.</p>
@@ -1419,8 +1523,8 @@
           </div>
         </div>
         <div class="provenance-actions">
-          <a class="chip provenance-link" href="https://github.com/Unideus/webapp-SkyCLAWk/issues/new?title=Cymatics%20correction&body=What%20needs%20correction%3F%0A%0AFeature%3A%0AObserved%20issue%3A%0ASuggested%20source%20or%20fix%3A%0A" target="_blank" rel="noreferrer">Suggest a Correction</a>
-          <a class="chip provenance-link" href="https://github.com/Unideus/webapp-SkyCLAWk" target="_blank" rel="noreferrer">View Source Repo</a>
+          <a class="chip provenance-link" href="https://github.com/Unideus/webapp-SkyCLAWk/issues/new?title=Cymatics%20correction&body=What%20needs%20correction%3F%0A%0AFeature%3A%0AObserved%20issue%3A%0ASuggested%20source%20or%20fix%3A%0A" rel="noreferrer">Suggest a Correction</a>
+          <a class="chip provenance-link" href="https://github.com/Unideus/webapp-SkyCLAWk" rel="noreferrer">View Source Repo</a>
         </div>
       </details>
 
@@ -1502,7 +1606,68 @@
       </section>
     </aside>
 
-    <div id="helpModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="helpModalTitle" aria-hidden="true">
+    
+  <!-- Compare side panel -->
+  <aside id="comparePanel" class="compare-panel" aria-label="Compare author model">
+    <div class="panel-title">
+      <p class="eyebrow">Compare Mode</p>
+      <h2 id="compareTitle">Author B</h2>
+      <p class="subhead" id="compareSubhead">Secondary author model for A/B comparison.</p>
+    </div>
+    <section class="section-card readout-card">
+      <div id="compareFreqDisplay" class="hz-display">-- Hz</div>
+      <p id="compareNoteDisplay" class="note-display">--</p>
+      <p id="compareContextCopy" class="microcopy">Select a secondary author to see their mapping for the current frequency.</p>
+      <div class="detail-list" id="compareDetailList">
+        <div class="detail"><span>Hz claim</span><strong id="compareHzClaim">--</strong></div>
+        <div class="detail"><span>Pattern</span><strong id="comparePatternClaim">--</strong></div>
+        <div class="detail"><span>Correspondence</span><strong id="compareCorrespondenceClaim">--</strong></div>
+        <div class="detail"><span>Status</span><strong id="compareStatus">--</strong></div>
+      </div>
+    </section>
+    <section class="section-card">
+      <h2 class="section-title">Author Notes</h2>
+      <div id="compareAuthorNotes" class="author-readout">No author selected.</div>
+    </section>
+  </aside>
+
+  <!-- Diff table panel -->
+  <div id="diffPanel" class="diff-panel" aria-label="Author diff table">
+    <button id="diffCloseButton" class="diff-close">&times;</button>
+    <h2 class="section-title" style="margin-bottom:14px;">Author Diff for <span id="diffHzLabel">528</span> Hz</h2>
+    <div id="diffContent"></div>
+  </div>
+<div id="authorModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="authorModalTitle" aria-hidden="true">
+    <div class="help-modal author-modal">
+      <div class="help-modal-head">
+        <div>
+          <h2 id="authorModalTitle">Author Model</h2>
+          <p>Select a source to see how they map frequency → form/color/planet. Compare mode opens a second panel.</p>
+        </div>
+        <button id="authorCloseButton" class="toggle help-close" type="button" aria-label="Close author model">&times;</button>
+      </div>
+      <div class="help-grid">
+        <div class="author-card" style="grid-column: 1 / -1;">
+          <div class="field" style="margin-bottom:10px;">
+            <label for="authorSelect">Primary source</label>
+            <select id="authorSelect"></select>
+          </div>
+          <div id="authorReadout" class="author-readout"></div>
+          <div id="compareAuthorControl" class="compare-author-control" style="display:none;">
+            <div class="field" style="margin-top:10px;">
+              <label for="compareAuthorSelect">Compare against</label>
+              <select id="compareAuthorSelect"></select>
+            </div>
+          </div>
+          <div class="button-row" style="margin-top:12px;">
+            <button id="showDiffButton" class="toggle" disabled>Show Diff Table</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div id="helpModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="helpModalTitle" aria-hidden="true">
       <div class="help-modal">
         <div class="help-modal-head">
           <div>
@@ -1521,20 +1686,16 @@
             <p>Load a local audio file or use the microphone. Music mode removes the plate and turns the field into a live color response driven by spectral analysis of bass, mid, and treble energy.</p>
           </div>
           <div class="help-item">
-            <strong>Catalog Mode</strong>
-            <p>Use this as a research ledger. Save geometry, shape, frequency, material, support, exciter position, source, and notes so observations can be reviewed and corrected later.</p>
+            <strong>Author Model</strong>
+            <p>Pick a source (Chladni, Jenny, Cymascope, etc.) to see their audited claims for the current frequency. Each claim is tagged with its epistemic status: primary, secondary, correspondence, speculative, or unverified.</p>
           </div>
           <div class="help-item">
-            <strong>Update Workflow</strong>
-            <p>Use Capture Current Mapping to prefill a record, then revise the title, evidence type, notes, and source before saving. Select an existing entry to edit it, save again to overwrite it, or export JSON to back up the local catalog.</p>
+            <strong>Compare Mode</strong>
+            <p>Enable Compare Mode to open a secondary author panel and a second stacked cymatic plate. Show Diff Table opens a scrollable comparison below the plates.</p>
           </div>
           <div class="help-item">
-            <strong>Evidence Types</strong>
-            <p>Use Measured for observed results from a real setup, Modeled for math or simulation output, Correspondence for symbolic mappings like color analogies or solfeggio, and Speculative for unverified ideas that still need proof.</p>
-          </div>
-          <div class="help-item">
-            <strong>Updating the Tool</strong>
-            <p>When you find a stronger source or a contradiction, update the catalog entry first, then revise the app logic only if the evidence justifies it. Keep provenance clear so the page does not imply more certainty than the data supports.</p>
+            <strong>Correspondence Atlas</strong>
+            <p>The full sourced catalog, references, and source-text index have moved to <a href="/cymatics-correspondence/">/cymatics-correspondence/</a>. Lab claims should be treated as working hypotheses, not established facts.</p>
           </div>
         </div>
         <p style="margin-top:14px; font-size:12px; color:rgba(178,188,205,0.7); border-top:1px solid rgba(173,142,94,0.12); padding-top:12px;"><strong style="color:rgba(216,181,106,0.84); text-transform:uppercase; letter-spacing:0.08em;">About this build:</strong> This is the <em>cymatics webapp preview</em>, shared with a select few. The cymatics project may be hosted publicly by Crrow777 at a future date. The same data also powers the <strong>Godot 3D cymatics visualization</strong> &mdash; the paid visual-teaching product, and the natural home of the cymatic project going forward. The cymatics webapp and the Godot 3D app both hit a hard ceiling on the astrology-rendering side: the visual teaching elements (live chart wheels, aspect flows, transit timelines, the cymatic field overlays) are impossible to render smoothly in a 2D browser page. The company is funded by the cosmic-history report and the permaculture app-plan generator, both of which also consume this data.</p>
@@ -1594,19 +1755,26 @@
     let centsOffset = 0.0;
     let harmonics = 0.0;
     let volume = 0.15;
+    let musicVolume = 0.70;
     let toneOn = false;
     let plateBounds = { x: 24, y: 24, size: 560 };
+    let comparePlateBounds = null;
     let panelRect = { left: window.innerWidth - 640, top: 24 };
     let squareCycleModes = [];
     let wavePhase = 0.0;
     let waveformCtx = null;
     let waveformCanvas = null;
     let musicWaveformCanvas = null;
+    let musicGainNode = null;
     let musicWaveformCtx = null;
     let activeVolumePointerId = null;
     let oscillators = [];
     let harmonicOscillators = [];
     let displayMode = "lab";
+    let selectedAuthorId = "";
+    let compareAuthorId = "";
+    let compareModeActive = false;
+    let diffOpen = false;
     let musicInputType = "track";
     let musicSmoothing = 0.18;
     let musicFieldTime = 0.0;
@@ -1816,16 +1984,72 @@
           solfeggioName = SOLFEGGIO[key];
         }
       });
+
+      // Atlas override: use cymatics axes data when available
+      const atlas = window.CYMATICS_DATA && window.CYMATICS_DATA.lookup4d ? window.CYMATICS_DATA.lookup4d(hz) : null;
+      let atlasColor = null;
+      let atlasPlanet = "";
+      let atlasForm = "";
+      let atlasPattern = "";
+      let atlasChakra = "";
+      let atlasClaimedUse = "";
+      let atlasNote = "";
+      let atlasSource = "";
+      if (atlas) {
+        if (atlas.color) {
+          const c = atlas.color;
+          if (typeof c === "string") {
+            atlasColor = colorNameToRgb(c);
+          } else if (c.r !== undefined && c.g !== undefined && c.b !== undefined) {
+            atlasColor = c;
+          }
+        }
+        atlasPlanet = atlas.planet || "";
+        atlasForm = atlas.form_solid || "";
+        atlasPattern = atlas.pattern || "";
+        atlasChakra = atlas.chakra || "";
+        atlasClaimedUse = atlas.claimed_use || "";
+        atlasNote = atlas.note || "";
+        atlasSource = atlas.source || "";
+      }
+
       return {
         frequencyHz: hz,
         note,
         wavelengthNm: wavelength,
-        color,
+        color: atlasColor || color,
+        atlasColor: atlasColor,
         squareModes,
         roundModes,
         solfeggioName,
-        referencePitch
+        referencePitch,
+        atlas,
+        atlasPlanet,
+        atlasForm,
+        atlasPattern,
+        atlasChakra,
+        atlasClaimedUse,
+        atlasNote,
+        atlasSource
       };
+    }
+
+    function colorNameToRgb(name) {
+      const map = {
+        "red": { r: 0.95, g: 0.15, b: 0.1 },
+        "orange-red": { r: 1.0, g: 0.35, b: 0.1 },
+        "orange": { r: 1.0, g: 0.55, b: 0.05 },
+        "yellow-orange": { r: 1.0, g: 0.75, b: 0.1 },
+        "yellow": { r: 0.95, g: 0.9, b: 0.1 },
+        "green": { r: 0.2, g: 0.85, b: 0.25 },
+        "blue": { r: 0.15, g: 0.4, b: 0.95 },
+        "indigo": { r: 0.25, g: 0.05, b: 0.6 },
+        "violet": { r: 0.55, g: 0.1, b: 0.85 },
+        "purple": { r: 0.55, g: 0.1, b: 0.85 },
+        "red-orange": { r: 1.0, g: 0.3, b: 0.1 }
+      };
+      const key = (name || "").toLowerCase().replace(/\s+/g, "-");
+      return map[key] || null;
     }
 
     function defaultCatalogEntries() {
@@ -2061,9 +2285,14 @@
     async function ensureTrackSource() {
       await ensureMusicAudioGraph();
       if (!musicTrackSource) {
+        if (!musicGainNode) {
+          musicGainNode = musicAudioContext.createGain();
+          musicGainNode.gain.value = musicVolume;
+        }
         musicTrackSource = musicAudioContext.createMediaElementSource(musicTrackElement);
-        musicTrackSource.connect(musicAnalyser);
-        musicTrackSource.connect(musicAudioContext.destination);
+        musicTrackSource.connect(musicGainNode);
+        musicGainNode.connect(musicAnalyser);
+        musicGainNode.connect(musicAudioContext.destination);
       }
     }
 
@@ -2126,8 +2355,13 @@
       }
       try {
         musicMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        if (!musicGainNode) {
+          musicGainNode = musicAudioContext.createGain();
+          musicGainNode.gain.value = musicVolume;
+        }
         musicMicSource = musicAudioContext.createMediaStreamSource(musicMicStream);
-        musicMicSource.connect(musicAnalyser);
+        musicMicSource.connect(musicGainNode);
+        musicGainNode.connect(musicAnalyser);
         musicInputType = "mic";
         if (musicTrackElement && !musicTrackElement.paused) {
           musicTrackElement.pause();
@@ -2530,7 +2764,7 @@
       URL.revokeObjectURL(url);
     }
 
-    function renderSquarePlate(bounds, corr, overrideMode) {
+    function renderSquarePlate(bounds, corr, overrideMode, isComparePlate = false) {
       const size = bounds.size;
       const x0 = bounds.x;
       const y0 = bounds.y;
@@ -2582,7 +2816,7 @@
       rect(x0 + 4, y0 + 4, size - 8, size - 8, 14);
     }
 
-    function renderRoundPlate(bounds, corr, overrideMode) {
+    function renderRoundPlate(bounds, corr, overrideMode, isComparePlate = false) {
       const size = bounds.size;
       const x0 = bounds.x;
       const y0 = bounds.y;
@@ -2662,7 +2896,7 @@
       pop();
     }
 
-    function drawPlateFrequencyBadge(bounds, overrideMode) {
+    function drawPlateFrequencyBadge(bounds, overrideMode, isComparePlate = false) {
       if (!overrideMode) {
         return;
       }
@@ -2685,7 +2919,7 @@
       textAlign(CENTER, TOP);
       textSize(10);
       textStyle(NORMAL);
-      text("CYCLING FREQUENCY", badgeX + badgeWidth / 2, badgeY + 7);
+      text(isComparePlate ? "COMPARE PLATE" : "CYCLING FREQUENCY", badgeX + badgeWidth / 2, badgeY + 7);
 
       fill(238, 243, 255, 236);
       textSize(16);
@@ -2748,21 +2982,160 @@
       }
     }
 
+
+    // ── Author model / compare mode functions ─────────────────────────────
+
+    function getAuthorData() {
+      return (window.CYMATICS_DATA && window.CYMATICS_DATA.AUTHOR_MODELS && window.CYMATICS_DATA.AUTHOR_MODELS.sources) || [];
+    }
+
+    function authorById(id) {
+      return getAuthorData().find(a => a.id === id) || null;
+    }
+
+    function buildAuthorSelector() {
+      const data = getAuthorData();
+      const options = data.map(a => `<option value="${a.id}">${a.short_name || a.name}</option>`).join('');
+      dom.authorSelect.innerHTML = `<option value="" selected>None / app model</option>` + options;
+      dom.compareAuthorSelect.innerHTML = options;
+    }
+
+    function setAuthor(id) {
+      selectedAuthorId = id;
+      dom.authorSelect.value = id;
+      renderAuthorReadout();
+      if (compareModeActive) renderCompareReadout();
+      if (diffOpen) renderDiffPanel();
+    }
+
+    function setCompareAuthor(id) {
+      compareAuthorId = id;
+      dom.compareAuthorSelect.value = id;
+      renderCompareReadout();
+      if (diffOpen) renderDiffPanel();
+    }
+
+    function renderAuthorReadout() {
+      const model = authorById(selectedAuthorId);
+      if (!model) {
+        dom.authorReadout.innerHTML = `<div class="author-name">App model</div><p>No author selected; using the app's symbolic frequency → color/form/planet heuristics.</p>`;
+        return;
+      }
+      const statusClass = 'tag-' + (model.epistemic_status || 'unverified');
+      const hzClaims = (model.claims && model.claims.frequency_claims || []).map(c => {
+        const cstatus = c.epistemic_status || model.epistemic_status;
+        return `<div class="claim"><span class="claim-hz">${c.hz} Hz</span><span class="claim-type ${'tag-' + cstatus}">${cstatus}</span><br>${c.claim}</div>`;
+      }).join('') || `<div class="claim">No explicit Hz claims in this model.</div>`;
+      const patClaims = (model.claims && model.claims.pattern_claims || []).map(c =>
+        `<div class="claim"><strong>${c.pattern}</strong> — ${c.description}</div>`).join('') || '';
+      const corrClaims = (model.claims && model.claims.correspondence_claims || []).map(c =>
+        `<div class="claim">[${c.axis}] ${c.claim}</div>`).join('') || '';
+      dom.authorReadout.innerHTML = `
+        <div class="author-name">${model.name}</div>
+        <div class="author-meta">${model.dates || ''} · ${model.key_work || ''}<span class="claim-type ${statusClass}">${model.epistemic_status}</span></div>
+        <p>${model.notes || ''}</p>
+        <div style="margin-top:8px;"><strong style="color:var(--active);">Frequency claims</strong>${hzClaims}</div>
+        ${patClaims ? `<div style="margin-top:8px;"><strong style="color:var(--active);">Pattern claims</strong>${patClaims}</div>` : ''}
+        ${corrClaims ? `<div style="margin-top:8px;"><strong style="color:var(--active);">Correspondence claims</strong>${corrClaims}</div>` : ''}`;
+    }
+
+    function renderCompareReadout() {
+      const model = authorById(compareAuthorId);
+      const title = document.getElementById('compareTitle');
+      const subhead = document.getElementById('compareSubhead');
+      if (!model) {
+        title.textContent = 'Author B';
+        subhead.textContent = 'Select a secondary author.';
+        document.getElementById('compareAuthorNotes').textContent = 'No author selected.';
+        document.getElementById('compareHzClaim').textContent = '--';
+        document.getElementById('comparePatternClaim').textContent = '--';
+        document.getElementById('compareCorrespondenceClaim').textContent = '--';
+        document.getElementById('compareStatus').textContent = '--';
+        return;
+      }
+      const activeHz = getActiveFrequency();
+      const hzMatches = (window.CYMATICS_DATA && window.CYMATICS_DATA.claimsForHz(compareAuthorId, activeHz, 0.5)) || [];
+      const hzText = hzMatches.length ? hzMatches.map(c => c.hz + ' Hz: ' + c.claim).join('; ') : 'No explicit Hz claim at ' + activeHz.toFixed(2) + ' Hz';
+      const patText = (model.claims.pattern_claims || []).map(c => c.pattern).join(', ') || 'No pattern claims';
+      const corrText = (model.claims.correspondence_claims || []).map(c => `[${c.axis}] ${c.claim}`).join('; ') || 'No correspondence claims';
+      title.textContent = model.short_name || model.name;
+      subhead.textContent = `${model.dates || ''} · ${model.key_work || ''}`;
+      document.getElementById('compareFreqDisplay').textContent = activeHz.toFixed(2) + ' Hz';
+      document.getElementById('compareNoteDisplay').textContent = model.epistemic_status;
+      document.getElementById('compareHzClaim').textContent = hzText;
+      document.getElementById('comparePatternClaim').textContent = patText;
+      document.getElementById('compareCorrespondenceClaim').textContent = corrText;
+      document.getElementById('compareStatus').textContent = model.epistemic_status;
+      document.getElementById('compareAuthorNotes').textContent = model.notes || '';
+    }
+
+    function toggleCompareMode() {
+      compareModeActive = !compareModeActive;
+      document.body.classList.toggle('compare-active', compareModeActive);
+      dom.compareModeToggle.classList.toggle('active', compareModeActive);
+      dom.compareAuthorControl.style.display = compareModeActive ? 'block' : 'none';
+      dom.showDiffButton.disabled = !compareModeActive || !compareAuthorId;
+      updatePanelLayout();
+      if (compareModeActive && !compareAuthorId && getAuthorData().length > 1) {
+        setCompareAuthor(getAuthorData()[1].id);
+      }
+      renderCompareReadout();
+    }
+
+    function toggleDiff() {
+      diffOpen = !diffOpen;
+      document.body.classList.toggle('diff-open', diffOpen);
+      if (diffOpen) renderDiffPanel();
+    }
+
+    function renderDiffPanel() {
+      const activeHz = getActiveFrequency();
+      const modelA = authorById(selectedAuthorId);
+      const modelB = authorById(compareAuthorId);
+      document.getElementById('diffHzLabel').textContent = activeHz.toFixed(2);
+      const content = document.getElementById('diffContent');
+      if (!modelA || !modelB) {
+        content.innerHTML = `<div class="diff-bubble"><strong>Select both authors</strong> to see a diff for the current frequency.</div>`;
+        return;
+      }
+      const aClaims = (window.CYMATICS_DATA && window.CYMATICS_DATA.claimsForHz(selectedAuthorId, activeHz, 0.5)) || [];
+      const bClaims = (window.CYMATICS_DATA && window.CYMATICS_DATA.claimsForHz(compareAuthorId, activeHz, 0.5)) || [];
+      const aText = aClaims.length ? aClaims.map(c => c.hz + ' Hz: ' + c.claim).join('<br>') : `No explicit Hz claim from ${modelA.short_name || modelA.name} at ${activeHz.toFixed(2)} Hz.`;
+      const bText = bClaims.length ? bClaims.map(c => c.hz + ' Hz: ' + c.claim).join('<br>') : `No explicit Hz claim from ${modelB.short_name || modelB.name} at ${activeHz.toFixed(2)} Hz.`;
+      const aCorr = (modelA.claims.correspondence_claims || []).map(c => `[${c.axis}] ${c.claim}`).join('<br>') || 'No correspondence claims.';
+      const bCorr = (modelB.claims.correspondence_claims || []).map(c => `[${c.axis}] ${c.claim}`).join('<br>') || 'No correspondence claims.';
+      content.innerHTML = `
+        <div class="diff-bubble"><strong>${modelA.short_name || modelA.name}</strong> <span class="tag-${modelA.epistemic_status}">${modelA.epistemic_status}</span><br>${aText}</div>
+        <div class="diff-bubble"><strong>${modelB.short_name || modelB.name}</strong> <span class="tag-${modelB.epistemic_status}">${modelB.epistemic_status}</span><br>${bText}</div>
+        <div class="diff-bubble"><strong>${modelA.short_name || modelA.name} correspondences</strong><br>${aCorr}</div>
+        <div class="diff-bubble"><strong>${modelB.short_name || modelB.name} correspondences</strong><br>${bCorr}</div>`;
+    }
+
     function updatePanelLayout() {
       const panel = document.getElementById("panel");
+      const comparePanel = document.getElementById("comparePanel");
       const rect = panel.getBoundingClientRect();
       panelRect = rect;
       const mobile = window.innerWidth <= 1180;
       const margin = mobile ? 20 : 24;
       const verticalOffset = mobile ? rect.bottom + 18 : margin;
-      const availableWidth = mobile ? window.innerWidth - margin * 2 : rect.left - margin * 2;
+      let leftEdge = margin;
+      if (compareModeActive && !mobile && comparePanel) {
+        const cRect = comparePanel.getBoundingClientRect();
+        leftEdge = cRect.right + margin;
+      }
+      const availableWidth = mobile ? window.innerWidth - margin * 2 : Math.max(260, rect.left - leftEdge - margin);
       const availableHeight = mobile ? Math.max(260, window.innerHeight - verticalOffset - margin) : window.innerHeight - margin * 2;
-      const size = Math.max(260, Math.min(availableWidth, availableHeight));
-      plateBounds = {
-        x: margin,
-        y: verticalOffset,
-        size
-      };
+      if (compareModeActive && !mobile) {
+        const halfHeight = Math.floor((availableHeight - margin) / 2);
+        const plateSize = Math.max(260, Math.min(availableWidth, halfHeight));
+        plateBounds = { x: leftEdge, y: verticalOffset, size: plateSize };
+        comparePlateBounds = { x: leftEdge, y: verticalOffset + plateSize + margin, size: plateSize };
+      } else {
+        const size = Math.max(260, Math.min(availableWidth, availableHeight));
+        plateBounds = { x: leftEdge, y: verticalOffset, size };
+        comparePlateBounds = null;
+      }
     }
 
     function resizeWaveformCanvas() {
@@ -2798,6 +3171,16 @@
       dom.volumeValue.textContent = volume.toFixed(2);
     }
 
+    function updateMusicVolume() {
+      if (musicGainNode) {
+        try {
+          musicGainNode.gain.setTargetAtTime(musicVolume, musicAudioContext ? musicAudioContext.currentTime : 0, 0.02);
+        } catch (e) {
+          musicGainNode.gain.value = musicVolume;
+        }
+      }
+    }
+
     function updateSignalSettings() {
       if (dom.centsDisplay) {
         dom.centsDisplay.textContent = formatCents(centsOffset);
@@ -2811,18 +3194,15 @@
       const panel = document.getElementById("panel");
       panel.classList.toggle("lab-mode", displayMode === "lab");
       panel.classList.toggle("music-mode", displayMode === "music");
-      panel.classList.toggle("catalog-mode", displayMode === "catalog");
       dom.labModeToggle.classList.toggle("active", displayMode === "lab");
       dom.musicModeToggle.classList.toggle("active", displayMode === "music");
-      dom.catalogModeToggle.classList.toggle("active", displayMode === "catalog");
+      dom.compareModeToggle.classList.toggle("active", compareModeActive);
       dom.modeStatus.textContent = displayMode === "lab"
-        ? "Lab mode shows plate patterns, correspondences, and single-frequency tone controls."
-        : (displayMode === "music"
-          ? "Music mode turns the canvas into a whole-spectrum color field driven by track or microphone analysis."
-          : "Catalog mode stores measured, modeled, and symbolic entries so the map can be refined over time.");
+        ? "Lab mode shows plate patterns, author-model mappings, and single-frequency tone controls."
+        : "Music mode turns the canvas into a whole-spectrum color field driven by track or microphone analysis.";
       dom.audioCardTitle.textContent = displayMode === "lab"
         ? "Audio and Waveform"
-        : (displayMode === "music" ? "Music Input and Waveform" : "Catalog Editor");
+        : "Music Input and Waveform";
       if (dom.musicSourceDisplay) {
         dom.musicSourceDisplay.textContent = getMusicSourceLabel();
       }
@@ -2862,46 +3242,6 @@
     }
 
     function updateReadouts() {
-      if (displayMode === "catalog") {
-        const entry = getSelectedCatalogEntry();
-        if (!entry) {
-          dom.freqDisplay.textContent = "-- Hz";
-          dom.noteDisplay.textContent = "No Entry Selected";
-          dom.contextCopy.textContent = "Catalog mode keeps a working library of measured, modeled, and symbolic entries so claims can be revised instead of implied.";
-          dom.detailLabel1.textContent = "Geometry";
-          dom.wavelengthDisplay.textContent = "-";
-          dom.detailLabel2.textContent = "Shape";
-          dom.modeDisplay.textContent = "-";
-          dom.detailLabel3.textContent = "Evidence";
-          dom.solfeggioDisplay.textContent = "-";
-          dom.detailLabel4.textContent = "Material";
-          dom.referenceDisplay.textContent = "-";
-          dom.swatchKicker.textContent = "Mapped Hex";
-          dom.colorSwatch.style.background = "linear-gradient(135deg, rgba(70,82,108,1), rgba(255,255,255,0.16))";
-          dom.colorHexDisplay.textContent = "#46526C";
-          updateControlStates();
-          return;
-        }
-        dom.freqDisplay.textContent = Number(entry.frequencyHz || 0).toFixed(2) + " Hz";
-        dom.noteDisplay.textContent = entry.title || "Catalog Entry";
-        dom.contextCopy.textContent = "Catalog mode is the working atlas: keep measured observations distinct from modeled and correspondence entries so people can challenge and improve the map.";
-        dom.detailLabel1.textContent = "Geometry";
-        dom.wavelengthDisplay.textContent = entry.geometry || "-";
-        dom.detailLabel2.textContent = "Shape";
-        dom.modeDisplay.textContent = (entry.shape || "other").toUpperCase();
-        dom.detailLabel3.textContent = "Evidence";
-        dom.solfeggioDisplay.textContent = entry.status || "-";
-        dom.detailLabel4.textContent = "Material";
-        dom.referenceDisplay.textContent = entry.material || "-";
-        dom.swatchKicker.textContent = "Mapped Hex";
-        const catalogHex = normalizeHexColor(entry.colorHex) || "#46526C";
-        dom.colorSwatch.style.background = "linear-gradient(135deg, " + catalogHex + ", rgba(255,255,255,0.16))";
-        dom.colorHexDisplay.textContent = catalogHex;
-        updateSignalSettings();
-        updateControlStates();
-        return;
-      }
-
       if (displayMode === "music") {
         const dominantHz = Math.max(liveDominantHz, 20);
         const note = frequencyToNote(dominantHz);
@@ -2945,28 +3285,36 @@
       dom.freqSliderValue.textContent = activeHz.toFixed(1);
       dom.noteDisplay.textContent = note.fullName + centsLabel;
       dom.contextCopy.textContent = "Mode and color correspondence update live as frequency changes.";
-      dom.detailLabel1.textContent = "Wavelength";
-      dom.wavelengthDisplay.textContent = corr.wavelengthNm.toFixed(0) + " nm";
+      const hasAtlas = !!corr.atlasColor;
+      dom.detailLabel1.textContent = hasAtlas ? (corr.atlasSource || "Atlas Color") : "Wavelength";
+      dom.wavelengthDisplay.textContent = hasAtlas
+        ? (corr.atlasPlanet || corr.atlasPattern || "Mapped")
+        : (corr.wavelengthNm.toFixed(0) + " nm");
       dom.detailLabel2.textContent = "Mode";
       dom.waveFreqDisplay.textContent = getToneFrequency().toFixed(2) + " Hz";
-      dom.modeDisplay.textContent = animatedMode
+      const modeLabel = animatedMode
         ? animatedMode.label + " · " + activeHz.toFixed(2) + " Hz"
-        :
-        (plateShape === "square"
+        : (plateShape === "square"
           ? "Square: n=" + corr.squareModes.n.toFixed(1) + ", m=" + corr.squareModes.m.toFixed(1)
           : "Round: order=" + corr.roundModes.order + ", k=" + corr.roundModes.k.toFixed(3));
-      dom.detailLabel3.textContent = "Solfeggio";
-      dom.solfeggioDisplay.textContent = corr.solfeggioName || "-";
-      dom.detailLabel4.textContent = "Reference";
-      dom.referenceDisplay.textContent = "A4 = " + referencePitch.toFixed(0) + " Hz";
-      dom.swatchKicker.textContent = "Spectral Hex";
+      dom.modeDisplay.textContent = corr.atlasForm ? (modeLabel + " · " + corr.atlasForm) : modeLabel;
+      dom.detailLabel3.textContent = hasAtlas ? "Atlas Note / Use" : "Solfeggio";
+      dom.solfeggioDisplay.textContent = hasAtlas
+        ? (corr.atlasNote || corr.atlasClaimedUse || corr.solfeggioName || "Atlas match")
+        : (corr.solfeggioName || "-");
+      dom.detailLabel4.textContent = hasAtlas ? "Atlas Planet" : "Reference";
+      dom.referenceDisplay.textContent = hasAtlas
+        ? (corr.atlasPlanet || "—")
+        : ("A4 = " + referencePitch.toFixed(0) + " Hz");
+      dom.swatchKicker.textContent = corr.atlasColor ? (corr.atlasSource || "Atlas Color") : "Spectral Hex";
       dom.colorSwatch.style.background = "linear-gradient(135deg, " + colorStyle(corr.color, 1) + ", rgba(255,255,255,0.16))";
       dom.colorHexDisplay.textContent = colorToHex(corr.color);
       dom.geometryScaleValue.textContent = geometryScale.toFixed(2) + "x";
       updateVolumeFader();
       updateSignalSettings();
       updatePresetHighlights(activeHz);
-      updateControlStates();
+
+      renderAuthorReadout();      updateControlStates();
     }
 
     function setDisplayMode(mode) {
@@ -2979,15 +3327,6 @@
           toneOn = false;
           stopToneBank();
         }
-      } else if (displayMode === "catalog") {
-        if (toneOn) {
-          toneOn = false;
-          stopToneBank();
-        }
-        stopMusicPlayback();
-        stopMicInput();
-        populateCatalogForm(getSelectedCatalogEntry());
-        renderCatalogList();
       } else {
         stopMusicPlayback();
         stopMicInput();
@@ -3467,6 +3806,21 @@
       document.body.style.overflow = "";
     }
 
+    function openAuthorModal() {
+      if (!dom.authorModal) return;
+      dom.authorModal.classList.add("open");
+      dom.authorModal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      renderAuthorReadout();
+    }
+
+    function closeAuthorModal() {
+      if (!dom.authorModal) return;
+      dom.authorModal.classList.remove("open");
+      dom.authorModal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
     function setupDom() {
       [
         "freqDisplay",
@@ -3488,6 +3842,9 @@
         "helpOpenButton",
         "helpModal",
         "helpCloseButton",
+        "authorOpenButton",
+        "authorModal",
+        "authorCloseButton",
         "modeStatus",
         "freqSliderValue",
         "freqSlider",
@@ -3516,6 +3873,8 @@
         "musicMicToggle",
         "musicStatus",
         "musicSourceDisplay",
+        "musicVolumeSlider",
+        "musicVolumeValue",
         "musicSmoothingSlider",
         "musicSmoothingValue",
         "catalogTitleInput",
@@ -3538,7 +3897,13 @@
         "catalogList",
         "solfeggioButtons",
         "geometryButtons",
-        "planetButtons"
+        "planetButtons",
+        "authorSelect",
+        "compareAuthorSelect",
+        "authorReadout",
+        "compareAuthorControl",
+        "compareModeToggle",
+        "showDiffButton"
       ].forEach((id) => {
         dom[id] = document.getElementById(id);
       });
@@ -3567,17 +3932,32 @@
       dom.cyclePauseToggle.addEventListener("click", toggleCyclePause);
       dom.labModeToggle.addEventListener("click", () => setDisplayMode("lab"));
       dom.musicModeToggle.addEventListener("click", () => setDisplayMode("music"));
-      dom.catalogModeToggle.addEventListener("click", () => setDisplayMode("catalog"));
+      dom.compareModeToggle.addEventListener("click", toggleCompareMode);
+      dom.authorSelect.addEventListener("change", (e) => setAuthor(e.target.value));
+      dom.compareAuthorSelect.addEventListener("change", (e) => setCompareAuthor(e.target.value));
+      dom.showDiffButton.addEventListener("click", toggleDiff);
+      document.getElementById("diffCloseButton").addEventListener("click", toggleDiff);
       dom.helpOpenButton.addEventListener("click", openHelpModal);
       dom.helpCloseButton.addEventListener("click", closeHelpModal);
+      dom.authorOpenButton.addEventListener("click", openAuthorModal);
+      dom.authorCloseButton.addEventListener("click", closeAuthorModal);
       dom.helpModal.addEventListener("click", (event) => {
         if (event.target === dom.helpModal) {
           closeHelpModal();
         }
       });
+      dom.authorModal.addEventListener("click", (event) => {
+        if (event.target === dom.authorModal) {
+          closeAuthorModal();
+        }
+      });
       document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && dom.helpModal.classList.contains("open")) {
-          closeHelpModal();
+        if (event.key === "Escape") {
+          if (dom.authorModal && dom.authorModal.classList.contains("open")) {
+            closeAuthorModal();
+          } else if (dom.helpModal.classList.contains("open")) {
+            closeHelpModal();
+          }
         }
       });
       dom.musicFileInput.addEventListener("change", async (event) => {
@@ -3590,6 +3970,11 @@
       dom.musicMicToggle.addEventListener("click", async () => {
         await toggleMicInput();
       });
+      dom.musicVolumeSlider.addEventListener("input", (event) => {
+        musicVolume = constrain(Number(event.target.value), 0, 1);
+        dom.musicVolumeValue.textContent = musicVolume.toFixed(2);
+        updateMusicVolume();
+      });
       dom.musicSmoothingSlider.addEventListener("input", (event) => {
         musicSmoothing = constrain(Number(event.target.value), 0.04, 0.4);
         dom.musicSmoothingValue.textContent = musicSmoothing.toFixed(2);
@@ -3600,6 +3985,7 @@
       dom.catalogDeleteButton.addEventListener("click", deleteCatalogEntry);
       dom.catalogExportButton.addEventListener("click", exportCatalogEntries);
 
+      buildAuthorSelector();
       buildSolfeggioButtons();
       buildButtonSet(dom.geometryButtons, GEOMETRY_MODES, "geometry", setGeometryMode);
       buildPlanetButtons();
@@ -3643,11 +4029,6 @@
         return;
       }
 
-      if (displayMode === "catalog") {
-        updateReadouts();
-        drawCatalogField(deltaSeconds);
-        return;
-      }
 
       if (animating && !cyclePaused) {
         animTimer += deltaSeconds;
@@ -3675,11 +4056,21 @@
 
       if (plateShape === "square") {
         renderSquarePlate(plateBounds, corr, overrideMode);
+        if (compareModeActive && comparePlateBounds) {
+          renderSquarePlate(comparePlateBounds, corr, overrideMode, true);
+        }
       } else {
         renderRoundPlate(plateBounds, corr, overrideMode);
+        if (compareModeActive && comparePlateBounds) {
+          renderRoundPlate(comparePlateBounds, corr, overrideMode, true);
+        }
       }
       drawOverlay(plateBounds);
-      drawPlateFrequencyBadge(plateBounds, overrideMode);
+      drawPlateFrequencyBadge(plateBounds, overrideMode, false);
+      if (compareModeActive && comparePlateBounds) {
+        drawOverlay(comparePlateBounds);
+        drawPlateFrequencyBadge(comparePlateBounds, overrideMode, true);
+      }
 
       push();
       noStroke();
@@ -3695,6 +4086,10 @@
 
       drawWaveform(deltaSeconds);
     }
+      
+    window.setup = setup;
+    window.draw = draw;
+    window.windowResized = windowResized;
   </script>
 </body>
 </html>

@@ -32,13 +32,16 @@ def main():
     out_dir = here / "js"
     out_dir.mkdir(exist_ok=True)
 
-    axes = ["frequency", "form", "color", "planet", "herbs"]
+    axes = ["frequency", "form", "color", "planet", "herbs", "author_models"]
     bundled = {}
     for axis in axes:
         path = axes_dir / f"{axis}.json"
         with open(path) as f:
             bundled[axis] = json.load(f)
-        print(f"  read {path.name}: {len(bundled[axis].get('sections', [])) or 'n/a'} sections")
+        if axis == "author_models":
+            print(f"  read {path.name}: {len(bundled[axis].get('sources', []))} author models")
+        else:
+            print(f"  read {path.name}: {len(bundled[axis].get('sections', [])) or 'n/a'} sections")
 
     # Emit the JS module. Use a string builder rather than json.dumps so
     # we can have nicely-formatted output and add the helper accessors.
@@ -82,6 +85,30 @@ def main():
         "// cymatics visualization, and any agent queries against the cymatics archive.",
         "",
         "export const CORRESPONDENCE_DATA = " + json.dumps(bundled, indent=2) + ";",
+        "",
+        "export const AUTHOR_MODELS = CORRESPONDENCE_DATA.author_models;",
+        "",
+        "// ── Author model helpers ─────────────────────────────────────────────",
+        "",
+        "export function authorModel(id) {",
+        "  return (AUTHOR_MODELS.sources || []).find(s => s.id === id) || null;",
+        "}",
+        "",
+        "export function authorModels() {",
+        "  return AUTHOR_MODELS.sources || [];",
+        "}",
+        "",
+        "export function claimsForHz(authorId, hz, tolerance = 0.5) {",
+        "  const model = authorModel(authorId);",
+        "  if (!model) return [];",
+        "  return (model.claims.frequency_claims || []).filter(c => Math.abs((c.hz || 0) - hz) < tolerance);",
+        "}",
+        "",
+        "export function allAuthorHzClaims(authorId) {",
+        "  const model = authorModel(authorId);",
+        "  if (!model) return [];",
+        "  return model.claims.frequency_claims || [];",
+        "}",
         "",
         "// ── Cross-axis accessors (mirror cymatics_axes.py) ─────────────────────",
         "",
