@@ -13,6 +13,9 @@ import {
 // ── State ─────────────────────────────────────────────────────
 let activeAxis = 'frequency';
 let currentCard = null;
+let hubSelection = null;
+let hubCamera = { x: 0, y: 0, k: 1 };
+let hubZoomFrame = 0;
 
 function allHerbs() {
   return (CORRESPONDENCE_DATA.herbs && CORRESPONDENCE_DATA.herbs.all_herbs) || [];
@@ -265,6 +268,52 @@ function collectSephirahCorrespondences(sephirahId) {
   return out;
 }
 
+function planetNamesForSephirah(sephirahId) {
+  const planetNames = Object.entries(TREE_OF_LIFE.planetaryAssignments)
+    .filter(([, mappedId]) => mappedId === sephirahId)
+    .map(([planet]) => planet);
+  if (sephirahId === 'malkuth') planetNames.push('Earth');
+  return planetNames;
+}
+
+function collectSephirahSublayers(sephirahId) {
+  const corr = collectSephirahCorrespondences(sephirahId);
+  const planetNames = planetNamesForSephirah(sephirahId);
+  const planetNameSet = new Set(planetNames.map(p => p.toLowerCase()));
+  const herbs = allHerbs().filter(h => planetNameSet.has(String(h.planet || '').toLowerCase()));
+  const metals = [];
+  const seenMetals = new Set();
+  for (const p of corr.planets) {
+    const metal = p.row && p.row.metal;
+    if (metal && !seenMetals.has(String(metal).toLowerCase())) {
+      seenMetals.add(String(metal).toLowerCase());
+      metals.push({ label: metal, type: 'metal', id: metal });
+    }
+  }
+  for (const h of herbs) {
+    const metal = h.metal;
+    if (metal && !seenMetals.has(String(metal).toLowerCase())) {
+      seenMetals.add(String(metal).toLowerCase());
+      metals.push({ label: metal, type: 'metal', id: metal });
+    }
+  }
+
+  return {
+    visuals: [
+      ...corr.colors.map(c => ({ label: c.label, type: 'color', id: c.id })),
+      ...corr.forms.map(f => ({ label: f.label, type: 'form', id: f.id })),
+    ],
+    charts: [
+      ...corr.planets.map(p => ({ label: p.label, type: 'planet', id: p.id })),
+      ...corr.frequencies.map(f => ({ label: f.label, type: 'frequency', id: f.id })),
+    ],
+    tables: [
+      ...metals,
+      ...herbs.map(h => ({ label: h.name, type: 'herbs', id: h.name })),
+    ],
+  };
+}
+
 function collectTreePathNodes() {
   const bySephirah = new Map(Object.keys(TREE_OF_LIFE.sephiroth).map(id => [id, []]));
   const seen = new Set();
@@ -325,20 +374,118 @@ function closestHubEdge(target, root) {
   return null;
 }
 
-function applyHubFocus(svg, focusType, focusId) {
-  svg.querySelectorAll('.hub-node').forEach(node => {
-    const focused = node.dataset.cardType === focusType && node.dataset.cardId === focusId;
-    node.classList.toggle('is-focused', focused);
-    node.classList.toggle('is-dimmed', !focused && Boolean(focusId));
-  });
-  svg.querySelectorAll('.tree-path-group').forEach(path => {
-    const touches = path.dataset.from === focusId || path.dataset.to === focusId;
-    path.classList.toggle('is-focused', focusType === 'sephirah' && touches);
-    path.classList.toggle('is-dimmed', Boolean(focusId) && focusType === 'sephirah' && !touches);
+function hubObjectKey(type, id) {
+  return `${type}:${String(id)}`;
+}
+
+function hubNodeLabel(node) {
+  return node.dataset.cardLabel || node.dataset.cardId;
+}
+
+function defaultHubSelection() {
+  const el = document.getElementById('hub-selection');
+  if (!el) return;
+  el.hidden = false;
+  el.innerHTML = `
+    <span class="lookup-result-type planet">map</span>
+    <strong>Hover or click a node</strong>
+    <span class="hub-selection-hint">Click a sephirah to focus. Click the focused item again to open its card below.</span>
+  `;
+  updateHubActionButtons();
+}
+
+function defaultHubDataSlots() {
+  const slots = document.getElementById('hub-data-slots');
+  if (!slots) return;
+  slots.innerHTML = `
+    <div class="hub-data-slot">
+      <span class="hub-data-slot-label">Images</span>
+      <strong>Selected visual references</strong>
+    </div>
+    <div class="hub-data-slot">
+      <span class="hub-data-slot-label">Charts</span>
+      <strong>Frequency/color/form overlays</strong>
+    </div>
+    <div class="hub-data-slot">
+      <span class="hub-data-slot-label">Tables</span>
+      <strong>Cross-reference rows</strong>
+    </div>
+  `;
+}
+
+function sublayerSlotHtml(label, title, items) {
+  const body = items.length
+    ? `<div class="sublayer-chip-list">${items.slice(0, 18).map(item => chipHtml(item)).join('')}</div>`
+    : '<p class="sublayer-empty">No linked records in this layer yet.</p>';
+  return `
+    <div class="hub-data-slot">
+      <span class="hub-data-slot-label">${escapeHtml(label)}</span>
+      <strong>${escapeHtml(title)}</strong>
+      ${body}
+    </div>
+  `;
+}
+
+function wireSublayerSlotChips() {
+  const slots = document.getElementById('hub-data-slots');
+  if (!slots) return;
+  slots.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      showCard(chip.dataset.cardType, chip.dataset.cardId);
+    });
   });
 }
 
-function updateHubSelection(label, type, id, relation = '') {
+function renderHubDataSlotsForSephirah(sephirahId) {
+  const slots = document.getElementById('hub-data-slots');
+  const s = sephirahById(sephirahId);
+  if (!slots || !s) return;
+  try {
+    const layers = collectSephirahSublayers(sephirahId);
+    slots.innerHTML = [
+      sublayerSlotHtml('Images', `${s.name} visual layer`, layers.visuals),
+      sublayerSlotHtml('Charts', `${s.name} chart layer`, layers.charts),
+      sublayerSlotHtml('Tables', `${s.name} table layer`, layers.tables),
+    ].join('');
+    wireSublayerSlotChips();
+  } catch (error) {
+    slots.innerHTML = sublayerSlotHtml('Sublayers', `${s.name} layer data`, []);
+    console.error('Failed to render sephirah sublayers', error);
+  }
+}
+
+function applyHubFocus(svg, focusType, focusId) {
+  const selectedPath = focusType === 'path'
+    ? TREE_OF_LIFE.paths.find(p => p.id === focusId)
+    : null;
+  const focusedSephirah = focusType === 'sephirah' ? focusId : '';
+  svg.querySelectorAll('.hub-node').forEach(node => {
+    const focused = node.dataset.cardType === focusType && node.dataset.cardId === focusId;
+    const relatedToPath = selectedPath
+      && node.dataset.cardType === 'sephirah'
+      && (node.dataset.cardId === selectedPath.from || node.dataset.cardId === selectedPath.to);
+    const relatedToSephirah = Boolean(focusedSephirah)
+      && (node.dataset.sephirah === focusedSephirah || node.dataset.attach === focusedSephirah);
+    node.classList.toggle('is-focused', focused);
+    node.classList.toggle('is-related', Boolean(relatedToPath));
+    node.classList.toggle('is-related-visible', relatedToSephirah);
+    node.classList.toggle('is-dimmed', !focused && !relatedToPath && !relatedToSephirah && Boolean(focusId));
+  });
+  svg.querySelectorAll('.little-ball-stem, .modern-planet-link').forEach(link => {
+    const relatedToSephirah = Boolean(focusedSephirah)
+      && (link.dataset.sephirah === focusedSephirah || link.dataset.attach === focusedSephirah);
+    link.classList.toggle('is-related-visible', relatedToSephirah);
+  });
+  svg.querySelectorAll('.tree-path-group').forEach(path => {
+    const touches = path.dataset.from === focusId || path.dataset.to === focusId;
+    const selected = focusType === 'path' && path.dataset.pathId === focusId;
+    const relatedToNode = focusType !== 'path' && path.dataset.pathId === svg.querySelector(`.hub-node.is-focused[data-path-id]`)?.dataset.pathId;
+    path.classList.toggle('is-focused', selected || (focusType === 'sephirah' && touches) || relatedToNode);
+    path.classList.toggle('is-dimmed', Boolean(focusId) && !selected && !(focusType === 'sephirah' && touches) && !relatedToNode);
+  });
+}
+
+function updateHubSelection(label, type, id, relation = '', hintText = '') {
   const el = document.getElementById('hub-selection');
   if (!el) return;
   el.hidden = false;
@@ -356,8 +503,23 @@ function updateHubSelection(label, type, id, relation = '') {
   }
   const hint = document.createElement('span');
   hint.className = 'hub-selection-hint';
-  hint.textContent = id ? 'Click opens the card below. Hover previews paths and nodes.' : 'Path preview. Click opens the path card.';
+  hint.textContent = hintText || (id ? 'Click to focus. Click the focused item again to open its card below.' : 'Path preview. Click to focus.');
   el.append(hint);
+  updateHubActionButtons();
+}
+
+function restoreHubSelectionPanel() {
+  if (!hubSelection) {
+    defaultHubSelection();
+    return;
+  }
+  updateHubSelection(
+    hubSelection.label,
+    hubSelection.type,
+    hubSelection.id,
+    hubSelection.relation || '',
+    'Focused. Click again to open the card below.'
+  );
 }
 
 function setHubNodeZoom(node, active) {
@@ -369,20 +531,188 @@ function setHubNodeZoom(node, active) {
   });
 }
 
+function setAllHubNodeZoom(svg, activeNode = null) {
+  svg.querySelectorAll('.hub-node').forEach(node => {
+    setHubNodeZoom(node, node === activeNode);
+  });
+}
+
+function hubViewport(svg) {
+  const box = svg.viewBox.baseVal;
+  return {
+    x: box.x || 0,
+    y: box.y || 0,
+    width: box.width || 1200,
+    height: box.height || 1450
+  };
+}
+
+function preferredHubScale(el, type) {
+  if (type === 'path') return 1.45;
+  if (el.classList.contains('little-ball')) return 2.15;
+  if (el.classList.contains('modern-planet')) return 1.85;
+  if (el.classList.contains('sephirah')) return 1.62;
+  return 1.7;
+}
+
+function hubZoomPadding(el, type) {
+  if (type === 'path') return 150;
+  if (el.classList.contains('little-ball')) return 130;
+  if (el.classList.contains('modern-planet')) return 120;
+  if (el.classList.contains('sephirah')) return 180;
+  return 140;
+}
+
+function targetHubTransform(svg, el, type) {
+  const viewport = hubViewport(svg);
+  const hasMapPoint = el.dataset.mapX && el.dataset.mapY;
+  const box = hasMapPoint
+    ? {
+        x: Number(el.dataset.mapX) - 76,
+        y: Number(el.dataset.mapY) - 76,
+        width: 152,
+        height: 152
+      }
+    : el.getBBox();
+  const padding = hubZoomPadding(el, type);
+  const paddedWidth = Math.max(1, box.width + padding * 2);
+  const paddedHeight = Math.max(1, box.height + padding * 2);
+  const fitScale = Math.min(
+    viewport.width / paddedWidth,
+    viewport.height / paddedHeight
+  ) * 0.92;
+  const k = Math.max(1, Math.min(preferredHubScale(el, type), fitScale));
+  const cx = box.x + box.width / 2;
+  const cy = box.y + box.height / 2;
+  const targetX = viewport.x + viewport.width / 2;
+  const targetY = viewport.y + viewport.height * 0.48;
+
+  return {
+    x: targetX - cx * k,
+    y: targetY - cy * k,
+    k
+  };
+}
+
+function writeHubCamera(svg, transform) {
+  const camera = svg.querySelector('#hub-camera');
+  if (!camera) return;
+  camera.setAttribute(
+    'transform',
+    `translate(${transform.x.toFixed(2)} ${transform.y.toFixed(2)}) scale(${transform.k.toFixed(4)})`
+  );
+}
+
+function setHubCamera(svg, target, animate = true) {
+  cancelAnimationFrame(hubZoomFrame);
+  if (!animate) {
+    hubCamera = { ...target };
+    writeHubCamera(svg, hubCamera);
+    return;
+  }
+
+  const start = { ...hubCamera };
+  const duration = 420;
+  const started = performance.now();
+  const ease = t => 1 - Math.pow(1 - t, 3);
+
+  const step = now => {
+    const t = Math.min(1, (now - started) / duration);
+    const e = ease(t);
+    hubCamera = {
+      x: start.x + (target.x - start.x) * e,
+      y: start.y + (target.y - start.y) * e,
+      k: start.k + (target.k - start.k) * e
+    };
+    writeHubCamera(svg, hubCamera);
+    if (t < 1) hubZoomFrame = requestAnimationFrame(step);
+  };
+  hubZoomFrame = requestAnimationFrame(step);
+}
+
+function resetHubView(svg) {
+  hubSelection = null;
+  setAllHubNodeZoom(svg, null);
+  svg.querySelectorAll('.hub-node, .tree-path-group').forEach(el => {
+    el.classList.remove('is-focused', 'is-dimmed', 'is-related', 'is-related-visible');
+  });
+  svg.querySelectorAll('.path-click-layer').forEach(el => {
+    el.classList.remove('is-focused', 'is-dimmed', 'is-related');
+  });
+  svg.querySelectorAll('.little-ball-stem, .modern-planet-link').forEach(el => {
+    el.classList.remove('is-related-visible');
+  });
+  setHubCamera(svg, { x: 0, y: 0, k: 1 });
+  defaultHubSelection();
+  defaultHubDataSlots();
+}
+
+function focusHubObject(svg, el, type, id, label, relation = '') {
+  hubSelection = {
+    key: hubObjectKey(type, id),
+    type,
+    id,
+    label,
+    relation
+  };
+  setAllHubNodeZoom(svg, el.classList.contains('hub-node') ? el : null);
+  applyHubFocus(svg, type, id);
+  updateHubSelection(label, type, id, relation, 'Focused. Click again to open the card below.');
+  setHubCamera(svg, targetHubTransform(svg, el, type));
+  if (type === 'sephirah') {
+    renderHubDataSlotsForSephirah(id);
+  } else if (type === 'path') {
+    defaultHubDataSlots();
+  }
+}
+
+function handleHubObjectClick(svg, el, type, id, label, relation = '') {
+  if (type !== 'sephirah' && el.classList.contains('is-related-visible')) {
+    showCard(type, id);
+    return;
+  }
+  const key = hubObjectKey(type, id);
+  if (hubSelection && hubSelection.key === key) {
+    showCard(type, id);
+    return;
+  }
+  focusHubObject(svg, el, type, id, label, relation);
+}
+
+function updateHubActionButtons() {
+  const openButton = document.getElementById('hub-open-card');
+  const resetButton = document.getElementById('hub-reset-view');
+  if (openButton) openButton.disabled = !hubSelection;
+  if (resetButton) resetButton.disabled = !hubSelection;
+}
+
+function wireHubActions() {
+  const svg = document.getElementById('hub-svg');
+  const openButton = document.getElementById('hub-open-card');
+  const resetButton = document.getElementById('hub-reset-view');
+  if (openButton) {
+    openButton.addEventListener('click', () => {
+      if (hubSelection) showCard(hubSelection.type, hubSelection.id);
+    });
+  }
+  if (resetButton && svg) {
+    resetButton.addEventListener('click', () => resetHubView(svg));
+  }
+  updateHubActionButtons();
+}
+
 function renderHub() {
   const svg = document.getElementById('hub-svg');
   if (!svg) return;
 
   const colors = {
     frequency: '#d8b56a',
-    form:      '#8dd1ff',
-    color:     '#c890d6',
-    planet:    '#90d59a'
+    form: '#8dd1ff',
+    color: '#c890d6',
+    planet: '#90d59a'
   };
-
   const sephiroth = TREE_OF_LIFE.sephiroth;
   const pathNodes = collectTreePathNodes();
-
   let html = `
     <ellipse class="hub-core-ring" cx="600" cy="720" rx="510" ry="635"/>
     <line class="pillar-line mercy" x1="350" y1="215" x2="350" y2="1015"/>
@@ -393,16 +723,21 @@ function renderHub() {
   for (const path of TREE_OF_LIFE.paths) {
     const from = sephiroth[path.from];
     const to = sephiroth[path.to];
-    const mid = pathPoint(path, 0.5, 0);
     html += `
-      <g class="tree-path-group" data-path-id="${escapeHtml(path.id)}" data-from="${escapeHtml(path.from)}" data-to="${escapeHtml(path.to)}">
+      <g class="tree-path-group" data-card-type="path" data-card-id="${escapeHtml(path.id)}" data-card-label="${escapeHtml(path.tarot)}" data-path-id="${escapeHtml(path.id)}" data-from="${escapeHtml(path.from)}" data-to="${escapeHtml(path.to)}">
         <line class="tree-path-hit" x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}"/>
         <line class="tree-path" x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}"/>
-        <g class="path-label-group" transform="translate(${mid.x.toFixed(1)} ${(mid.y - 10).toFixed(1)})">
-          <rect class="path-label-bg" x="-128" y="-42" width="256" height="72" rx="12"/>
-          <text class="path-letter" x="0" y="-14">${escapeHtml(path.letter)}</text>
-          <text class="path-label" x="0" y="19">${escapeHtml(path.tarot)}</text>
-        </g>
+      </g>
+    `;
+  }
+
+  for (const path of TREE_OF_LIFE.paths) {
+    const mid = pathPoint(path, 0.5, 0);
+    html += `
+      <g class="path-label-group path-click-layer" tabindex="0" role="button" aria-label="${escapeHtml(path.tarot)} path" transform="translate(${mid.x.toFixed(1)} ${(mid.y - 10).toFixed(1)})" data-card-type="path" data-card-id="${escapeHtml(path.id)}" data-card-label="${escapeHtml(path.tarot)}" data-path-id="${escapeHtml(path.id)}" data-from="${escapeHtml(path.from)}" data-to="${escapeHtml(path.to)}">
+        <rect class="path-label-bg" x="-118" y="-36" width="236" height="60" rx="8"/>
+        <text class="path-letter" x="0" y="-12">${escapeHtml(path.letter)}</text>
+        <text class="path-label" x="0" y="15">${escapeHtml(path.tarot)}</text>
       </g>
     `;
   }
@@ -416,8 +751,8 @@ function renderHub() {
       const p = pathPoint(path, t, offset);
       const r = node.type === 'frequency' ? 8 : 7;
       html += `
-        <line class="little-ball-stem ${node.type}" x1="${base.x.toFixed(1)}" y1="${base.y.toFixed(1)}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}"/>
-        <g class="hub-node little-ball ${node.type}" transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})" data-card-type="${escapeHtml(node.type)}" data-card-id="${escapeHtml(node.id)}">
+        <line class="little-ball-stem ${node.type}" data-sephirah="${escapeHtml(node.sephirah)}" x1="${base.x.toFixed(1)}" y1="${base.y.toFixed(1)}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}"/>
+        <g class="hub-node little-ball ${node.type}" tabindex="0" role="button" aria-label="${escapeHtml(node.label)}" transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})" data-sephirah="${escapeHtml(node.sephirah)}" data-card-type="${escapeHtml(node.type)}" data-card-id="${escapeHtml(node.id)}" data-card-label="${escapeHtml(node.label)}" data-path-id="${escapeHtml(path.id)}">
           <title>${escapeHtml(node.label)} - ${escapeHtml(TREE_OF_LIFE.sephiroth[node.sephirah].name)} correspondence</title>
           <circle class="hub-hit" cx="0" cy="0" r="30"/>
           <circle class="hub-halo" cx="0" cy="0" r="${r + 10}" data-normal-r="${r + 10}" data-zoom-r="${r + 18}" fill="${colors[node.type]}"/>
@@ -432,8 +767,8 @@ function renderHub() {
     const attach = sephiroth[modern.attach];
     const hasCard = Boolean(planetInfo(modern.planet));
     html += `
-      <line class="modern-planet-link" x1="${modern.x}" y1="${modern.y}" x2="${attach.x}" y2="${attach.y}"/>
-      <g class="hub-node modern-planet planet" transform="translate(${modern.x} ${modern.y})" data-card-type="${hasCard ? 'planet' : 'path'}" data-card-id="${escapeHtml(hasCard ? modern.planet : modern.attach)}">
+      <line class="modern-planet-link" data-attach="${escapeHtml(modern.attach)}" x1="${modern.x}" y1="${modern.y}" x2="${attach.x}" y2="${attach.y}"/>
+      <g class="hub-node modern-planet planet" tabindex="0" role="button" aria-label="${escapeHtml(modern.label)}" transform="translate(${modern.x} ${modern.y})" data-attach="${escapeHtml(modern.attach)}" data-card-type="${hasCard ? 'planet' : 'path'}" data-card-id="${escapeHtml(hasCard ? modern.planet : modern.attach)}" data-card-label="${escapeHtml(modern.label)}">
         <title>${escapeHtml(modern.planet)} - ${escapeHtml(modern.note)}</title>
         <circle class="hub-hit" cx="0" cy="0" r="44"/>
         <circle class="hub-halo" cx="0" cy="0" r="42" data-normal-r="42" data-zoom-r="48" fill="${colors.planet}"/>
@@ -448,77 +783,78 @@ function renderHub() {
     const labelX = s.x < 600 ? -88 : 88;
     const labelAnchor = s.x < 600 ? 'end' : 'start';
     html += `
-      <g class="hub-node sephirah ${id}" transform="translate(${s.x} ${s.y})" data-card-type="sephirah" data-card-id="${escapeHtml(id)}" style="--sephirah-text:${escapeHtml(s.textColor)}">
+      <g class="hub-node sephirah ${id}" tabindex="0" role="button" aria-label="${escapeHtml(s.name)}" transform="translate(${s.x} ${s.y})" data-map-x="${s.x}" data-map-y="${s.y}" data-card-type="sephirah" data-card-id="${escapeHtml(id)}" data-card-label="${escapeHtml(s.name)}" style="--sephirah-text:${escapeHtml(s.textColor)}">
         <title>${escapeHtml(s.name)} - ${escapeHtml(s.assignment)}</title>
         <circle class="hub-hit" cx="0" cy="0" r="92"/>
         <circle class="hub-halo" cx="0" cy="0" r="68" data-normal-r="68" data-zoom-r="76" fill="${escapeHtml(s.color)}"/>
         <circle class="sephirah-core" cx="0" cy="0" r="52" data-normal-r="52" data-zoom-r="58" data-normal-stroke="2.5" data-zoom-stroke="4" fill="${escapeHtml(s.color)}"/>
-        <text class="sephirah-number" x="0" y="13" font-size="34">${s.number}</text>
+          <text class="sephirah-number" x="0" y="13" font-size="34">${s.number}</text>
         <g class="sephirah-label-card ${labelSide}">
-          <text class="sephirah-hebrew" x="${labelX}" y="-32" text-anchor="${labelAnchor}" font-size="54">${escapeHtml(s.hebrew)}</text>
-          <text class="sephirah-name" x="${labelX}" y="9" text-anchor="${labelAnchor}" font-size="42">${escapeHtml(s.name)} ${s.number}</text>
-          <text class="sephirah-title" x="${labelX}" y="42" text-anchor="${labelAnchor}" font-size="28">${escapeHtml(s.title)} · ${escapeHtml(s.assignment)}</text>
+          <text class="sephirah-name" x="${labelX}" y="13" text-anchor="${labelAnchor}" font-size="42">${escapeHtml(s.name)}</text>
         </g>
       </g>
     `;
   }
 
-  html += `
-    <text class="hub-axis-label" x="350" y="130">Pillar of Mercy</text>
-    <text class="hub-axis-label" x="600" y="1435">Tree of Life Correspondence Map - 10 Sephiroth, 22 Paths, Tarot, frequency, color, form</text>
-    <text class="hub-axis-label" x="850" y="130">Pillar of Severity</text>
-  `;
-
-  svg.innerHTML = html;
+  svg.innerHTML = `<g id="hub-camera">${html}</g>`;
+  hubSelection = null;
+  hubCamera = { x: 0, y: 0, k: 1 };
 
   svg.onclick = (event) => {
-    const path = closestHubEdge(event.target, svg);
-    if (path) {
-      showCard('path', path.dataset.pathId);
-      return;
+    if (!closestHubNode(event.target, svg) && !closestHubEdge(event.target, svg)) {
+      resetHubView(svg);
     }
-    const node = closestHubNode(event.target, svg);
-    if (!node || !svg.contains(node)) return;
-    applyHubFocus(svg, node.dataset.cardType, node.dataset.cardId);
-    updateHubSelection(node.dataset.cardId, node.dataset.cardType, node.dataset.cardId);
-    showCard(node.dataset.cardType, node.dataset.cardId);
   };
 
   svg.querySelectorAll('.hub-node').forEach(node => {
     node.addEventListener('pointerenter', () => {
       setHubNodeZoom(node, true);
-      updateHubSelection(node.dataset.cardId, node.dataset.cardType, node.dataset.cardId, 'preview');
+      updateHubSelection(hubNodeLabel(node), node.dataset.cardType, node.dataset.cardId, 'preview', 'Preview. Click to focus this item.');
     });
     node.addEventListener('pointerleave', () => {
       if (!node.classList.contains('is-focused')) setHubNodeZoom(node, false);
+      if (hubSelection) applyHubFocus(svg, hubSelection.type, hubSelection.id);
+      restoreHubSelectionPanel();
     });
     node.addEventListener('click', (event) => {
       event.stopPropagation();
-      svg.querySelectorAll('.hub-node').forEach(other => {
-        if (other !== node) setHubNodeZoom(other, false);
-      });
-      setHubNodeZoom(node, true);
-      applyHubFocus(svg, node.dataset.cardType, node.dataset.cardId);
-      updateHubSelection(node.dataset.cardId, node.dataset.cardType, node.dataset.cardId);
-      showCard(node.dataset.cardType, node.dataset.cardId);
+      handleHubObjectClick(svg, node, node.dataset.cardType, node.dataset.cardId, hubNodeLabel(node));
+    });
+    node.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      handleHubObjectClick(svg, node, node.dataset.cardType, node.dataset.cardId, hubNodeLabel(node));
     });
   });
 
-  svg.querySelectorAll('.tree-path-group').forEach(path => {
+  svg.querySelectorAll('.path-click-layer').forEach(path => {
     const pathData = TREE_OF_LIFE.paths.find(p => p.id === path.dataset.pathId);
     const from = sephiroth[path.dataset.from];
     const to = sephiroth[path.dataset.to];
     const label = `${pathData.tarot} (${pathData.letter})`;
+    const relation = `${pathData.letter} path · ${from.name} to ${to.name}`;
     path.addEventListener('pointerenter', () => {
       path.classList.add('is-focused');
-      updateHubSelection(label, 'path', pathData.id, `${pathData.letter} path · ${from.name} to ${to.name}`);
+      updateHubSelection(label, 'path', pathData.id, relation, 'Preview. Click to focus this path.');
     });
-    path.addEventListener('pointerleave', () => path.classList.remove('is-focused'));
+    path.addEventListener('pointerleave', () => {
+      if (!path.classList.contains('is-focused')) path.classList.remove('is-focused');
+      if (hubSelection) applyHubFocus(svg, hubSelection.type, hubSelection.id);
+      restoreHubSelectionPanel();
+    });
     path.addEventListener('click', (event) => {
       event.stopPropagation();
-      showCard('path', pathData.id);
+      handleHubObjectClick(svg, path, 'path', pathData.id, label, relation);
+    });
+    path.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      handleHubObjectClick(svg, path, 'path', pathData.id, label, relation);
     });
   });
+
+  defaultHubSelection();
+  defaultHubDataSlots();
 }
 
 // ── Render the active-axis browse view ────────────────────────
@@ -1228,6 +1564,7 @@ function wireNotes() {
 // ── Init ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   renderHub();
+  wireHubActions();
   renderAxisContent(activeAxis);
   wireLookup();
   wireAxisTabs();

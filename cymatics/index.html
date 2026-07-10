@@ -12,6 +12,33 @@
   </script>
   <style>
     :root {
+      /*
+        Readout geometry system:
+        - --phi and --root-two set dominant and folded-sheet grid ratios.
+        - --unit-root-two is the 34px root-2 modular unit; Fibonacci steps
+          (5, 8, 13, 21, 34) are used for panel gaps and internal spacing.
+        - Corner radii stay in conic/vesica steps: 4, 6, 10, 16, 26, 42px.
+        - Type follows the 14px golden-ratio scale: 14, 17, 22, 36, 58.
+      */
+      --phi: 1.618;
+      --root-two: 1.414;
+      --unit-root-two: 34px;
+      --fib-5: 5px;
+      --fib-8: 8px;
+      --fib-13: 13px;
+      --fib-21: 21px;
+      --fib-34: 34px;
+      --r-4: 4px;
+      --r-6: 6px;
+      --r-10: 10px;
+      --r-16: 16px;
+      --r-26: 26px;
+      --r-42: 42px;
+      --type-14: 14px;
+      --type-17: 17px;
+      --type-22: 22px;
+      --type-36: 36px;
+      --type-58: 58px;
       --bg: #05060a;
       --panel: rgba(11, 15, 24, 0.92);
       --panel-border: rgba(173, 142, 94, 0.28);
@@ -111,10 +138,10 @@
 
     .top-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(286px, 306px);
-      gap: 18px;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
       align-items: stretch;
-      margin-bottom: 16px;
+      margin-bottom: 0;
     }
 
     .readout-card,
@@ -131,6 +158,35 @@
       display: flex;
       flex-direction: column;
       min-height: 100%;
+    }
+
+    .correspondence-card {
+      gap: var(--fib-13);
+      padding: var(--fib-13);
+      background:
+        radial-gradient(circle at 18% 18%, rgba(200, 144, 214, 0.11), transparent 34%),
+        linear-gradient(145deg, rgba(18, 23, 34, 0.96), rgba(8, 12, 20, 0.92));
+      border-color: rgba(216, 181, 106, 0.24);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.035),
+        inset 0 0 0 1px rgba(200, 144, 214, 0.035);
+    }
+
+    .frequency-card {
+      padding: var(--fib-13);
+    }
+
+    .frequency-card .slider-block {
+      margin-bottom: var(--fib-13);
+    }
+
+    .frequency-card .signal-settings {
+      gap: var(--fib-8);
+    }
+
+    .frequency-card .mini-control {
+      padding: var(--fib-8);
+      border-radius: var(--r-10);
     }
 
     #panel.lab-mode .music-only,
@@ -170,7 +226,30 @@
 
 
     .mode-switch-card {
-      margin-bottom: 16px;
+      margin-bottom: 0;
+    }
+
+    .mode-switch-card,
+    .top-grid > .readout-card,
+    .top-grid > .frequency-card,
+    .top-grid > .audio-card,
+    .top-grid + .catalog-only + .lab-only {
+      border-radius: 0;
+    }
+
+    .mode-switch-card {
+      border-radius: var(--r-16) var(--r-16) 0 0;
+    }
+
+    .top-grid > .readout-card,
+    .top-grid > .frequency-card,
+    .top-grid > .audio-card,
+    .top-grid + .catalog-only + .lab-only {
+      margin-top: -1px;
+    }
+
+    .top-grid + .catalog-only + .lab-only {
+      border-radius: 0 0 var(--r-16) var(--r-16);
     }
 
     .panel-head {
@@ -225,8 +304,8 @@
       width: min(820px, calc(100vw - 48px));
       max-height: min(82vh, 920px);
       overflow: auto;
-      padding: 20px;
-      border-radius: 22px;
+      padding: 16px;
+      border-radius: 16px;
       border: 1px solid rgba(173, 142, 94, 0.24);
       background: rgba(9, 13, 21, 0.98);
       box-shadow: 0 24px 64px rgba(0, 0, 0, 0.48);
@@ -236,12 +315,12 @@
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 14px;
+      gap: 10px;
+      margin-bottom: 10px;
     }
 
     .help-modal-head h2 {
-      margin: 0 0 6px;
+      margin: 0 0 5px;
       font-size: 22px;
       color: #f4e5c0;
       letter-spacing: 0.04em;
@@ -250,7 +329,7 @@
     .help-modal-head p {
       margin: 0;
       font-size: 13px;
-      line-height: 1.55;
+      line-height: 1.42;
       color: rgba(178, 188, 205, 0.82);
     }
 
@@ -266,14 +345,14 @@
     .help-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      gap: 8px;
     }
 
     .help-item {
       display: grid;
-      gap: 8px;
-      padding: 12px;
-      border-radius: 14px;
+      gap: 5px;
+      padding: 9px;
+      border-radius: 10px;
       border: 1px solid rgba(173, 142, 94, 0.12);
       background: rgba(10, 14, 22, 0.72);
     }
@@ -288,7 +367,7 @@
     .help-item p {
       margin: 0;
       font-size: 13px;
-      line-height: 1.55;
+      line-height: 1.42;
       color: rgba(178, 188, 205, 0.82);
     }
 
@@ -300,10 +379,24 @@
       color: #f4f6fc;
     }
 
+    .correspondence-card .hz-display {
+      margin: 0;
+      font-size: clamp(var(--type-36), 4.8vw, 46px);
+      letter-spacing: 0;
+      color: #fff7df;
+      text-shadow: 0 0 28px rgba(216, 181, 106, 0.18);
+    }
+
     .note-display {
       margin: 0 0 10px;
       font-size: 22px;
       color: #dbe6ff;
+    }
+
+    .correspondence-card .note-display {
+      margin: var(--fib-5) 0 0;
+      font-size: var(--type-17);
+      color: #e7dcff;
     }
 
     .microcopy {
@@ -311,6 +404,123 @@
       font-size: 12px;
       color: var(--muted);
       line-height: 1.5;
+    }
+
+    .correspondence-card .microcopy {
+      font-size: var(--type-14);
+      line-height: 1.48;
+      color: rgba(178, 188, 205, 0.76);
+    }
+
+    .readout-orbit {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      align-items: center;
+    }
+
+    .frequency-core {
+      min-width: 0;
+      padding: var(--fib-13) var(--fib-21);
+      border-radius: var(--r-16);
+      background:
+        linear-gradient(90deg, rgba(216, 181, 106, 0.12), transparent 62%),
+        rgba(6, 9, 16, 0.42);
+      border: 1px solid rgba(216, 181, 106, 0.16);
+    }
+
+    .readout-kicker,
+    .source-kicker {
+      display: block;
+      margin-bottom: var(--fib-8);
+      font-size: 11px;
+      line-height: 1;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(216, 181, 106, 0.76);
+    }
+
+    .source-provenance {
+      margin: 0;
+      padding-top: var(--fib-8);
+      border-top: 1px solid rgba(173, 142, 94, 0.12);
+      font-size: 12px;
+      line-height: 1.35;
+      color: rgba(178, 188, 205, 0.7);
+    }
+
+    .source-footer {
+      margin-top: auto;
+      display: grid;
+      gap: var(--fib-8);
+      padding-top: var(--fib-5);
+    }
+
+    .source-chain {
+      display: grid;
+      grid-template-rows: 3fr 4fr 5fr;
+      gap: var(--fib-8);
+      min-height: calc(var(--unit-root-two) * 3);
+      align-content: center;
+    }
+
+    .source-footer .source-chain {
+      grid-template-columns: 5fr 8fr 5fr;
+      grid-template-rows: none;
+      min-height: 0;
+      align-items: end;
+    }
+
+    .source-stage {
+      display: grid;
+      align-content: center;
+      min-height: 29px;
+      padding: var(--fib-5) var(--fib-8);
+      border-radius: var(--r-10);
+      border: 1px solid rgba(173, 142, 94, 0.14);
+      background: rgba(10, 14, 22, 0.64);
+      color: rgba(178, 188, 205, 0.7);
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .source-stage:nth-child(2) {
+      margin-left: var(--fib-13);
+    }
+
+    .source-stage:nth-child(3) {
+      margin-left: var(--fib-21);
+    }
+
+    .source-footer .source-stage:nth-child(2) {
+      margin-left: 0;
+      transform: translateY(var(--fib-8));
+    }
+
+    .source-footer .source-stage:nth-child(3) {
+      margin-left: 0;
+    }
+
+    .source-stage.active {
+      border-color: rgba(216, 181, 106, 0.4);
+      background: linear-gradient(135deg, rgba(176, 141, 90, 0.22), rgba(200, 144, 214, 0.1));
+      color: #f3e4c2;
+      box-shadow: 0 0 22px rgba(176, 141, 90, 0.1);
+    }
+
+    .source-stage strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: inherit;
+    }
+
+    .correspondence-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.618fr) minmax(144px, 1fr);
+      gap: var(--fib-13);
+      align-items: stretch;
     }
 
     .readout-swatch {
@@ -325,10 +535,30 @@
       background: rgba(10, 14, 22, 0.72);
     }
 
+    .correspondence-card .readout-swatch {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      align-content: center;
+      gap: var(--fib-8);
+      margin-top: 0;
+      padding: var(--fib-8);
+      border-radius: var(--r-16);
+      background:
+        radial-gradient(circle at center, var(--swatch-glow, rgba(216, 181, 106, 0.13)), transparent 68%),
+        rgba(10, 14, 22, 0.72);
+      border-color: rgba(216, 181, 106, 0.18);
+      text-align: center;
+    }
+
     .swatch-meta {
       display: grid;
       gap: 4px;
       align-content: center;
+    }
+
+    .correspondence-card .swatch-meta {
+      order: 2;
+      gap: var(--fib-5);
     }
 
     .swatch-kicker {
@@ -345,6 +575,11 @@
       color: #eef3ff;
     }
 
+    .correspondence-card .swatch-code {
+      font-size: var(--type-17);
+      color: #fff7df;
+    }
+
     .detail-list {
       display: grid;
       gap: 8px;
@@ -352,10 +587,27 @@
       font-size: 14px;
     }
 
+    .correspondence-card .detail-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--fib-8);
+      margin-top: 0;
+    }
+
     .detail {
       display: flex;
       justify-content: space-between;
       gap: 12px;
+    }
+
+    .correspondence-card .detail {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: var(--fib-5);
+      min-height: 52px;
+      padding: var(--fib-8);
+      border-radius: var(--r-10);
+      border: 1px solid rgba(173, 142, 94, 0.13);
+      background: rgba(7, 11, 18, 0.5);
     }
 
     .detail span:first-child {
@@ -366,6 +618,13 @@
       text-align: right;
       font-weight: 600;
       color: #eef3ff;
+    }
+
+    .correspondence-card .detail strong {
+      text-align: left;
+      align-self: end;
+      font-size: var(--type-14);
+      line-height: 1.28;
     }
 
     .provenance-card {
@@ -915,7 +1174,7 @@
     #waveCanvas {
       width: 100%;
       height: 100%;
-      min-height: 214px;
+      min-height: 148px;
       display: block;
       border-radius: 10px;
       background: #080b12;
@@ -1073,6 +1332,17 @@
       background: linear-gradient(135deg, #fff, #ccc);
     }
 
+    .correspondence-card .swatch {
+      width: 76px;
+      height: 47px;
+      border-radius: var(--r-26);
+      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow:
+        0 0 34px var(--swatch-glow, rgba(216, 181, 106, 0.2)),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+        inset 0 18px 28px rgba(255, 255, 255, 0.08);
+    }
+
     .footer-note {
       margin-top: 14px;
       font-size: 12px;
@@ -1114,6 +1384,24 @@
         grid-template-columns: 1fr;
       }
 
+      .readout-orbit,
+      .correspondence-grid,
+      .correspondence-card .detail-list {
+        grid-template-columns: 1fr;
+      }
+
+      .source-chain {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-rows: none;
+        min-height: 0;
+      }
+
+      .source-stage,
+      .source-stage:nth-child(2),
+      .source-stage:nth-child(3) {
+        margin-left: 0;
+      }
+
       .signal-controls {
         grid-template-columns: minmax(0, 1fr) 92px;
         grid-template-rows: 1fr;
@@ -1121,12 +1409,12 @@
       }
 
       .wave-box {
-        min-height: 180px;
+        min-height: 148px;
         height: auto;
       }
 
       #waveCanvas {
-        min-height: 180px;
+        min-height: 148px;
       }
 
       .panel-head {
@@ -1279,7 +1567,6 @@
         <div class="panel-title">
           <p class="eyebrow">Visible Sound Explorer</p>
           <h1>Cymatic Correspondence Lab</h1>
-          <p class="subhead">Square and round plate explorer with tone, note, waveform, color, sacred geometry, solfeggio, and planetary presets.</p>
         </div>
         <button id="helpOpenButton" class="toggle help-trigger" type="button" aria-haspopup="dialog" aria-controls="helpModal">Help</button>
         <a id="openAtlasButton" class="toggle atlas-trigger" href="/cymatics-correspondence/" title="Open the Cymatic Correspondence Atlas (a navigable view of the 4-axis data model)">Correspondence Atlas →</a>
@@ -1297,22 +1584,72 @@
       </section>
 
       <div class="top-grid">
-        <section class="readout-card">
-          <div id="freqDisplay" class="hz-display">528.00 Hz</div>
-          <p id="noteDisplay" class="note-display">C5</p>
-          <p id="contextCopy" class="microcopy">Mode and color correspondence update live as frequency changes.</p>
-          <div class="detail-list">
-            <div class="detail"><span id="detailLabel1">Wavelength</span><strong id="wavelengthDisplay">568 nm</strong></div>
-            <div class="detail"><span id="detailLabel2">Mode</span><strong id="modeDisplay">Square: n=3.0, m=5.0</strong></div>
-            <div class="detail"><span id="detailLabel3">Solfeggio</span><strong id="solfeggioDisplay">Transformation / DNA Repair</strong></div>
-            <div class="detail"><span id="detailLabel4">Reference</span><strong id="referenceDisplay">A4 = 432 Hz</strong></div>
-          </div>
-          <div class="readout-swatch">
-            <div class="swatch-meta">
-              <span id="swatchKicker" class="swatch-kicker">Spectral Hex</span>
-              <strong id="colorHexDisplay" class="swatch-code">#FFFFFF</strong>
+        <section class="readout-card correspondence-card">
+          <div class="readout-orbit">
+            <div class="frequency-core">
+              <span class="readout-kicker">Active Frequency</span>
+              <div id="freqDisplay" class="hz-display">528.00 Hz</div>
+              <p id="noteDisplay" class="note-display">C5</p>
             </div>
-            <div id="colorSwatch" class="swatch"></div>
+          </div>
+          <p id="contextCopy" class="microcopy">Mode and color correspondence update live as frequency changes.</p>
+          <div class="correspondence-grid">
+            <div class="detail-list">
+              <div class="detail"><span id="detailLabel1">Wavelength</span><strong id="wavelengthDisplay">568 nm</strong></div>
+              <div class="detail"><span id="detailLabel2">Mode</span><strong id="modeDisplay">Square: n=3.0, m=5.0</strong></div>
+              <div class="detail"><span id="detailLabel3">Solfeggio</span><strong id="solfeggioDisplay">Transformation / DNA Repair</strong></div>
+              <div class="detail"><span id="detailLabel4">Reference</span><strong id="referenceDisplay">A4 = 432 Hz</strong></div>
+            </div>
+            <div class="readout-swatch">
+              <div class="swatch-meta">
+                <span id="swatchKicker" class="swatch-kicker">Spectral</span>
+                <strong id="colorHexDisplay" class="swatch-code">#FFFFFF</strong>
+              </div>
+              <div id="colorSwatch" class="swatch"></div>
+            </div>
+          </div>
+          <div class="source-footer">
+            <div class="source-chain" aria-label="Source hierarchy">
+              <div id="sourceBadgeAuthor" class="source-stage"><strong>Author</strong><span id="sourceBadgeAuthorLabel">No selected claim</span></div>
+              <div id="sourceBadgeAtlas" class="source-stage active"><strong>Atlas</strong><span id="sourceBadgeAtlasLabel">Solfeggio</span></div>
+              <div id="sourceBadgeApp" class="source-stage"><strong>App</strong><span id="sourceBadgeAppLabel">Heuristic model</span></div>
+            </div>
+            <p id="sourceProvenance" class="source-provenance">Atlas: Solfeggio</p>
+          </div>
+        </section>
+
+        <section class="section-card lab-only frequency-card">
+          <h2 class="section-title">Frequency</h2>
+          <div class="slider-block">
+            <div class="slider-top">
+              <label for="freqSlider">Frequency (Hz)</label>
+              <span id="freqSliderValue" class="value">528.0</span>
+            </div>
+            <input id="freqSlider" type="range" min="20" max="2000" step="0.1" value="528">
+          </div>
+          <div class="signal-settings">
+            <div class="mini-control">
+              <div class="mini-top">
+                <span class="mini-label">Cents</span>
+                <strong id="centsDisplay" class="mini-value">+0</strong>
+              </div>
+              <div class="mini-steps">
+                <button id="centsDown" class="stepper" type="button" aria-label="Decrease cents">-</button>
+                <div class="stepper-value">Detune</div>
+                <button id="centsUp" class="stepper" type="button" aria-label="Increase cents">+</button>
+              </div>
+            </div>
+            <div class="mini-control">
+              <div class="mini-top">
+                <span class="mini-label">Harmonics</span>
+                <strong id="harmonicsDisplay" class="mini-value">0.00</strong>
+              </div>
+              <div class="mini-steps">
+                <button id="harmonicsDown" class="stepper" type="button" aria-label="Decrease harmonics">-</button>
+                <div class="stepper-value">Overtone</div>
+                <button id="harmonicsUp" class="stepper" type="button" aria-label="Increase harmonics">+</button>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -1473,7 +1810,47 @@
         </section>
       </div>
 
-      >
+      <section class="section-card catalog-only">
+        <h2 class="section-title">Catalog Entries</h2>
+        <div class="button-row" style="margin-bottom:12px;">
+          <button id="catalogExportButton" class="chip">Export JSON</button>
+        </div>
+        <p class="footer-note">Catalog mode stores entries in this browser so you can separate measured observations from modeled and symbolic correspondences.</p>
+        <div id="catalogList" class="catalog-list"></div>
+      </section>
+
+      <section class="section-card lab-only">
+        <h2 class="section-title">Solfeggio Presets</h2>
+        <div id="solfeggioButtons" class="chip-grid"></div>
+      </section>
+
+      <section class="section-card lab-only">
+        <h2 class="section-title">Plate and Reference</h2>
+        <div class="button-row">
+          <button id="plateToggle" class="toggle active">Square Plate</button>
+          <button id="referenceToggle" class="toggle">A4 = 432 Hz</button>
+          <button id="cycleToggle" class="toggle">Cycle Modes: Off</button>
+          <button id="cyclePauseToggle" class="toggle">Pause: Off</button>
+        </div>
+        <p class="footer-note">Mode cycling mirrors the Godot lab: square plate cycles through integer Chladni pairs, round plate cycles through Bessel-root families.</p>
+      </section>
+
+      <section class="section-card lab-only">
+        <h2 class="section-title">Sacred Geometry Overlay</h2>
+        <div class="slider-block">
+          <div class="slider-top">
+            <label for="geometryScaleSlider">Geometry Scale</label>
+            <span id="geometryScaleValue" class="value">1.00x</span>
+          </div>
+          <input id="geometryScaleSlider" type="range" min="0.3" max="2.5" step="0.01" value="1">
+        </div>
+        <div id="geometryButtons" class="chip-grid"></div>
+      </section>
+
+      <section class="section-card lab-only">
+        <h2 class="section-title">Planetary Frequencies</h2>
+        <div id="planetButtons" class="planet-grid"></div>
+      </section>
 
       <details class="section-card provenance-card">
         <summary>Provenance and Corrections</summary>
@@ -1527,83 +1904,6 @@
           <a class="chip provenance-link" href="https://github.com/Unideus/webapp-SkyCLAWk" rel="noreferrer">View Source Repo</a>
         </div>
       </details>
-
-      <section class="section-card catalog-only">
-        <h2 class="section-title">Catalog Entries</h2>
-        <div class="button-row" style="margin-bottom:12px;">
-          <button id="catalogExportButton" class="chip">Export JSON</button>
-        </div>
-        <p class="footer-note">Catalog mode stores entries in this browser so you can separate measured observations from modeled and symbolic correspondences.</p>
-        <div id="catalogList" class="catalog-list"></div>
-      </section>
-
-      <section class="section-card lab-only">
-        <h2 class="section-title">Frequency</h2>
-        <div class="slider-block">
-          <div class="slider-top">
-            <label for="freqSlider">Frequency (Hz)</label>
-            <span id="freqSliderValue" class="value">528.0</span>
-          </div>
-          <input id="freqSlider" type="range" min="20" max="2000" step="0.1" value="528">
-        </div>
-        <div class="signal-settings">
-          <div class="mini-control">
-            <div class="mini-top">
-              <span class="mini-label">Cents</span>
-              <strong id="centsDisplay" class="mini-value">+0</strong>
-            </div>
-            <div class="mini-steps">
-              <button id="centsDown" class="stepper" type="button" aria-label="Decrease cents">-</button>
-              <div class="stepper-value">Detune</div>
-              <button id="centsUp" class="stepper" type="button" aria-label="Increase cents">+</button>
-            </div>
-          </div>
-          <div class="mini-control">
-            <div class="mini-top">
-              <span class="mini-label">Harmonics</span>
-              <strong id="harmonicsDisplay" class="mini-value">0.00</strong>
-            </div>
-            <div class="mini-steps">
-              <button id="harmonicsDown" class="stepper" type="button" aria-label="Decrease harmonics">-</button>
-              <div class="stepper-value">Overtone</div>
-              <button id="harmonicsUp" class="stepper" type="button" aria-label="Increase harmonics">+</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section-card lab-only">
-        <h2 class="section-title">Solfeggio Presets</h2>
-        <div id="solfeggioButtons" class="chip-grid"></div>
-      </section>
-
-      <section class="section-card lab-only">
-        <h2 class="section-title">Plate and Reference</h2>
-        <div class="button-row">
-          <button id="plateToggle" class="toggle active">Square Plate</button>
-          <button id="referenceToggle" class="toggle">A4 = 432 Hz</button>
-          <button id="cycleToggle" class="toggle">Cycle Modes: Off</button>
-          <button id="cyclePauseToggle" class="toggle">Pause: Off</button>
-        </div>
-        <p class="footer-note">Mode cycling mirrors the Godot lab: square plate cycles through integer Chladni pairs, round plate cycles through Bessel-root families.</p>
-      </section>
-
-      <section class="section-card lab-only">
-        <h2 class="section-title">Sacred Geometry Overlay</h2>
-        <div class="slider-block">
-          <div class="slider-top">
-            <label for="geometryScaleSlider">Geometry Scale</label>
-            <span id="geometryScaleValue" class="value">1.00x</span>
-          </div>
-          <input id="geometryScaleSlider" type="range" min="0.3" max="2.5" step="0.01" value="1">
-        </div>
-        <div id="geometryButtons" class="chip-grid"></div>
-      </section>
-
-      <section class="section-card lab-only">
-        <h2 class="section-title">Planetary Frequencies</h2>
-        <div id="planetButtons" class="planet-grid"></div>
-      </section>
     </aside>
 
     
@@ -1672,7 +1972,7 @@
         <div class="help-modal-head">
           <div>
             <h2 id="helpModalTitle">How to Use This Tool</h2>
-            <p>Use the mode switch for exploration, live music color, or cataloging. The notes below explain what each mode is for and how to update the working atlas without mixing measured results with symbolic correspondences.</p>
+            <p>Square and round plate explorer with tone, note, waveform, color, sacred geometry, solfeggio, and planetary presets. Use the mode switch for exploration, live music color, or cataloging. The notes below explain what each mode is for and how to update the working atlas without mixing measured results with symbolic correspondences.</p>
           </div>
           <button id="helpCloseButton" class="toggle help-close" type="button" aria-label="Close help">&times;</button>
         </div>
@@ -2011,6 +2311,16 @@
         atlasClaimedUse = atlas.claimed_use || "";
         atlasNote = atlas.note || "";
         atlasSource = atlas.source || "";
+        if (!atlasSource && Math.abs(hz - 440) < 0.5) {
+          atlasSource = "A432/A440 atlas";
+        }
+        if (!atlasSource) {
+          atlasSource = "Atlas mapping";
+        }
+      }
+      if (solfeggioName && atlas) {
+        atlasSource = "Solfeggio";
+        atlasClaimedUse = atlasClaimedUse || solfeggioName;
       }
 
       return {
@@ -3004,6 +3314,7 @@
       selectedAuthorId = id;
       dom.authorSelect.value = id;
       renderAuthorReadout();
+      updateReadouts();
       if (compareModeActive) renderCompareReadout();
       if (diffOpen) renderDiffPanel();
     }
@@ -3241,6 +3552,65 @@
       });
     }
 
+    function setSourceStage(stage, active, label) {
+      const badge = dom["sourceBadge" + stage];
+      const text = dom["sourceBadge" + stage + "Label"];
+      if (!badge || !text) {
+        return;
+      }
+      badge.classList.toggle("active", active);
+      text.textContent = label;
+    }
+
+    function getAuthorClaimForHz(hz) {
+      if (!selectedAuthorId || !window.CYMATICS_DATA || !window.CYMATICS_DATA.claimsForHz) {
+        return null;
+      }
+      const matches = window.CYMATICS_DATA.claimsForHz(selectedAuthorId, hz, 0.5) || [];
+      return matches[0] || null;
+    }
+
+    function updateSourceProvenance(corr, hz) {
+      const authorClaim = getAuthorClaimForHz(hz);
+      const author = authorById(selectedAuthorId);
+      const authorName = author ? (author.short_name || author.name) : "Author";
+      const atlasSource = corr && corr.atlas ? (corr.atlasSource || "Atlas mapping") : "";
+      const appLabel = corr && corr.atlas ? "Color fallback" : "Active heuristic";
+
+      if (authorClaim && author) {
+        const status = authorClaim.epistemic_status || author.epistemic_status || "claim";
+        dom.sourceProvenance.textContent = authorName + ": " + status;
+        setSourceStage("Author", true, status);
+        setSourceStage("Atlas", !!atlasSource, atlasSource || "No atlas match");
+        setSourceStage("App", false, appLabel);
+        return;
+      }
+
+      if (atlasSource) {
+        dom.sourceProvenance.textContent = "Atlas: " + atlasSource;
+        setSourceStage("Author", false, selectedAuthorId ? "No Hz claim" : "No selected claim");
+        setSourceStage("Atlas", true, atlasSource);
+        setSourceStage("App", false, appLabel);
+        return;
+      }
+
+      dom.sourceProvenance.textContent = "App model (heuristic wavelength color)";
+      setSourceStage("Author", false, selectedAuthorId ? "No Hz claim" : "No selected claim");
+      setSourceStage("Atlas", false, "No atlas match");
+      setSourceStage("App", true, "Heuristic wavelength color");
+    }
+
+    function setSwatchGlow(color, alpha) {
+      if (!dom.colorSwatch) {
+        return;
+      }
+      const glow = colorStyle(color, alpha);
+      dom.colorSwatch.style.setProperty("--swatch-glow", glow);
+      if (dom.colorSwatch.parentElement) {
+        dom.colorSwatch.parentElement.style.setProperty("--swatch-glow", glow);
+      }
+    }
+
     function updateReadouts() {
       if (displayMode === "music") {
         const dominantHz = Math.max(liveDominantHz, 20);
@@ -3261,7 +3631,14 @@
         dom.referenceDisplay.textContent = Math.round(liveLevel * 100) + "%";
         dom.swatchKicker.textContent = "Mix Hex";
         dom.colorSwatch.style.background = "linear-gradient(135deg, " + colorStyle(liveMixColor, 1) + ", " + colorStyle(mixColorObjects(liveBassColor, liveTrebleColor, 0.5), 1) + ")";
+        setSwatchGlow(liveMixColor, 0.28);
         dom.colorHexDisplay.textContent = colorToHex(liveMixColor);
+        if (dom.sourceProvenance) {
+          dom.sourceProvenance.textContent = "App model (heuristic wavelength color)";
+          setSourceStage("Author", false, "Music mode");
+          setSourceStage("Atlas", false, "Paused");
+          setSourceStage("App", true, "Live spectrum blend");
+        }
         if (dom.musicSourceDisplay) {
           dom.musicSourceDisplay.textContent = getMusicSourceLabel();
         }
@@ -3285,8 +3662,8 @@
       dom.freqSliderValue.textContent = activeHz.toFixed(1);
       dom.noteDisplay.textContent = note.fullName + centsLabel;
       dom.contextCopy.textContent = "Mode and color correspondence update live as frequency changes.";
-      const hasAtlas = !!corr.atlasColor;
-      dom.detailLabel1.textContent = hasAtlas ? (corr.atlasSource || "Atlas Color") : "Wavelength";
+      const hasAtlas = !!corr.atlas;
+      dom.detailLabel1.textContent = hasAtlas ? (corr.atlasSource || "Atlas mapping") : "Wavelength";
       dom.wavelengthDisplay.textContent = hasAtlas
         ? (corr.atlasPlanet || corr.atlasPattern || "Mapped")
         : (corr.wavelengthNm.toFixed(0) + " nm");
@@ -3300,15 +3677,17 @@
       dom.modeDisplay.textContent = corr.atlasForm ? (modeLabel + " · " + corr.atlasForm) : modeLabel;
       dom.detailLabel3.textContent = hasAtlas ? "Atlas Note / Use" : "Solfeggio";
       dom.solfeggioDisplay.textContent = hasAtlas
-        ? (corr.atlasNote || corr.atlasClaimedUse || corr.solfeggioName || "Atlas match")
+        ? (corr.atlasClaimedUse || corr.solfeggioName || corr.atlasNote || "Atlas match")
         : (corr.solfeggioName || "-");
-      dom.detailLabel4.textContent = hasAtlas ? "Atlas Planet" : "Reference";
+      dom.detailLabel4.textContent = hasAtlas ? "Atlas Source" : "Reference";
       dom.referenceDisplay.textContent = hasAtlas
-        ? (corr.atlasPlanet || "—")
+        ? (corr.atlasSource || "Atlas mapping")
         : ("A4 = " + referencePitch.toFixed(0) + " Hz");
-      dom.swatchKicker.textContent = corr.atlasColor ? (corr.atlasSource || "Atlas Color") : "Spectral Hex";
+      dom.swatchKicker.textContent = corr.atlasColor ? (corr.atlasSource || "Atlas Color") : "Spectral";
       dom.colorSwatch.style.background = "linear-gradient(135deg, " + colorStyle(corr.color, 1) + ", rgba(255,255,255,0.16))";
+      setSwatchGlow(corr.color, corr.atlasColor ? 0.34 : 0.2);
       dom.colorHexDisplay.textContent = colorToHex(corr.color);
+      updateSourceProvenance(corr, activeHz);
       dom.geometryScaleValue.textContent = geometryScale.toFixed(2) + "x";
       updateVolumeFader();
       updateSignalSettings();
@@ -3825,6 +4204,13 @@
       [
         "freqDisplay",
         "noteDisplay",
+        "sourceProvenance",
+        "sourceBadgeAuthor",
+        "sourceBadgeAuthorLabel",
+        "sourceBadgeAtlas",
+        "sourceBadgeAtlasLabel",
+        "sourceBadgeApp",
+        "sourceBadgeAppLabel",
         "contextCopy",
         "detailLabel1",
         "detailLabel2",

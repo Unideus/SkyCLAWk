@@ -5,39 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cymatic Correspondence Atlas</title>
   <link rel="icon" type="image/svg+xml" href="/cymatics-correspondence/atlas-icon.svg">
-  <link rel="stylesheet" href="cymatics-correspondence.css?v=tree-of-life-13">
+  <link rel="stylesheet" href="cymatics-correspondence.css?v=path-layer-1">
 </head>
 <body>
   <!-- Top nav -->
   <header class="atlas-header">
     <div class="header-inner">
-      <div class="header-left">
-        <header class="atlas-header">
-          <div class="header-eyebrow">Private Preview Build &middot; v25.1.0 &middot; last build 2026-07-08</div>
-          <h1 class="atlas-title">Cymatic Correspondence Atlas</h1>
-          <p class="header-subhead">A private preview build of the cymatic correspondence data. The cymatics project is shared with a select few in preview form, and may be hosted publicly by Crrow777 at a future date. The same data also powers the <strong>Godot 3D cymatics visualization</strong> &mdash; the paid visual-teaching product, and the natural home of the cymatic project going forward. The cymatics webapp and the Godot 3D app hit a hard ceiling on the astrology-rendering side: the visual teaching elements (live chart wheels, aspect flows, transit timelines, the cymatic field overlays) are impossible to render smoothly in a 2D browser page. The company is funded by the cosmic-history report and the permaculture app-plan generator, both of which also consume this data.</p>
-          <nav class="header-nav">
-            <a href="/cymatics/" class="nav-link" title="Open the Cymatic Correspondence Lab (the interactive tool)">Open Lab &rarr;</a>
-            <a href="cymatics-archive" id="open-archive-link" class="nav-link" title="Open the cymatics archive README">Archive</a>
-            <button id="export-notes-button" class="nav-link" title="Export all community notes as JSON (for the Crrow777 community-input workflow)">Export Notes</button>
-            <a href="about" id="open-about-link" class="nav-link">About</a>
-          </nav>
-        </header>
+      <nav class="header-nav" aria-label="Atlas navigation">
+        <a href="/cymatics/" class="nav-link" title="Open the Cymatic Correspondence Lab (the interactive tool)">Open Lab &rarr;</a>
+        <a href="cymatics-archive" id="open-archive-link" class="nav-link" title="Open the cymatics archive README">Archive</a>
+        <button id="export-notes-button" class="nav-link" title="Export all community notes as JSON (for the Crrow777 community-input workflow)">Export Notes</button>
+        <a href="about" id="open-about-link" class="nav-link">About</a>
+      </nav>
+    </div>
   </header>
-
-  <!-- Quick-lookup search bar -->
-  <section class="lookup-bar">
-    <label for="lookup-input" class="lookup-label">Quick lookup:</label>
-    <input type="text" id="lookup-input" placeholder="528, Sun, Yellow, Dodecahedron, Solfeggio, Chladni..." autocomplete="off">
-    <div id="lookup-results" class="lookup-results" hidden></div>
-  </section>
 
   <!-- Main content area -->
   <main class="atlas-main">
     <!-- TREE OF LIFE CORRESPONDENCE HUB -->
     <section class="hub-section">
-      <h2 class="section-title">Tree of Life Correspondence Map</h2>
-      <p class="section-hint">Click a sephirah, path, planet, frequency, color, or form node to open its card. Hover paths to preview their Tarot correspondence.</p>
       <div class="hub-workspace">
         <div class="hub-container">
           <svg id="hub-svg" viewBox="0 0 1200 1450" preserveAspectRatio="xMidYMin meet">
@@ -45,12 +31,26 @@
           </svg>
         </div>
         <aside class="hub-data-panel" aria-label="Selected correspondence data">
+          <div class="hub-intro">
+            <div class="header-eyebrow">Private Preview Build &middot; v25.1.0 &middot; last build 2026-07-08</div>
+            <h1 class="atlas-title">Cymatic Correspondence Atlas</h1>
+            <p class="header-subhead">A private preview build of the cymatic correspondence data. The same data also powers the <strong>Godot 3D cymatics visualization</strong> and the broader cymatic teaching stack.</p>
+          </div>
+          <section class="lookup-bar">
+            <label for="lookup-input" class="lookup-label">Quick lookup:</label>
+            <input type="text" id="lookup-input" placeholder="528, Sun, Yellow, Dodecahedron..." autocomplete="off">
+            <div id="lookup-results" class="lookup-results" hidden></div>
+          </section>
           <div id="hub-selection" class="hub-selection">
             <span class="lookup-result-type planet">map</span>
             <strong>Hover or click a node</strong>
-            <span class="hub-selection-hint">Hover previews. Click opens the card below.</span>
+            <span class="hub-selection-hint">Click to focus. Click the focused item again to open its card below.</span>
           </div>
-          <div class="hub-data-slots">
+          <div class="hub-actions" aria-label="Focused map actions">
+            <button id="hub-open-card" class="nav-link hub-action" disabled>Open Card</button>
+            <button id="hub-reset-view" class="nav-link hub-action" disabled>Reset View</button>
+          </div>
+          <div id="hub-data-slots" class="hub-data-slots">
             <div class="hub-data-slot">
               <span class="hub-data-slot-label">Images</span>
               <strong>Selected visual references</strong>
@@ -65,13 +65,6 @@
             </div>
           </div>
         </aside>
-      </div>
-      <div class="hub-legend">
-        <div class="legend-item"><span class="legend-swatch" style="background: #d8b56a"></span> Frequency (Hz, Solfeggio, planetary)</div>
-        <div class="legend-item"><span class="legend-swatch" style="background: #8dd1ff"></span> Form (Platonic solids, Chladni, modes)</div>
-        <div class="legend-item"><span class="legend-swatch" style="background: #c890d6"></span> Color (Newton 7, planetary 7, Solfeggio 9)</div>
-        <div class="legend-item"><span class="legend-swatch" style="background: #90d59a"></span> Planet (classical spheres + modern outer nodes)</div>
-        <div class="legend-item"><span class="legend-swatch" style="background: #d0c4b0"></span> Sephirah/path cards (composite mapping)</div>
       </div>
     </section>
 
@@ -152,6 +145,6 @@
     <p>Built for the cymatics preview &middot; data contract at <code>cymatics/axes/SCHEMA.md</code> &middot; version 1.0 (2026-07-08)</p>
   </footer>
 
-  <script type="module" src="js/main.js?v=tree-of-life-13"></script>
+  <script type="module" src="js/main.js?v=path-layer-1"></script>
 </body>
 </html>

@@ -40,35 +40,44 @@ html, body {
 .atlas-header {
   background: var(--bg-elevated);
   border-bottom: 1px solid var(--panel-border);
-  padding: 24px 32px;
+  padding: 10px 32px;
 }
 .header-inner {
   max-width: 1400px;
   margin: 0 auto;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 32px;
-  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
 }
 .header-left { flex: 1; min-width: 300px; }
+.header-eyebrow {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
 .atlas-title {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 300;
   letter-spacing: 0.02em;
   margin: 0 0 4px 0;
   color: var(--gold);
 }
-.atlas-subtitle {
+.atlas-subtitle,
+.header-subhead {
   font-size: 14px;
   color: var(--muted);
   margin: 0;
-  letter-spacing: 0.04em;
+  max-width: 100%;
 }
 .header-nav {
   display: flex;
-  gap: 18px;
+  gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 .nav-link {
   color: var(--text);
@@ -79,23 +88,30 @@ html, body {
   border-radius: 4px;
   background: var(--button);
   transition: all 0.2s ease;
+  font-family: inherit;
+  cursor: pointer;
 }
 .nav-link:hover {
   background: var(--button-hover);
   border-color: var(--gold);
   color: var(--gold);
 }
+.nav-link:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
 
 /* Quick-lookup bar */
 .lookup-bar {
-  background: var(--bg-elevated);
-  padding: 18px 32px;
-  border-bottom: 1px solid var(--panel-border);
+  background: transparent;
+  padding: 0;
+  border-bottom: none;
   display: flex;
   align-items: center;
   gap: 12px;
   position: relative;
   max-width: 100%;
+  margin: 16px 0;
 }
 .lookup-label {
   color: var(--muted);
@@ -104,7 +120,8 @@ html, body {
 }
 #lookup-input {
   flex: 1;
-  max-width: 700px;
+  min-width: 0;
+  max-width: none;
   padding: 10px 16px;
   background: var(--field);
   color: var(--text);
@@ -121,9 +138,9 @@ html, body {
 .lookup-results {
   position: absolute;
   top: calc(100% + 4px);
-  left: 32px;
-  right: 32px;
-  max-width: 700px;
+  left: 0;
+  right: 0;
+  max-width: none;
   background: var(--bg-elevated);
   border: 1px solid var(--panel-border);
   border-radius: 4px;
@@ -162,7 +179,7 @@ html, body {
 .atlas-main {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 32px;
+  padding: 14px 32px 32px;
   display: flex;
   flex-direction: column;
   gap: 48px;
@@ -212,6 +229,11 @@ html, body {
   border-radius: 6px;
   padding: 18px;
 }
+.hub-intro {
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--panel-border);
+}
 .hub-data-slots {
   display: grid;
   gap: 12px;
@@ -227,6 +249,7 @@ html, body {
 .hub-data-slot strong {
   display: block;
   margin-top: 6px;
+  margin-bottom: 10px;
   color: var(--text);
   font-weight: 400;
 }
@@ -235,6 +258,21 @@ html, body {
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+.sublayer-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.sublayer-chip-list .chip {
+  border-radius: 4px;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+.sublayer-empty {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0;
 }
 .hub-legend {
   display: flex;
@@ -258,6 +296,15 @@ html, body {
 .hub-selection-hint {
   color: var(--muted);
   font-size: 12px;
+}
+.hub-actions {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 16px 0;
+  flex-wrap: wrap;
+}
+.hub-action {
+  min-width: 112px;
 }
 .legend-item {
   display: flex;
@@ -302,6 +349,11 @@ html, body {
   pointer-events: all;
 }
 .hub-node:hover .hub-hit { stroke: none; }
+.hub-node:focus-visible .hub-hit,
+.tree-path-group:focus-visible .tree-path-hit {
+  stroke: rgba(141, 209, 255, 0.8);
+  stroke-width: 6;
+}
 .hub-node text {
   fill: var(--text);
   font-size: 24px;
@@ -320,13 +372,13 @@ html, body {
 .hub-node.herbs { color: #f0a070; }
 .hub-spoke { stroke: rgba(173, 142, 94, 0.25); stroke-width: 1.5; fill: none; }
 .tree-path-group {
-  cursor: pointer;
+  cursor: default;
 }
 .tree-path-hit {
   stroke: transparent;
   stroke-width: 28;
   fill: none;
-  pointer-events: stroke;
+  pointer-events: none;
 }
 .hub-edge,
 .tree-path {
@@ -334,7 +386,7 @@ html, body {
   stroke-width: 7;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
-  cursor: pointer;
+  cursor: default;
   transition: opacity 0.15s ease, stroke 0.15s ease, stroke-width 0.15s ease;
 }
 .hub-edge:hover,
@@ -356,11 +408,24 @@ html, body {
 }
 .path-label-group {
   pointer-events: none;
+  display: none;
+}
+.path-label-group.path-click-layer {
+  cursor: pointer;
+  display: inline;
+  pointer-events: all;
 }
 .path-label-bg {
   fill: rgba(7, 9, 14, 0.82);
   stroke: rgba(216, 181, 106, 0.38);
   stroke-width: 1;
+}
+.path-click-layer:hover .path-label-bg,
+.path-click-layer.is-focused .path-label-bg,
+.path-click-layer:focus-visible .path-label-bg {
+  fill: rgba(24, 30, 42, 0.95);
+  stroke: rgba(255, 244, 205, 0.9);
+  stroke-width: 2;
 }
 .path-label {
   fill: rgba(237, 241, 251, 0.9);
@@ -382,7 +447,9 @@ html, body {
   stroke-width: 2px;
 }
 .tree-path-group:hover .path-label,
-.tree-path-group.is-focused .path-label {
+.tree-path-group.is-focused .path-label,
+.path-click-layer:hover .path-label,
+.path-click-layer.is-focused .path-label {
   fill: rgba(237, 241, 251, 0.95);
 }
 .pillar-line {
@@ -398,11 +465,19 @@ html, body {
   stroke-width: 2;
   stroke-dasharray: 4 6;
   vector-effect: non-scaling-stroke;
+  display: none;
+}
+.modern-planet-link.is-related-visible {
+  display: inline;
 }
 .little-ball-stem {
   stroke-width: 1.6;
   stroke-opacity: 0.58;
   vector-effect: non-scaling-stroke;
+  display: none;
+}
+.little-ball-stem.is-related-visible {
+  display: inline;
 }
 .little-ball-stem.frequency { stroke: #d8b56a; }
 .little-ball-stem.form { stroke: #8dd1ff; }
@@ -447,6 +522,7 @@ html, body {
   font-weight: 800;
   stroke: rgba(5, 6, 10, 0.85);
   stroke-width: 1px;
+  display: none;
 }
 .hub-node.sephirah .sephirah-name {
   fill: var(--text);
@@ -459,6 +535,16 @@ html, body {
   font-weight: 700;
   stroke: rgba(5, 6, 10, 0.85);
   stroke-width: 1px;
+  display: none;
+}
+.little-ball,
+.modern-planet,
+.hub-axis-label {
+  display: none;
+}
+.little-ball.is-related-visible,
+.modern-planet.is-related-visible {
+  display: inline;
 }
 .little-ball .little-ball-core,
 .modern-planet .modern-planet-core {
@@ -742,11 +828,12 @@ html, body {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .header-inner { flex-direction: column; align-items: flex-start; }
+  .header-inner { justify-content: flex-start; }
+  .header-nav { justify-content: flex-start; }
   .atlas-main { padding: 16px; gap: 32px; }
-  .atlas-header { padding: 16px; }
-  .lookup-bar { padding: 14px 16px; }
-  .lookup-results { left: 16px; right: 16px; }
+  .atlas-header { padding: 10px 16px; }
+  .lookup-bar { padding: 0; flex-wrap: wrap; }
+  .lookup-results { left: 0; right: 0; }
   .card-fields { grid-template-columns: 1fr; }
   .data-table { font-size: 12px; }
   .data-table th, .data-table td { padding: 6px 8px; }
