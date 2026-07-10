@@ -312,6 +312,14 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
     if house_system:
         svg += f'<text x="{hx}" y="{hy + 54}" font-size="8" font-family="DejaVu Sans, sans-serif" fill="#666">{"Sistema de Casas" if chart_title == "Carta Natal" else "House System"}: {house_system}</text>'
 
+    # ── Top-right: Cosmic Blueprint note ──
+    # Title at 10px (same as recipient name), body at 8px (same as birth info)
+    nx = W - MARGIN - 4
+    svg += f'<text x="{nx}" y="34" font-size="10" font-weight="bold" text-anchor="end" font-family="DejaVu Sans, sans-serif" fill="#1a3a5c">The Cosmic Blueprint</text>'
+    svg += f'<text x="{nx}" y="48" font-size="8" text-anchor="end" font-family="DejaVu Sans, sans-serif" fill="#666">The houses are the cosmic pattern</text>'
+    svg += f'<text x="{nx}" y="58" font-size="8" text-anchor="end" font-family="DejaVu Sans, sans-serif" fill="#666">manifest in the body — Aries at the</text>'
+    svg += f'<text x="{nx}" y="68" font-size="8" text-anchor="end" font-family="DejaVu Sans, sans-serif" fill="#666">head, Pisces at the feet.</text>'
+
     # ── Layout: two concentric rings + aspect core ──
     # Outer: tropical signs ring (pastel by element)
     # Ecliptic: boundary circle between signs and houses
@@ -337,8 +345,61 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
         fill = PASTEL[ELEMENT_COLORS[ELEMENTS[SIGNS[i]]]]
         svg += f'<path d="M {x0:.1f} {y0:.1f} A {rSignOuter} {rSignOuter} 0 {large} 0 {x1:.1f} {y1:.1f} L {x2:.1f} {y2:.1f} A {rEcliptic} {rEcliptic} 0 {large} 1 {x3:.1f} {y3:.1f} Z" fill="{fill}"/>'
 
-    # ── House wedges (light gray ring inside ecliptic) ──
+    # ── House wedges (light emanating from the sign glyph, Aries always H1) ──
+    # The house ring is the personal/internal fractal of the cosmic sign ring.
+    # Aries is always House 1 at the Ascendant (the head), Taurus=H2, etc. —
+    # fixed to the body, not to the sky.
+    #
+    # Each house wedge is near-white with a radial gradient emanating from the
+    # sign glyph at center, in the element color — like light radiating from
+    # the sign itself. The feather edges are soft and rounded.
     asc_sign_idx = int(asc // 30)
+    # Element colors for the glyph + emanation
+    ELEM_RAW = ELEMENT_COLORS  # {"Fire":"#d32f2f", "Earth":"#2e7d32", "Air":"#fbc02d", "Water":"#1976d2"}
+    # Radial gradient defs — one per house, focal point at the glyph center
+    rGlyph = (rEcliptic + rHouseInner) / 2  # radius where glyph sits
+    svg += '<defs>'
+    for h in range(12):
+        cusp_lon = ((asc_sign_idx + h) % 12) * 30
+        # Emanation focal point at the 15th degree (midpoint between number and glyph)
+        eman_ang = ang(cusp_lon + 15)
+        rEmanLabel = rHouseInner + 9  # same radius as the house labels
+        # Emanation center in absolute SVG coords
+        fx = cx + math.cos(eman_ang) * rEmanLabel
+        fy = cy + math.sin(eman_ang) * rEmanLabel
+        elem_color = ELEM_RAW[ELEMENTS[SIGNS[h]]]
+        # 50% lighter version of the element color (mix with white)
+        def lighten(hex_color, pct):
+            r = int(hex_color[1:3], 16)
+            g = int(hex_color[3:5], 16)
+            b = int(hex_color[5:7], 16)
+            r = int(r + (255 - r) * pct)
+            g = int(g + (255 - g) * pct)
+            b = int(b + (255 - b) * pct)
+            return f"#{r:02x}{g:02x}{b:02x}"
+        light_color = lighten(elem_color, 0.5)
+        gid = f"emanH{h}"
+        # Radial gradient: 50%-lighter element color at glyph center → near-white at edges
+        # fx/fy in userSpaceOnUse so the focal point is the actual glyph position
+        svg += f'<radialGradient id="{gid}" gradientUnits="userSpaceOnUse" cx="{fx:.1f}" cy="{fy:.1f}" r="55">'
+        svg += f'<stop offset="0%" stop-color="{light_color}" stop-opacity="0.45"/>'
+        svg += f'<stop offset="30%" stop-color="{light_color}" stop-opacity="0.2"/>'
+        svg += f'<stop offset="60%" stop-color="{light_color}" stop-opacity="0.06"/>'
+        svg += '<stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>'
+        svg += '</radialGradient>'
+    # Clip path: house ring only (between rEcliptic and rHouseInner) — prevents
+    # feather bleed into the tropical sign ring
+    svg += '<clipPath id="houseRingClip"><path d="M '
+    # Outer circle (rEcliptic) clockwise
+    ce0x, ce0y = pt(rEcliptic, 0)
+    ce1x, ce1y = pt(rEcliptic, math.radians(360))
+    svg += f'{ce0x:.1f} {ce0y:.1f} A {rEcliptic} {rEcliptic} 0 1 0 {ce1x:.1f} {ce1y:.1f} A {rEcliptic} {rEcliptic} 0 1 0 {ce0x:.1f} {ce0y:.1f} Z'
+    # Inner circle (rHouseInner) — subtract by reverse winding
+    ci0x, ci0y = pt(rHouseInner, 0)
+    ci1x, ci1y = pt(rHouseInner, math.radians(360))
+    svg += f' M {ci0x:.1f} {ci0y:.1f} A {rHouseInner} {rHouseInner} 0 1 1 {ci1x:.1f} {ci1y:.1f} A {rHouseInner} {rHouseInner} 0 1 1 {ci0x:.1f} {ci0y:.1f} Z'
+    svg += '"/></clipPath>'
+    svg += '</defs>'
     for h in range(12):
         cusp_lon = ((asc_sign_idx + h) % 12) * 30
         a0 = ang(cusp_lon)
@@ -348,22 +409,63 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
         x2, y2 = pt(rHouseInner, a1)
         x3, y3 = pt(rHouseInner, a0)
         large = 1 if (a1 - a0) > math.pi else 0
-        # Alternate light shades for odd/even houses
-        fill = "#f0f0f0" if h % 2 == 0 else "#e8e8e8"
-        svg += f'<path d="M {x0:.1f} {y0:.1f} A {rEcliptic} {rEcliptic} 0 {large} 0 {x1:.1f} {y1:.1f} L {x2:.1f} {y2:.1f} A {rHouseInner} {rHouseInner} 0 {large} 1 {x3:.1f} {y3:.1f} Z" fill="{fill}"/>'
+        wedge_path = f'M {x0:.1f} {y0:.1f} A {rEcliptic} {rEcliptic} 0 {large} 0 {x1:.1f} {y1:.1f} L {x2:.1f} {y2:.1f} A {rHouseInner} {rHouseInner} 0 {large} 1 {x3:.1f} {y3:.1f} Z'
+        # No base fill — emanation gradient only, no grey background
+        svg += f'<path d="{wedge_path}" fill="none"/>'
+        # Light emanation overlay — radial gradient from emanation center
+        svg += f'<path d="{wedge_path}" fill="url(#emanH{h})"/>'
+        # Feather strokes clipped to house ring — no bleed into sign ring
+        svg += '<g clip-path="url(#houseRingClip)">'
+        # Soft rounded feather on cusp lines — double stroke for blur-like softness
+        for ca in [a0, a1]:
+            cx1, cy1 = pt(rEcliptic, ca)
+            cx2, cy2 = pt(rHouseInner, ca)
+            # Wide soft outer glow
+            svg += f'<line x1="{cx1:.1f}" y1="{cy1:.1f}" x2="{cx2:.1f}" y2="{cy2:.1f}" stroke="#ffffff" stroke-width="8" stroke-linecap="round" opacity="0.35"/>'
+            # Narrower inner glow
+            svg += f'<line x1="{cx1:.1f}" y1="{cy1:.1f}" x2="{cx2:.1f}" y2="{cy2:.1f}" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.6"/>'
+        # Soft rounded feather on outer ring arc (ecliptic edge)
+        svg += f'<path d="M {x0:.1f} {y0:.1f} A {rEcliptic} {rEcliptic} 0 {large} 0 {x1:.1f} {y1:.1f}" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" opacity="0.3"/>'
+        svg += f'<path d="M {x0:.1f} {y0:.1f} A {rEcliptic} {rEcliptic} 0 {large} 0 {x1:.1f} {y1:.1f}" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.5"/>'
+        # Soft rounded feather on inner ring arc (house-inner edge)
+        svg += f'<path d="M {x3:.1f} {y3:.1f} A {rHouseInner} {rHouseInner} 0 {large} 1 {x2:.1f} {y2:.1f}" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" opacity="0.3"/>'
+        svg += f'<path d="M {x3:.1f} {y3:.1f} A {rHouseInner} {rHouseInner} 0 {large} 1 {x2:.1f} {y2:.1f}" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.5"/>'
+        svg += '</g>'
 
     # ── Sign glyphs in sign ring ──
     for i in range(12):
         mid = ang(i * 30 + 15)
         tx, ty = pt((rSignOuter + rEcliptic) / 2, mid)
-        svg += f'<text x="{tx:.0f}" y="{ty:.0f}" font-size="16" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#111">{SIGN_GLYPHS[i]}</text>'
+        svg += f'<text x="{tx:.0f}" y="{ty:.0f}" font-size="16" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#000">{SIGN_GLYPHS[i]}</text>'
 
-    # ── House numbers in house ring (near inner edge) ──
+    # ── House ring: sign glyph + house number near inner edge, offset within wedge ──
+    # Natural zodiac: Aries always H1 at AC, Taurus H2, etc. — fixed to anatomy.
+    # Both glyphs sit at the same radius (near inner edge) but at different
+    # degrees within the 30° wedge: house number at the 10th degree, sign glyph
+    # at the 20th degree. This keeps the center of the house ring clear for planets.
+    rHouseLabel = rHouseInner + 9
     for h in range(12):
         cusp_lon = ((asc_sign_idx + h) % 12) * 30
-        mid = ang(cusp_lon + 15)
-        tx, ty = pt(rHouseInner + 10, mid)
-        svg += f'<text x="{tx:.0f}" y="{ty:.0f}" font-size="9" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#666" font-family="DejaVu Sans, sans-serif">{h + 1}</text>'
+        # 50%-lighter element color for the glyph (matches the emanation light)
+        def _lighten(hex_color, pct):
+            r = int(hex_color[1:3], 16)
+            g = int(hex_color[3:5], 16)
+            b = int(hex_color[5:7], 16)
+            r = int(r + (255 - r) * pct)
+            g = int(g + (255 - g) * pct)
+            b = int(b + (255 - b) * pct)
+            return f"#{r:02x}{g:02x}{b:02x}"
+        light_elem = _lighten(ELEMENT_COLORS[ELEMENTS[SIGNS[h]]], 0.5)
+        # House number at the 10th degree of the sign
+        num_ang = ang(cusp_lon + 10)
+        nx, ny = pt(rHouseLabel, num_ang)
+        svg += f'<text x="{nx:.0f}" y="{ny:.0f}" font-size="9" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#333" font-family="DejaVu Sans, sans-serif">{h + 1}</text>'
+        # Sign glyph at the 20th degree of the sign
+        # Capricorn(9), Aquarius(10), Cancer(3), Leo(4) are slightly bigger for readability
+        glyph_size = 14 if h in (3, 4, 9, 10) else 12
+        glyph_ang = ang(cusp_lon + 20)
+        gx, gy = pt(rHouseLabel, glyph_ang)
+        svg += f'<text x="{gx:.0f}" y="{gy:.0f}" font-size="{glyph_size}" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#b08d5a">{SIGN_GLYPHS[h]}</text>'
 
     # ── Ring boundary circles ──
     svg += f'<circle cx="{cx}" cy="{cy}" r="{rSignOuter}" fill="none" stroke="#666666" stroke-width="1"/>'
@@ -414,6 +516,7 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
         svg += f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{color}" stroke-width="{sw}" stroke-linecap="round"/>'
 
     # ── House cusp lines (extend from sign ring through house ring) ──
+    # Bold and clearly visible — restored from the lightened version
     for h in range(12):
         cusp_lon = ((asc_sign_idx + h) % 12) * 30
         a = ang(cusp_lon)

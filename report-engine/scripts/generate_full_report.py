@@ -510,15 +510,16 @@ def load_narrative(archetype, sun_sign, moon_sign=None, asc_sign=None, lang="en"
         snippet_path = TEMPLATE_DIR / f"prose_prophet_genalpha_{sign_slug}_snippet{suffix}.md"
     else:
         return None
-    # Fall back to English if Spanish file doesn't exist
-    if not macro_path.exists() and suffix:
-        macro_path = TEMPLATE_DIR / macro_path.name.replace(suffix, "")
-        if snippet_path:
+    # Fall back to English if Spanish file doesn't exist (macro and snippet independently)
+    if suffix:
+        if not macro_path.exists():
+            macro_path = TEMPLATE_DIR / macro_path.name.replace(suffix, "")
+        if snippet_path and not snippet_path.exists():
             snippet_path = TEMPLATE_DIR / snippet_path.name.replace(suffix, "")
     if not macro_path.exists():
         return None
     if snippet_path and not snippet_path.exists():
-        return None
+        snippet_path = None  # Graceful: skip snippet substitution rather than fail entirely
     # For Hero archetype, the macro file is the complete narrative; no snippet substitution needed.
     macro = macro_path.read_text(encoding='utf-8')
     if snippet_path:
