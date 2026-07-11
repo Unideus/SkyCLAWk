@@ -1,5 +1,7 @@
 # SkyCLAWk Migration Plan
 
+> Historical note, 2026-07-10: this file documents the original consolidation plan. It is not the current route or page inventory. Use `README.md` for the current app list and build notes.
+
 ## Overview
 
 Consolidate 4 projects (Timeline/app-timeline, Timeline/auspicious, Timeline/skyclock, Timeline/planting)
@@ -101,7 +103,7 @@ SkyCLAWk/
 
 ## Build
 
-Single Vite multi-page build. One `npm run build` outputs all 5 pages + shared assets to dist/.
+Single Vite multi-page build. One `npm run build` outputs the configured page entries + shared assets to dist. See `vite.config.js` and `README.md` for the current page list.
 
 ## Migration Steps
 

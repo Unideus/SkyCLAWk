@@ -1,7 +1,7 @@
 // Cymatic Correspondence Atlas — main.js
-// Renders the 4-axis spiderweb hub, browse-by-axis tables, card detail view,
-// and quick-lookup search. Consumes the data module (data.js) which is
-// auto-generated from cymatics/axes/*.json at build time.
+// Renders the Tree of Life correspondence hub, browse-by-axis tables,
+// card detail view, and quick-lookup search. Consumes the data module
+// (data.js), which is auto-generated from cymatics/axes/*.json.
 
 import {
   CORRESPONDENCE_DATA,
