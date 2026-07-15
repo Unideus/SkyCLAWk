@@ -7,6 +7,7 @@ Usage:
 """
 
 import os, sys, math, argparse, json, re, tempfile
+from html import escape as html_escape
 from pathlib import Path
 import swisseph as swe
 from weasyprint import HTML
@@ -82,6 +83,332 @@ def sign_from_lon(lon):
 
 def degree_in_sign(lon):
     return (lon % 360) % 30
+
+
+def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birth_time="",
+                                  birth_location="", display_year=2026, display_date="", lang="en"):
+    """Build a print-native cohort screw from 1940 through the report year."""
+    width, height = 1000, 328
+    left, right = 0, 1000
+    plot_top, plot_bottom = 48, 238
+    phase_height = (plot_bottom - plot_top) / 4.0
+    timeline_start = 1940
+    timeline_end = 2040
+    now_year = max(2020, min(int(display_year), timeline_end))
+
+    def year_x_raw(value):
+        return left + (value - timeline_start) / (timeline_end - timeline_start) * (right - left)
+
+    def year_x(value):
+        return year_x_raw(max(timeline_start, min(timeline_end, value)))
+
+    now_x = year_x(now_year)
+
+    # Match SkyCLAWk's canonical screw: each conjunction boundary rises from
+    # the lower axis to the top exactly four conjunctions later.
+    boundary_top_years = {
+        1861: 1940, 1881: 1961, 1901: 1981, 1921: 2000,
+        1940: 2020, 1961: 2040, 1981: 2060, 2000: 2080,
+        2020: 2100, 2040: 2120,
+    }
+
+    def life_y(at_year, birth_boundary):
+        start_x = year_x_raw(birth_boundary)
+        top_x = year_x_raw(boundary_top_years[birth_boundary])
+        denominator = top_x - start_x
+        if abs(denominator) < 0.001:
+            return plot_top
+        progress = (year_x_raw(at_year) - start_x) / denominator
+        return plot_bottom + (plot_top - plot_bottom) * progress
+
+    is_es = lang == "es"
+    events = [
+        (1940, "Taurus", "Earth", "Crisis"),
+        (1961, "Capricorn", "Earth", "High"),
+        (1981, "Libra", "Air", "Awakening"),
+        (2000, "Taurus", "Earth", "Unraveling"),
+        (2020, "Aquarius", "Air", "Crisis"),
+        (2040, "Libra", "Air", "High"),
+    ]
+    cohorts = [
+        (1861, 1881, "Missionary", "#efd0d0"),
+        (1881, 1901, "Lost", "#cfe4cf"),
+        (1901, 1921, "G.I.", "#e3d8a6"),
+        (1921, 1940, "Silent", "#cad8ea"),
+        (1940, 1961, "Boomer", "#efd0d0"),
+        (1961, 1981, "Gen X", "#cfe4cf"),
+        (1981, 2000, "Millennial", "#e3d8a6"),
+        (2000, 2020, "Gen Z", "#cad8ea"),
+        (2020, 2040, "Gen Alpha", "#efd0d0"),
+    ]
+    stages = (
+        [("Nómada", "Mayor"), ("Héroe", "Mediana edad"),
+         ("Artista", "Adulto joven"), ("Profeta", "Infancia")]
+        if is_es else
+        [("Nomad", "Elder"), ("Hero", "Midlife"),
+         ("Artist", "Young Adult"), ("Prophet", "Childhood")]
+    )
+    if is_es:
+        sign_names = {"Taurus": "Tauro", "Capricorn": "Capricornio", "Libra": "Libra", "Aquarius": "Acuario"}
+        element_names = {"Earth": "Tierra", "Air": "Aire"}
+        turning_names = {"Crisis": "Crisis", "High": "Alto", "Awakening": "Despertar", "Unraveling": "Desenredo"}
+        born_word = "NACIMIENTO"
+        wave_label = "SAECULUM"
+    else:
+        sign_names = {}
+        element_names = {}
+        turning_names = {}
+        born_word = "BORN"
+        wave_label = "SAECULUM"
+
+    # Each cohort is the region between two parallel lifetime trajectories.
+    # One 20-year horizontal span rises exactly one archetypal life-stage row.
+    diagonal_parts = []
+    for start, end, label, color in cohorts:
+        y_ls = life_y(1940, start)
+        y_le = life_y(1940, end)
+        y_rs = life_y(timeline_end, start)
+        y_re = life_y(timeline_end, end)
+        diagonal_parts.append(
+            f'<polygon points="{left},{y_ls:.1f} {left},{y_le:.1f} '
+            f'{right},{y_re:.1f} {right},{y_rs:.1f}" '
+            f'fill="{color}" fill-opacity="0.90" stroke="#ffffff" stroke-width="3"/>'
+        )
+
+    grid_parts = []
+    event_parts = []
+    visible_events = [event for event in events if event[0] <= timeline_end]
+    def sign_icon(cx, cy, sign):
+        # True DejaVu Sans zodiac outlines, embedded as paths so PDF rendering
+        # never substitutes or drops the astrological characters.
+        zodiac_paths = {
+            "Taurus": ("M917 860Q770 860 667 756.5Q564 653 564 506Q564 359 667 256Q770 153 917 153Q1064 153 1167.5 256Q1271 359 1271 506Q1271 653 1168.5 756.5Q1066 860 917 860ZM917 1010Q1048 1015 1124 1076Q1210 1142 1258.5 1232Q1307 1322 1387.5 1409Q1468 1496 1653 1496V1388Q1530 1388 1446.5 1232Q1363 1076 1232 968Q1211 949 1188 934Q1234 904 1277 863Q1423 714 1423 504Q1423 295 1275.5 147.5Q1128 0 917 0Q709 0 561 147.5Q413 295 413 504Q413 714 561 863Q602 905 650 935Q626 949 605 968Q476 1076 390.5 1232Q305 1388 183 1388V1496Q368 1496 461 1409Q554 1322 590 1232Q626 1142 711 1076Q788 1015 917 1010Z", (183, 0, 1653, 1496)),
+            "Capricorn": ("M851 1496Q958 1496 998.5 1063Q1039 630 1064 634Q1173 855 1368 855Q1489 855 1565.5 760Q1642 665 1642 562Q1642 417 1570.5 331.5Q1499 246 1357 246Q1202 246 1080 379Q1036 219 973 111.5Q910 4 772 0H604V118L758 119Q880 123 985 499Q935 515 903 909.5Q871 1304 813 1304Q777 1304 700 1070.5Q623 837 623 642V613L465 611Q465 864 394.5 1112Q324 1360 192 1366V1463Q339 1463 419.5 1352Q500 1241 540 966Q586 1167 631 1255Q672 1346 733 1421Q794 1496 851 1496ZM1137 510Q1230 365 1360 365Q1521 365 1530 562Q1523 719 1364 738Q1212 738 1137 510Z", (192, 0, 1642, 1496)),
+            "Libra": ("M171 259H1665V107H171ZM728 506H171V658H525Q458 762 458 893Q458 1078 586.5 1207.5Q715 1337 900 1337Q1086 1337 1215.5 1207.5Q1345 1078 1345 893Q1345 762 1277 658H1665V506H1072V658H1071Q1089 671 1106 688Q1192 773 1192 894Q1192 1016 1107 1101Q1022 1186 900 1186Q778 1186 693 1101Q608 1016 608 894Q608 773 693 688Q709 671 728 658Z", (171, 107, 1665, 1337)),
+            "Aquarius": ("M176 413Q501 684 616 684Q661 684 674 644Q698 573 754 573Q810 573 896 644Q982 715 1038 715Q1092 715 1116 644Q1142 573 1199 573Q1256 573 1342 644Q1385 680 1426 680Q1550 680 1659 364L1565 313Q1502 498 1407 498Q1356 498 1296 445Q1210 369 1154 369Q1098 369 1073 444Q1045 522 986 522Q931 522 848 455Q761 384 706 384Q650 384 625 456Q601 526 547 526Q492 526 363 419.5Q234 313 229 313L176 411ZM176 884Q500 1153 616 1153Q660 1153 674 1114Q698 1044 754 1044Q809 1044 895 1114Q982 1186 1037 1186Q1092 1186 1115 1114Q1142 1044 1198 1044Q1255 1044 1341 1114Q1384 1149 1425 1149Q1550 1149 1659 834L1565 784Q1502 969 1407 969Q1356 969 1296 915Q1209 838 1154 838Q1098 838 1072 914Q1045 992 986 992Q931 992 847 924Q761 853 705 853Q650 853 625 925Q601 997 546 997Q491 997 362.5 890.5Q234 784 229 784L176 881Z", (176, 313, 1659, 1186)),
+        }
+        path, (x_min, y_min, x_max, y_max) = zodiac_paths[sign]
+        glyph_scale = 18.0 / max(x_max - x_min, y_max - y_min)
+        mid_x, mid_y = (x_min + x_max) / 2.0, (y_min + y_max) / 2.0
+        return (
+            f'<path d="{path}" fill="#203b55" transform="translate({cx},{cy}) '
+            f'scale({glyph_scale:.7f},{-glyph_scale:.7f}) translate({-mid_x:.1f},{-mid_y:.1f})"/>'
+        )
+
+    def element_icon(cx, cy, element):
+        size = 7.2
+        color = "#4f8060" if element == "Earth" else "#b18424"
+        if element == "Earth":
+            points = f"{cx-size},{cy-size+1} {cx+size},{cy-size+1} {cx},{cy+size}"
+            bar_y = cy - 1.2
+        else:
+            points = f"{cx},{cy-size} {cx-size},{cy+size-1} {cx+size},{cy+size-1}"
+            bar_y = cy + 1.2
+        return (
+            f'<polygon points="{points}" fill="none" stroke="{color}" stroke-width="1.8"/>'
+            f'<line x1="{cx-4.8}" y1="{bar_y}" x2="{cx+4.8}" y2="{bar_y}" stroke="{color}" stroke-width="1.6"/>'
+        )
+
+    for index, (event_year, sign, element, _turning) in enumerate(visible_events):
+        x = year_x(event_year)
+        if index == 0:
+            anchor, text_x, glyph_center = "start", x + 2, x + 24
+        elif index == len(visible_events) - 1:
+            anchor, text_x, glyph_center = "end", x - 2, x - 16
+        else:
+            anchor, text_x, glyph_center = "middle", x, x
+        grid_parts.append(
+            f'<line x1="{x:.1f}" y1="{plot_top}" x2="{x:.1f}" y2="264" '
+            f'stroke="#53687a" stroke-width="1" stroke-opacity="0.48"/>'
+        )
+        event_parts.append(
+            f'<text x="{text_x:.1f}" y="15" text-anchor="{anchor}" class="event-year">{event_year}</text>'
+            f'{sign_icon(glyph_center - 12, 34, sign)}'
+            f'{element_icon(glyph_center + 12, 34, element)}'
+        )
+
+    cohort_parts = []
+    for start, end, label, color in cohorts:
+        if start < 1940:
+            continue
+        if start > timeline_end:
+            continue
+        x1, x2 = year_x(start), year_x(end)
+        cohort_parts.append(
+            f'<rect x="{x1:.1f}" y="238" width="{x2 - x1:.1f}" height="26" fill="{color}" fill-opacity="0.35"/>'
+            f'<text x="{(x1 + x2) / 2:.1f}" y="256" text-anchor="middle" class="cohort">{label}</text>'
+        )
+
+    # Scroll and wrap archetypes exactly as the SkyCLAWk label panel does.
+    cohort_archetypes = {
+        "Missionary": "Prophet", "Lost": "Nomad", "G.I.": "Hero", "Silent": "Artist",
+        "Boomer": "Prophet", "Gen X": "Nomad", "Millennial": "Hero",
+        "Gen Z": "Artist", "Gen Alpha": "Prophet",
+    }
+    stage_parts = []
+    stage_gradient_parts = []
+    stage_split_x = now_x + (right - now_x) * .58
+    for start, end, label, color in cohorts:
+        if not (start <= now_year <= boundary_top_years[end]):
+            continue
+        y0 = life_y(now_year, start)
+        y1 = life_y(now_year, end)
+        row_top = max(plot_top, min(y0, y1))
+        row_bottom = min(plot_bottom, max(y0, y1))
+        row_height = row_bottom - row_top
+        if row_height <= 0:
+            continue
+        archetype = cohort_archetypes[label]
+        gradient_id = f"archetype-{start}"
+        stage_gradient_parts.append(
+            f'<linearGradient id="{gradient_id}" x1="0" y1="0" x2="1" y2="0">'
+            f'<stop offset="0%" stop-color="{color}" stop-opacity="0.78"/>'
+            f'<stop offset="54%" stop-color="{color}" stop-opacity="0.52"/>'
+            f'<stop offset="72%" stop-color="#fffdf8" stop-opacity="0.88"/>'
+            f'<stop offset="100%" stop-color="#fffdf8"/>'
+            f'</linearGradient>'
+        )
+        show_archetype = row_height >= 13 and not (label == "Gen Alpha" and row_bottom >= plot_bottom - .1)
+        stage_parts.append(
+            f'<rect x="{now_x:.1f}" y="{row_top:.1f}" width="{right-now_x:.1f}" height="{row_height:.1f}" fill="#fffdf8"/>'
+            f'<rect x="{now_x:.1f}" y="{row_top:.1f}" width="{right-now_x:.1f}" height="{row_height:.1f}" fill="url(#{gradient_id})"/>'
+            f'<line x1="{now_x:.1f}" y1="{row_top:.1f}" x2="{stage_split_x:.1f}" y2="{row_top:.1f}" stroke="#aab6bf" stroke-width="1"/>'
+            + (f'<text x="{now_x + 10:.1f}" y="{row_top + row_height * .64:.1f}" class="stage-name">{archetype}</text>' if show_archetype else '')
+        )
+
+    # Age lanes remain fixed while the archetypes scroll behind them.
+    age_lane_parts = []
+    age_labels = [("Elder", "60–80"), ("Midlife", "40–60"),
+                  ("Young Adult", "20–40"), ("Childhood", "0–20")]
+    for index, (life_stage, age_range) in enumerate(age_labels):
+        y = plot_top + index * phase_height
+        age_lane_parts.append(
+            f'<line x1="{stage_split_x:.1f}" y1="{y:.1f}" x2="{right}" y2="{y:.1f}" stroke="#aab6bf" stroke-width="1"/>'
+            f'<text x="{right - 8}" y="{y + phase_height * .40:.1f}" text-anchor="end" class="stage-age">{life_stage}</text>'
+            f'<text x="{right - 8}" y="{y + phase_height * .70:.1f}" text-anchor="end" class="stage-range">{age_range}</text>'
+        )
+    age_lane_parts.append(
+        f'<line x1="{stage_split_x:.1f}" y1="{plot_bottom}" x2="{right}" y2="{plot_bottom}" stroke="#aab6bf" stroke-width="1"/>'
+    )
+    stage_boundaries = [plot_top, plot_bottom]
+
+    # The recipient follows an individual diagonal trajectory inside their cohort.
+    birth_x = year_x(birth_year)
+    natal_boundaries = [1940, 1961, 1981, 2000, 2020, 2040]
+    natal_start, natal_end = natal_boundaries[0], natal_boundaries[1]
+    for candidate_start, candidate_end in zip(natal_boundaries, natal_boundaries[1:]):
+        if candidate_start <= birth_year <= candidate_end:
+            natal_start, natal_end = candidate_start, candidate_end
+            break
+    natal_fraction = max(0.0, min(1.0, (birth_year - natal_start) / (natal_end - natal_start)))
+    birth_end_y = life_y(now_year, natal_start) + natal_fraction * (
+        life_y(now_year, natal_end) - life_y(now_year, natal_start)
+    )
+    full_name = html_escape((recipient_name.strip() or "You").upper())
+    natal_line = html_escape(" · ".join(part for part in (birth_date, birth_time, birth_location) if part))
+    line_dx = now_x - birth_x
+    line_dy = birth_end_y - plot_bottom
+    age_tick_parts = []
+    age_word = "EDAD" if is_es else "AGE"
+    if abs(line_dx) > .001:
+        for event_year, _sign, _element, _turning in visible_events:
+            if not (birth_year < event_year <= now_year):
+                continue
+            tick_x = year_x(event_year)
+            progress = (tick_x - birth_x) / line_dx
+            tick_y = plot_bottom + line_dy * progress
+            age_at_conjunction = event_year - birth_year
+            age_tick_parts.append(
+                f'<line x1="{tick_x-7:.1f}" y1="{tick_y:.1f}" x2="{tick_x+7:.1f}" y2="{tick_y:.1f}" '
+                f'stroke="#b7443e" stroke-width="3"/>'
+                f'<rect x="{tick_x+7:.1f}" y="{tick_y-17:.1f}" width="45" height="14" rx="2" '
+                f'fill="#ffffff" fill-opacity="0.86"/>'
+                f'<text x="{tick_x+10:.1f}" y="{tick_y-5:.1f}" class="age-tick">'
+                f'{age_word} {age_at_conjunction}</text>'
+            )
+    natal_when = html_escape(" · ".join(part for part in (birth_date, birth_time) if part))
+    natal_where = html_escape(birth_location)
+    current_date_label = html_escape((display_date or str(now_year)).upper())
+
+    # Exact seasonal 80-year sine wave: Crisis/Winter is the trough, High/Spring
+    # the rising midpoint, Awakening/Summer the crest, and Unraveling/Autumn
+    # the falling midpoint.
+    wave_colors = ["#b7443e", "#4f8060", "#a8842f", "#416f91", "#b7443e"]
+    wave_parts = []
+    wave_label_parts = []
+    # Exact 20-year quarters make the 80-year saeculum visually legible even
+    # though the dated conjunction markers above retain their precise years.
+    wave_breaks = [1940, 1960, 1980, 2000, 2020, timeline_end]
+    wave_breaks = sorted(set(year for year in wave_breaks if year <= timeline_end))
+
+    def wave_y(value):
+        return 292 + 19 * math.cos(2 * math.pi * (value - 1940) / 80.0)
+
+    for index in range(len(wave_breaks) - 1):
+        start_year, end_year = wave_breaks[index], wave_breaks[index + 1]
+        sample_count = max(4, int((end_year - start_year) * 2))
+        samples = [start_year + (end_year - start_year) * n / sample_count for n in range(sample_count + 1)]
+        path = " ".join(
+            ("M" if n == 0 else "L") + f" {year_x(sample_year):.1f},{wave_y(sample_year):.2f}"
+            for n, sample_year in enumerate(samples)
+        )
+        color = wave_colors[index]
+        wave_parts.append(
+            f'<path d="{path}" fill="none" stroke="{color}" stroke-width="3"/>'
+        )
+        phase = turning_names.get(events[index][3], events[index][3]).upper()
+        phase_y = wave_y((start_year + end_year) / 2) + (14 if index in (1, 2) else -12)
+        wave_label_parts.append(
+            f'<text x="{year_x((start_year+end_year)/2):.1f}" y="{phase_y:.1f}" text-anchor="middle" '
+            f'class="wave-phase" fill="{color}">{phase}</text>'
+        )
+
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" role="img" aria-label="Generational screw and saeculum wave from 1940 to 2040">
+<style>
+  text {{ font-family: "DejaVu Sans", Arial, sans-serif; fill:#203b55; }}
+  .cohort {{ font-size:14px; font-weight:700; }}
+  .event-year {{ font-size:15px; font-weight:700; }}
+  .sign-glyph {{ font-family:"DejaVu Sans", sans-serif; font-size:18px; font-weight:400; fill:#203b55; }}
+  .now-label {{ font-size:9px; font-weight:700; letter-spacing:1px; fill:#203b55; }}
+  .stage-name {{ font-size:15px; font-weight:700; }}
+  .stage-age {{ font-size:7.5px; font-weight:700; fill:#66727d; }}
+  .stage-range {{ font-size:8px; fill:#66727d; }}
+  .age-tick {{ font-size:9px; font-weight:700; fill:#b7443e; }}
+  .wave-phase {{ font-size:9px; font-weight:700; letter-spacing:1px; }}
+</style>
+<defs>
+  <clipPath id="screw-clip"><rect x="{left}" y="{plot_top}" width="{right-left}" height="{plot_bottom-plot_top}"/></clipPath>
+  {''.join(stage_gradient_parts)}
+</defs>
+<rect width="1000" height="{height}" fill="#ffffff"/>
+<g clip-path="url(#screw-clip)">
+  <rect x="{left}" y="{plot_top}" width="{right-left}" height="{plot_bottom-plot_top}" fill="#f8f7f3"/>
+  {''.join(diagonal_parts)}
+  <line x1="{birth_x:.1f}" y1="{plot_bottom}" x2="{now_x:.1f}" y2="{birth_end_y:.1f}" stroke="#b7443e" stroke-width="3.5"/>
+</g>
+<rect x="{left}" y="{plot_top}" width="{right-left}" height="{plot_bottom-plot_top}" fill="none" stroke="#8fa0ad" stroke-width="1.2"/>
+{''.join(grid_parts)}
+{''.join(age_tick_parts)}
+<line x1="{now_x:.1f}" y1="{plot_top-2:.1f}" x2="{now_x:.1f}" y2="{plot_bottom}" stroke="#203b55" stroke-width="1.8"/>
+{''.join(stage_parts)}
+{''.join(age_lane_parts)}
+<rect x="{now_x:.1f}" y="{stage_boundaries[0]:.1f}" width="{right-now_x:.1f}" height="{stage_boundaries[-1]-stage_boundaries[0]:.1f}" fill="none" stroke="#8fa0ad" stroke-width="1.2"/>
+{''.join(cohort_parts)}
+<rect x="{left}" y="238" width="{right-left}" height="26" fill="none" stroke="#aab6bf" stroke-width="1"/>
+<g>
+  <rect x="{left+10}" y="{plot_top+10}" width="370" height="108" rx="4" fill="#ffffff" fill-opacity="0.94" stroke="#aab6bf" stroke-width="1"/>
+  <text x="{left+22}" y="{plot_top+30}" style="font-size:12pt;font-weight:700;fill:#203b55;">{current_date_label}</text>
+  <text x="{left+22}" y="{plot_top+51}" style="font-size:12pt;font-weight:700;letter-spacing:.5px;fill:#203b55;">{full_name}</text>
+  <text x="{left+22}" y="{plot_top+70}" style="font-size:11pt;fill:#203b55;">{natal_when}</text>
+  <text x="{left+22}" y="{plot_top+88}" style="font-size:11pt;fill:#203b55;">{natal_where}</text>
+  <line x1="{left+22}" y1="{plot_top+101}" x2="{left+58}" y2="{plot_top+101}" stroke="#b7443e" stroke-width="4"/>
+  <text x="{left+68}" y="{plot_top+105}" style="font-size:10pt;font-weight:700;fill:#b7443e;">YOUR LIFELINE</text>
+</g>
+{''.join(event_parts)}
+<text x="{left}" y="276" class="wave-phase" fill="#6b7782">{wave_label}</text>
+{''.join(wave_parts)}
+{''.join(wave_label_parts)}
+</svg>'''
 
 def get_saeculum(jd):
     """Determine saeculum from birth Julian Day. The conjunction is a precise
@@ -449,7 +776,7 @@ ES = {
     "moon_para_es": "\nTu Luna en {moon} da forma al clima emocional interno bajo la identidad solar. Donde el Sol es cómo brillas, la Luna es cómo sientes. Esta posición te da {interp}. El signo lunar es el instrumento privado a través del cual procesas el macroclima descrito arriba — colorea cómo recibes, digieres y respondes a las presiones estructurales de tu era.\n",
     "asc_para_es": "\nTu Ascendente en {asc} es la lente a través de la cual todo esto entra en tu vida. Si el Sol es tu identidad central y la Luna es tu clima interno, el Ascendente es la puerta — la forma en que el mundo te ve por primera vez y la forma en que tú lo conoces. Te da {interp}. Esta es la primera línea de tu carta, la interfaz donde los patrones cósmicos se convierten en experiencia personal. Cada planeta de tu carta se filtra a través de este signo ascendente antes de llegar al resto de tu vida.\n",
     "narrative_not_found": "<h2>1. Your Cosmic Snapshot</h2><p>Prose template not found for {arch} / {sun}.</p>",
-    "chart_house_system": "Signo Completo",
+    "chart_house_system": "Casas helenísticas de la Antigüedad",
 }
 
 ES_PLANET_NAMES = {
@@ -839,6 +1166,11 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     # ── Date prepared + past/future awareness ──
     import datetime as _dt
     now = _dt.datetime.now()
+    now_utc = _dt.datetime.now(_dt.timezone.utc)
+    current_jd = swe.julday(
+        now_utc.year, now_utc.month, now_utc.day,
+        now_utc.hour + now_utc.minute / 60.0 + now_utc.second / 3600.0,
+    )
     if lang == "es":
         _meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
         prepared_date = f"{now.day:02d} de {_meses[now.month-1]} de {now.year}"
@@ -847,7 +1179,13 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     current_year = now.year
     age_now = current_year - year
     # Determine which markers are past, present, or future relative to now
-    def time_status(marker_year):
+    def time_status(marker_year, marker_jd=None):
+        if marker_jd is not None:
+            if marker_jd < current_jd:
+                return "past"
+            if marker_jd > current_jd:
+                return "future"
+            return "present"
         if marker_year < current_year:
             return "past"
         elif marker_year > current_year:
@@ -1047,6 +1385,7 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     # Build markers as a list of (year, marker_html, description) tuples, then sort chronologically
     # Marker column uses planet glyphs + context
     markers_list = []
+    marker_jds = {}
 
     # Planet glyphs for marker column
     G = {"Saturn":"♄","Jupiter":"♃","Uranus":"♅","Neptune":"♆","Pluto":"♇"}
@@ -1207,9 +1546,11 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
                     sr_desc = f"At age {age_at_return}, the structural commitments you made in your 20s come up for review. Career path, relationship patterns, financial obligations. The question: which of these still serves the person you are now, and which need to be renegotiated or released?"
                 else:
                     sr_desc = f"At age {age_at_return}, the structures you built in your first Saturn Return face their first real stress test. The question is no longer 'what am I building?' but 'what of what I built is worth keeping, and what needs to be released so the next phase has room to grow?'"
+            marker_label = f'{sr_num} <span class="astroglyph">♄</span> {sr_label}'
+            marker_jds[marker_label] = sr_jd
             markers_list.append((
                 sr_year,
-                f'{sr_num} <span class="astroglyph">♄</span> {sr_label}',
+                marker_label,
                 age_at_return,
                 sr_desc
             ))
@@ -1226,9 +1567,11 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
             else:
                 uo_label = "Opposition"
                 uo_desc = f"At age {age_at_uo}, the cosmic clock fires its 'do not settle' signal. Patterns that looked permanent in your 30s start feeling like costumes. The question: which of your current identities, relationships, and daily structures are still yours — and which were inherited from the version of you that needed them then? This is the midlife permission slip to experiment with what is actually true now."
+            marker_label = f'<span class="astroglyph">♅</span> {uo_label}'
+            marker_jds[marker_label] = uo_jd
             markers_list.append((
                 uo_year,
-                f'<span class="astroglyph">♅</span> {uo_label}',
+                marker_label,
                 age_at_uo,
                 uo_desc
             ))
@@ -1238,12 +1581,17 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     if sn_result:
         sn_jd, sn_year, sn_sign = sn_result
         age_at_sn = sn_year - year
+        sn_y, sn_m, sn_d, _ = swe.revjul(sn_jd)
+        sn_date = _dt.date(sn_y, sn_m, sn_d)
         if lang == "es":
-            sn_desc = ES["sn_desc"].format(age=age_at_sn, sign=ES_SIGNS.get(sn_sign, sn_sign))
+            sn_date_text = f"{sn_d} de {_meses[sn_m - 1]} de {sn_y}"
+            sn_desc = f"El {sn_date_text}, a los {age_at_sn} años, Saturno y Neptuno se encontraron en {ES_SIGNS.get(sn_sign, sn_sign)}. Esta alineación unió la realidad estructural con la imaginación visionaria: una invitación a distinguir las ilusiones vencidas de los sueños que pueden construirse sobre bases firmes."
             sn_marker_label = f'<span class="astroglyph">♄☌♆</span> en {ES_SIGNS.get(sn_sign, sn_sign)}'
         else:
-            sn_desc = f"At age {age_at_sn}, Saturn and Neptune meet in {sn_sign}: a rare alignment that fuses structural reality with visionary imagination. This is the era when old illusions dissolve and new dreams must be built on solid ground. The practical and the meaningful converge — whatever you have been building either aligns with your deeper purpose or falls away. This is the time to align what works with what matters."
+            sn_date_text = sn_date.strftime("%B %d, %Y")
+            sn_desc = f"On {sn_date_text}, at age {age_at_sn}, Saturn and Neptune met in {sn_sign}. This rare alignment joined structural reality with visionary imagination: an invitation to distinguish expired illusions from dreams that can be built on solid ground."
             sn_marker_label = f'<span class="astroglyph">♄☌♆</span> in {sn_sign}'
+        marker_jds[sn_marker_label] = sn_jd
         markers_list.append((
             sn_year,
             sn_marker_label,
@@ -1298,8 +1646,9 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
         )
         markers_list.append((cy, sj_marker_html, sj_age, f"{turn_disp} turning — {desc_disp}" if lang != "es" else f"giro {turn_disp} — {desc_disp}"))
 
-    # Sort chronologically by year
-    markers_list.sort(key=lambda x: x[0])
+    # Sort exact personal transits by Julian date; year-only collective markers
+    # fall at the start of their stated year.
+    markers_list.sort(key=lambda x: marker_jds.get(x[1], swe.julday(int(x[0]), 1, 1, 0)))
 
     # Build a "Now" row showing today's date and current age
     import datetime as _dt
@@ -1331,7 +1680,7 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
 
     prev_status = None
     for yr, marker, age, how in markers_list:
-        status = time_status(yr)
+        status = time_status(yr, marker_jds.get(marker))
         # Insert a red divider row between past and future markers
         if prev_status == "past" and status != "past":
             marker_rows += '<tr><td colspan="4" style="border:none;border-top:2px solid #d44a4a;padding:2px 0;"></td></tr>'
@@ -1404,6 +1753,7 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     asc_min = int((degree_in_sign(asc) % 1) * 60)
     mc_deg = int(degree_in_sign(mc))
     mc_min = int((degree_in_sign(mc) % 1) * 60)
+    mc_house = ((int(mc // 30) - asc_sign_idx) % 12) + 1
     planet_rows += f"""
         <tr>
             <td style="font-size:14px;text-align:center;font-weight:bold;color:#e74c3c;" class="astroglyph">AC</td>
@@ -1417,7 +1767,7 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
             <td style="font-size:14px;text-align:center;font-weight:bold;color:#3498db;" class="astroglyph">MC</td>
             <td><strong>{ES['midheaven'] if lang == 'es' else 'Midheaven'}</strong></td>
             <td>{mc_sign} {mc_deg}°{mc_min:02d}'</td>
-            <td>H10</td>
+            <td>H{mc_house}</td>
             <td>{ELEMENTS[mc_sign]}</td>
             <td>{QUALITIES[mc_sign]}</td>
         </tr>"""
@@ -1464,7 +1814,19 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     prose = load_narrative(saec['archetype'], sun_sign, moon_sign, asc_sign, lang=lang)
     if prose:
         prose = prose.replace("[SECTION_4_TABLE]", sj_section)
-        prose = prose.replace("[TIMELINE_IMAGE]", f'<div style="text-align:center; margin:16px 0;"><img src="file://{ASSETS_DIR}/sj_timeline_graphic.jpg" style="max-width:100%; height:auto;" alt="Saturn-Jupiter Timeline"></div>')
+        timeline_svg = build_generational_screw_svg(
+            recipient_name, year,
+            birth_date=birth_date,
+            birth_time=birth_time,
+            birth_location=birth_location,
+            display_year=current_year,
+            display_date=prepared_date,
+            lang=lang,
+        )
+        prose = prose.replace(
+            "[TIMELINE_IMAGE]",
+            f'<div style="text-align:center; margin:14px 0 12px;">{timeline_svg}</div>'
+        )
         prose = prose.replace("[LIFE_TIMELINE_TABLE]", life_section)
         prose = prose.replace("[KEY_MARKERS_TABLE]", markers_section)
         # The Hero narrative files already contain "1. The Macro Weather" etc., so do
@@ -1479,13 +1841,17 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     chart_ruler, master, predominator, is_day = calculate_hellenistic_rulers(planets, asc, sun_lon, moon_lon)
     rulers = {"chart_ruler": chart_ruler, "master": master, "predominator": predominator, "is_day": is_day}
 
-    house_sys_label = ES["chart_house_system"] if lang == "es" else "Whole Sign"
+    house_sys_label = ES["chart_house_system"] if lang == "es" else "Hellenistic Houses of Antiquity"
     chart_title_label = "Carta Natal" if lang == "es" else "Natal Chart"
     chart_svg = build_chart_svg(planets, asc, mc, recipient_name, birth_date, birth_time, birth_location, house_sys_label, jd=jd, chart_title=chart_title_label, lang=lang)
 
     # Convert chart SVG to a single-page PDF via cairosvg
     chart_pdf_path = os.path.join(tempfile.gettempdir(), f"chart_page_{year}{month:02d}{day:02d}.pdf")
-    cairosvg.svg2pdf(bytestring=chart_svg.encode('utf-8'), write_to=chart_pdf_path, scale=2)
+    # CairoSVG interprets the SVG's unitless dimensions as 96-DPI CSS pixels.
+    # A 612×792 viewBox therefore needs a 96/72 scale to produce an actual
+    # 612×792-point US Letter PDF page. scale=2 created a 918×1188 page that
+    # printer drivers cropped instead of fitting.
+    cairosvg.svg2pdf(bytestring=chart_svg.encode('utf-8'), write_to=chart_pdf_path, scale=96 / 72)
     print(f"[report] Chart page PDF: {chart_pdf_path} ({os.path.getsize(chart_pdf_path)//1024} KB)")
 
     # ── Build TL;DR / Cosmic Cheat Sheet ──
@@ -1615,32 +1981,32 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
 
     # ── Language-specific houses HTML ──
     english_houses = [
-        ("House 1 — The Helm & Structural Interface", "Life Domain: The Localized Complexion; the physical engine and primary interface through which the natal wave meets the world.", "This sector governs unmediated action, baseline vitality, and the orientation of the self-system. Planets filtering through the 1st House condition the native's primary operational stance and establish the visible baseline of their life path."),
-        ("House 2 — Resource Velocity & Sustenance Protocol", "Life Domain: Asset Allocation; the material assets, physical security mechanics, and personal liquid infrastructure.", "This sector governs survival metrics, revenue mechanics, and the acquisition of capital or physical tools. It dictates how energy is consolidated, values are quantified, and material stability is generated to support the structural engine of the 1st House."),
-        ("House 3 — Localized Networks & Infrastructure", "Life Domain: Immediate Exchange; local logistics, short-range data routing, and immediate communication protocols.", "This sector governs technical processing, early educational conditioning, siblings, and localized transport infrastructure. It maps how the native gathers, translates, and formats immediate data streams before scaling them into macro frameworks."),
-        ("House 4 — The Private Matrix & Bedrock Foundation", "Life Domain: The Subterranean Root; ancestral anchors, private security baselines, and domestic physical architecture.", "Grounding at the bottom of the chart, this sector dictates the private foundation, home life, and early parental landscape. It represents the quiet, interior laboratory where the native comports with history and builds the deep emotional reserves required to sustain external public pressure."),
-        ("House 5 — Generative Projection & Creative Output", "Life Domain: Creative Risk; expressive fluidity, speculative ventures, and individual vital output.", "This sector governs children, creative authorship, pleasure dynamics, and tactical speculation. It represents the specific arena where raw individual intelligence projects itself outward to leave a distinct, non-standardized mark on the environment."),
-        ("House 6 — Systematic Operation & Functional Protocol", "Life Domain: Maintenance Mechanics; daily labor, somatic conditioning, and functional optimization.", "This sector governs the unglamorous, iterative processing loops required to keep a system functional - day-to-day work, physical health protocols, routines, and service tasks. It maps where the native manages friction, handles service roles, and refines mechanical skills."),
-        ("House 7 — Relational Equilibrium & The External Interface", "Life Domain: The Relational Intersect; contractual partnerships, serious alliances, and open mirrors.", "Situated directly opposite the Ascendant, this sector maps the primary arena of the Other. It governs the strategic negotiations, legal boundaries, and interpersonal dynamics that challenge individual autonomy and force systemic balance."),
-        ("House 8 — Systemic Processing & Structural Composting", "Life Domain: Shared Resource Dynamics; institutional entanglements, shared liabilities, and transformational crisis.", "This sector manages complex financial systems, legacies, taxes, and deep psychological or physical transformations. It acts as the system's recycling plant - where old forms are chemically or financially decomposed to clear space for systemic upgrades."),
-        ("House 9 — Civilizational Paradigms & Higher Architecture", "Life Domain: Macro Expansion; epistemological frameworks, higher learning, law, and long-range exploration.", "This sector handles the structural code of civilization - legal systems, universities, philosophies, and global travel infrastructure. Planets here dictate how the native interacts with abstract mental models, synthesizes macro data, and conceptualizes worldviews."),
-        ("House 10 — The Midheaven Apex & Public Sovereignty", "Life Domain: Public Architecture; professional trajectory, social status, and executive authority.", "The highest point of visible authority in the system. This sector governs professional reputation, leadership responsibilities, and visible legacy. It reveals how the native assumes a sovereign role within institutional hierarchies or public systems."),
-        ("House 11 — Distributed Networks & Systemic Alliances", "Life Domain: Collective Protocols; alliance tracking, peer groups, ideological networks, and collaborative structures.", "This sector governs social movements, business associations, and distributed horizontal networks. It maps how the native coordinates with like-minded collectives to build alternative infrastructure and prospective civilizational agendas."),
-        ("House 12 — The Institutional Vault & Invisible Currents", "Life Domain: Unconscious Processing; systemic blind spots, institutional containment, and foundational isolation.", "The back-stage processing space. This sector handles matters hidden from public view - prisons, hospitals, deep subconscious patterns, and karmic or ancestral currents. It represents the final frontier of the cycle where individual identity dissolves back into the collective sea."),
+        ("House 1 — The Helm", "Body, character, life, appearance, and manner.", "The rising sign establishes the first house and orients every other place. Planets here describe the native's embodied condition and direct way of meeting life."),
+        ("House 2 — Livelihood and Possessions", "Income, possessions, sustenance, and material support.", "This place describes the resources that support life and the native's practical relationship to acquiring, preserving, and using them."),
+        ("House 3 — The Goddess", "Siblings and relatives, communication, local journeys, and religious practice.", "Traditionally the Moon's place of joy, the third concerns the familiar routes, kinship ties, messages, and everyday devotions that connect one life to its near surroundings."),
+        ("House 4 — The Subterraneous Place", "Parents, home, land, ancestry, foundations, and endings.", "This place describes roots: family inheritance, dwelling, immovable property, and the foundations from which life arises and to which matters eventually return."),
+        ("House 5 — Good Fortune", "Children, pleasure, creativity, gifts, and generative activity.", "Traditionally Venus's place of joy, the fifth concerns enjoyment, fertility, artistic expression, and what the native brings forth or receives with delight."),
+        ("House 6 — Bad Fortune", "Illness and injury, labor, service, subordinates, and hardship.", "Traditionally Mars's place of joy, the sixth describes bodily strain, necessary work, and difficult conditions that require skill, endurance, and practical care."),
+        ("House 7 — The Setting Place", "Marriage, partners, contracts, alliances, and open opponents.", "Opposite the Ascendant, the seventh describes consequential encounters with others: those who join the native, bargain with them, or meet them in direct contest."),
+        ("House 8 — The Idle Place", "Death, inheritance, debt, others' resources, and anxiety around loss.", "The eighth concerns what comes through others or remains beyond direct control, including inheritances, liabilities, mortality, and the management of shared obligations."),
+        ("House 9 — God", "Religion, divination, higher learning, teaching, and long journeys.", "Traditionally the Sun's place of joy, the ninth concerns encounters with meaning at a distance: sacred practice, prophecy, philosophy, advanced study, and travel abroad."),
+        ("House 10 — Praxis", "Action, reputation, public responsibilities, profession, and authority.", "The tenth describes visible action in the world and the responsibilities for which a person becomes known. In whole-sign houses the Midheaven is shown separately and may fall outside the tenth house."),
+        ("House 11 — Good Spirit", "Friends, allies, patronage, communities, hopes, and benefits.", "Traditionally Jupiter's place of joy, the eleventh describes support from friends and benefactors, collaborative networks, and hopes that can be advanced through alliance."),
+        ("House 12 — Bad Spirit", "Enemies, confinement, suffering, isolation, and large animals.", "Traditionally Saturn's place of joy, the twelfth concerns hidden opposition and conditions that limit agency, calling for patience, boundaries, and sober recognition."),
     ]
     spanish_houses = [
-        ("Casa I — El Timón y la Interfaz Estructural", "Dominio Vital: El Cutis Localizado; el motor físico y la interfaz primaria a través de la cual la onda natal encuentra el mundo.", "Este sector rige la acción inmediata, la vitalidad basal y la orientación del sistema del yo. Los planetas que filtran a través de la Casa I condicionan la postura operativa primaria del nativo y establecen la línea de base visible de su sendero vital."),
-        ("Casa II — Velocidad de Recursos y Protocolo de Sustento", "Dominio Vital: Asignación de Activos; los activos materiales, las mecánicas de seguridad física y la infraestructura líquida personal.", "Este sector rige las métricas de supervivencia, las mecánicas de ingreso y la adquisición de capital o herramientas físicas. Dicta cómo se consolida la energía, se cuantifican los valores y se genera estabilidad material para sostener el motor estructural de la Casa I."),
-        ("Casa III — Redes Localizadas e Infraestructura", "Dominio Vital: Intercambio Inmediato; la logística local, el enrutamiento de datos de corto alcance y los protocolos de comunicación inmediata.", "Este sector rige el procesamiento técnico, el condicionamiento educativo temprano, los hermanos y la infraestructura de transporte localizado. Mapea cómo el nativo recopila, traduce y formatea flujos de datos inmediatos antes de escalarlos a marcos macro."),
-        ("Casa IV — La Matriz Privada y el Cimiento Basal", "Dominio Vital: La Raíz Subterránea; anclajes ancestrales, líneas de base de seguridad privada y la arquitectura física doméstica.", "Arraigado en el fondo de la carta, este sector dicta la base privada, la vida hogareña y el paisaje parental temprano. Representa el laboratorio interior y silencioso donde el nativo se comporta con la historia y construye las reservas emocionales profundas requeridas para sostener la presión pública externa."),
-        ("Casa V — Proyección Generativa y Producción Creativa", "Dominio Vital: Riesgo Creativo; fluidez expresiva, empresas especulativas y la producción vital individual.", "Este sector rige los hijos, la autoría creativa, las dinámicas de placer y la especulación táctica. Representa la arena específica donde la inteligencia individual cruda se proyecta hacia afuera para dejar una marca distintiva y no estandarizada en el entorno."),
-        ("Casa VI — Operación Sistemática y Protocolo Funcional", "Dominio Vital: Mecánicas de Mantenimiento; el trabajo diario, el condicionamiento somático y la optimización funcional.", "Este sector rige los circuitos iterativos poco glamorosos requeridos para mantener un sistema funcional: trabajo cotidiano, protocolos de salud física, rutinas y tareas de servicio. Mapea dónde el nativo gestiona la fricción, desempeña roles de servicio y refina habilidades mecánicas."),
-        ("Casa VII — Equilibrio Relacional y la Interfaz Externa", "Dominio Vital: La Intersección Relacional; asociaciones contractuales, alianzas serias y espejos abiertos.", "Situado directamente opuesto al Ascendente, este sector mapea la arena primaria del Otro. Rige las negociaciones estratégicas, los límites legales y las dinámicas interpersonales que desafían la autonomía individual y fuerzan el equilibrio sistémico."),
-        ("Casa VIII — Procesamiento Sistemático y Compostaje Estructural", "Dominio Vital: Dinámicas de Recursos Compartidos; enredos institucionales, pasivos compartidos y crisis transformacionales.", "Este sector gestiona sistemas financieros complejos, legados, impuestos y transformaciones psicológicas o físicas profundas. Actúa como la planta de reciclaje del sistema, donde las formas viejas se descomponen química o financieramente para limpiar espacio para actualizaciones sistémicas."),
-        ("Casa IX — Paradigmas Civilizacionales y Arquitectura Superior", "Dominio Vital: Expansión Macro; marcos epistemológicos, aprendizaje superior, ley y exploración de largo alcance.", "Este sector maneja el código estructural de la civilización: sistemas legales, universidades, filosofías e infraestructura de viajes globales. Los planetas aquí dictan cómo el nativo interactúa con modelos mentales abstractos, sintetiza datos macro y conceptualiza cosmovisiones."),
-        ("Casa X — El Apice del Medio Cielo y la Soberanía Pública", "Dominio Vital: Arquitectura Pública; trayectoria profesional, estatus social y autoridad ejecutiva.", "El punto más alto de autoridad visible en el sistema. Este sector rige la reputación profesional, las responsabilidades de liderazgo y el legado visible. Revela cómo el nativo asume un rol soberano dentro de jerarquías institucionales o sistemas públicos."),
-        ("Casa XI — Redes Distribuidas y Alianzas Sistémicas", "Dominio Vital: Protocolos Colectivos; seguimiento de alianzas, grupos de pares, redes ideológicas y estructuras colaborativas.", "Este sector rige movimientos sociales, asociaciones comerciales y redes horizontales distribuidas. Mapea cómo el nativo se coordina con colectivos afines para construir infraestructura alternativa y agendas civilizacionales prospectivas."),
-        ("Casa XII — La Bóveda Institucional y las Corrientes Invisibles", "Dominio Vital: Procesamiento Inconsciente; puntos ciegos sistémicos, contención institucional y aislamiento fundamental.", "El espacio de procesamiento entre bastidores. Este sector maneja asuntos ocultos a la vista pública: prisiones, hospitales, patrones subconscientes profundos y corrientes kármicas o ancestrales. Representa la frontera final del ciclo donde la identidad individual se disuelve de nuevo en el mar colectivo."),
+        ("Casa I — El Timón", "Cuerpo, carácter, vida, apariencia y manera de actuar.", "El signo ascendente establece la primera casa y orienta todos los demás lugares. Los planetas aquí describen la condición corporal y la forma directa de afrontar la vida."),
+        ("Casa II — Sustento y Posesiones", "Ingresos, posesiones, sustento y apoyo material.", "Este lugar describe los recursos que sostienen la vida y la relación práctica con su adquisición, conservación y uso."),
+        ("Casa III — La Diosa", "Hermanos y parientes, comunicación, viajes cercanos y práctica religiosa.", "Tradicionalmente el lugar de gozo de la Luna, la tercera concierne las rutas familiares, los vínculos de parentesco, los mensajes y las devociones cotidianas."),
+        ("Casa IV — El Lugar Subterráneo", "Padres, hogar, tierra, ascendencia, cimientos y finales.", "Este lugar describe las raíces: herencia familiar, vivienda, bienes inmuebles y los fundamentos de los que surge la vida y a los que finalmente regresan los asuntos."),
+        ("Casa V — Buena Fortuna", "Hijos, placer, creatividad, dones y actividad generativa.", "Tradicionalmente el lugar de gozo de Venus, la quinta concierne el disfrute, la fertilidad, la expresión artística y aquello que se crea o se recibe con deleite."),
+        ("Casa VI — Mala Fortuna", "Enfermedad y lesión, trabajo, servicio, subordinados y dificultad.", "Tradicionalmente el lugar de gozo de Marte, la sexta describe el esfuerzo corporal, el trabajo necesario y las condiciones difíciles que exigen destreza, resistencia y cuidado práctico."),
+        ("Casa VII — El Lugar del Ocaso", "Matrimonio, parejas, contratos, alianzas y oponentes abiertos.", "Opuesta al Ascendente, la séptima describe encuentros decisivos con otros: quienes se unen, negocian o entran en contienda directa con la persona."),
+        ("Casa VIII — El Lugar Inactivo", "Muerte, herencia, deuda, recursos ajenos y ansiedad ante la pérdida.", "La octava concierne lo que llega a través de otros o queda fuera del control directo, incluidas herencias, obligaciones, mortalidad y recursos compartidos."),
+        ("Casa IX — Dios", "Religión, adivinación, aprendizaje superior, enseñanza y viajes lejanos.", "Tradicionalmente el lugar de gozo del Sol, la novena concierne los encuentros con el sentido a distancia: práctica sagrada, profecía, filosofía, estudios avanzados y viajes al extranjero."),
+        ("Casa X — Praxis", "Acción, reputación, responsabilidades públicas, profesión y autoridad.", "La décima describe la acción visible en el mundo y las responsabilidades por las que una persona llega a ser conocida. En casas de signo entero, el Medio Cielo se muestra por separado y puede caer fuera de la casa décima."),
+        ("Casa XI — Buen Espíritu", "Amigos, aliados, patronazgo, comunidades, esperanzas y beneficios.", "Tradicionalmente el lugar de gozo de Júpiter, la undécima describe el apoyo de amistades y benefactores, las redes colaborativas y las esperanzas promovidas mediante alianzas."),
+        ("Casa XII — Mal Espíritu", "Enemigos, confinamiento, sufrimiento, aislamiento y animales grandes.", "Tradicionalmente el lugar de gozo de Saturno, la duodécima concierne la oposición oculta y las condiciones que limitan la acción, exigiendo paciencia, límites y reconocimiento sobrio."),
     ]
     houses_html = ''.join(f'<p><strong>{t}</strong><br><em>{a}</em><br>{d}</p>' for t, a, d in (spanish_houses if lang == 'es' else english_houses))
 
@@ -1709,8 +2075,8 @@ tr {{ page-break-inside: avoid; }}
 <h2 style="page-break-before:always;">{ES['glossary_title']}</h2>
 {''.join(f'<p><strong>{t}</strong> {d}</p>' for t, d in ES['glossary'])}
 
-<h2 style="page-break-before:always;">El Motor de Casas del SkyClock Zodiyuga</h2>
-<p>Las doce casas son los compartimentos estructurales de la carta natal — cada una una arena sistémica donde la energía planetaria es enrutada y condicionada. Este apéndice mapea la función arquitectónica de cada casa en el marco Zodiyuga SkyClock.</p>
+<h2 style="page-break-before:always;">Casas helenísticas de la Antigüedad</h2>
+<p>Este informe emplea casas de signo entero, una técnica de la astrología helenística: el signo ascendente completo es la Casa I y cada signo siguiente forma la casa siguiente. Los temas que siguen conservan los significados tradicionales y se aplican de manera interpretativa, no determinista. El Medio Cielo se calcula y muestra por separado porque puede caer en la Casa IX, X u XI.</p>
 {houses_html}
 
 <h2 style="page-break-before:always;">Posiciones Planetarias</h2>
@@ -1833,8 +2199,8 @@ tr {{ page-break-inside: avoid; }}
 <p><strong>The Seasons, Signs, and the Ecliptic:</strong> The ecliptic is the apparent path the Sun traces through the sky over the course of a year. The twelve signs of the zodiac are 30-degree segments of this circle, named after the constellations that once aligned with them. Because the tropical zodiac is anchored to the seasons, the sign Aries always begins at the spring equinox — regardless of where the stars currently sit. Each sign belongs to one of four elements (Fire, Earth, Air, Water) and one of three qualities (Cardinal, Fixed, Mutable), giving every sign a distinct character that colors any planet passing through it.</p>
 
 
-<h2 style="page-break-before:always;">The Zodiyuga SkyClock House Engine</h2>
-<p>The twelve houses are the structural compartments of the natal chart — each one a systemic arena where planetary energy is routed and conditioned. This appendix maps the architectural function of each house in the Zodiyuga SkyClock framework.</p>
+<h2 style="page-break-before:always;">Hellenistic Houses of Antiquity</h2>
+<p>This report uses whole-sign houses, a technique of Hellenistic astrology: the entire rising sign is House 1, and each following sign forms the next house. The topics below preserve traditional house meanings and are applied interpretively, not deterministically. The Midheaven is calculated and shown separately because it can fall in House 9, 10, or 11.</p>
 {houses_html}
 
 <h2 style="page-break-before:always;">Planet Placements</h2>
@@ -1888,13 +2254,16 @@ def main():
     parser.add_argument("--location", default="NAS Jacksonville, Florida")
     parser.add_argument("--name", default="", help="Recipient name on cover")
     parser.add_argument("--output", default="cosmic_history_report.pdf")
-    parser.add_argument("--tz", default="EDT", choices=["EST","EDT","CST","CDT","MST","MDT","PST","PDT","HST","AKST","COT","IST","GMT","UTC"])
+    parser.add_argument("--tz", default="EDT", choices=["EST","EDT","CST","CDT","MST","MDT","PST","PDT","HST","AKST","COT","IST","GMT","UTC"], help="Legacy timezone abbreviation")
+    parser.add_argument("--utc-offset", type=float, default=None, help="Hours added to local time to obtain UTC; supports worldwide and fractional offsets")
+    parser.add_argument("--tz-label", default="", help="Resolved timezone label shown in the report")
     parser.add_argument("--lang", default="en", choices=["en","es"], help="Output language")
     parser.add_argument("--solar-chart", action="store_true", help="Force noon birth time and align ASC to 0° Aries (solar chart / 'sun-sign chart' default for unknown birth time)")
     args = parser.parse_args()
 
     tz_offsets = {"EST":5,"EDT":4,"CST":6,"CDT":5,"MST":7,"MDT":6,"PST":8,"PDT":7,"AKST":9,"HST":10,"COT":5,"IST":1,"GMT":0,"UTC":0}
-    tz_offset = tz_offsets[args.tz]
+    tz_offset = args.utc_offset if args.utc_offset is not None else tz_offsets[args.tz]
+    tz_label = args.tz_label or args.tz
 
     # If --solar-chart is set, force noon and align the chart to Aries ASC at 9 o'clock
     if args.solar_chart:
@@ -1905,16 +2274,16 @@ def main():
     months_es = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
     months = months_es if args.lang == "es" else months_en
     birth_date = f"{months[args.month-1]} {args.day}, {args.year}"
-    birth_time = f"{args.hour}:{args.min:02d} {args.tz}"
+    birth_time = f"{args.hour}:{args.min:02d} {tz_label}"
 
     print(f"Generating report for {birth_date} at {birth_time}, {args.location}")
     if args.solar_chart:
         print(f"  [solar-chart mode: noon, ASC aligned to 0° Aries]")
-    print(f"UTC offset: -{tz_offset} hours")
+    print(f"UTC conversion offset: {tz_offset:+g} hours")
 
     html, chart_pdf_path = generate_html(birth_date, birth_time, args.location, args.lat, args.lon,
                         args.year, args.month, args.day, args.hour, args.min, tz_offset,
-                        args.tz, recipient_name=args.name, lang=args.lang, solar_chart=args.solar_chart)
+                        tz_label, recipient_name=args.name, lang=args.lang, solar_chart=args.solar_chart)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     outpath = os.path.join(OUTPUT_DIR, args.output)
@@ -1928,7 +2297,7 @@ def main():
     snapshot_html = snapshot_gen.build_snapshot_html(
         birth_date, birth_time, args.location, args.lat, args.lon,
         args.year, args.month, args.day, args.hour, args.min, tz_offset,
-        args.tz, recipient_name=args.name, lang=args.lang, solar_chart=args.solar_chart
+        tz_label, recipient_name=args.name, lang=args.lang, solar_chart=args.solar_chart
     )
     snapshot_pdf_path = os.path.join(tempfile.gettempdir(), f"snapshot_page_{args.year}{args.month:02d}{args.day:02d}.pdf")
     HTML(string=snapshot_html).write_pdf(snapshot_pdf_path)

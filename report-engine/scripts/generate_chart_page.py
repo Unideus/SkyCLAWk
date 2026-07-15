@@ -249,7 +249,7 @@ NON_ASPECT_BODIES = {"N.Node"}
 # We build the SVG at 612×792 (1:1 with PDF points) so there's NO scaling,
 # NO aspect-ratio mismatch, and NO off-center pushing.
 
-def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_time="", birth_location="", house_system="Whole Sign", rulers=None, jd=None, chart_title="Natal Chart", lang="en"):
+def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_time="", birth_location="", house_system="Hellenistic Houses of Antiquity", rulers=None, jd=None, chart_title="Natal Chart", lang="en"):
     W, H = 612, 792          # US Letter in points (72dpi)
     MARGIN = 18              # 0.25" printer-safe margin on all sides
     cx, cy = W / 2, 280      # Wheel centered on page, kept high
@@ -813,8 +813,9 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
         svg += f'<rect x="{ax:.0f}" y="{angle_y:.0f}" width="{ANGLE_BOX_W}" height="{ANGLE_BOX_H}" rx="3" fill="white" stroke="{mc_color}" stroke-width="1.5"/>'
         abx = ax + ANGLE_BOX_W / 2
         aby = angle_y + ANGLE_BOX_H / 2
-        # AC is always the cusp of House 1; MC is always the cusp of House 10
-        angle_house = 1 if angle_obj["name"] == "AC" else 10
+        # In whole-sign houses the AC belongs to House 1, while the MC can fall
+        # in the 9th, 10th, or 11th house depending on latitude and season.
+        angle_house = 1 if angle_obj["name"] == "AC" else ((int(mc // 30) - asc_sign_idx) % 12) + 1
         deg_str = f'{t_sign(angle_obj["sign"])} {angle_obj["deg"]}&#176;{angle_obj["min"]:02d}&#39;'
         svg += f'<text x="{abx:.0f}" y="{aby - 8:.0f}" font-size="22" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#222">{angle_obj["name"]}</text>'
         svg += f'<text x="{abx:.0f}" y="{aby + 8:.0f}" font-size="9" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, sans-serif" fill="#444">{deg_str}</text>'
@@ -923,13 +924,13 @@ def main():
     birth_location = args.location
 
     # Build SVG → PDF directly (cairosvg, no PNG intermediate, no WeasyPrint)
-    svg = build_wheel_svg(planets, asc, mc, args.name, birth_date, birth_time, birth_location, "Whole Sign", rulers, jd)
+    svg = build_wheel_svg(planets, asc, mc, args.name, birth_date, birth_time, birth_location, "Hellenistic Houses of Antiquity", rulers, jd)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     outpath = os.path.join(OUTPUT_DIR, args.output)
 
-    # cairosvg converts SVG → PDF — use scale for higher resolution without
-    # the massive pixel dimensions that dpi=300 produces
-    cairosvg.svg2pdf(bytestring=svg.encode('utf-8'), write_to=outpath, scale=2)
+    # Unitless SVG dimensions are 96-DPI CSS pixels. Scale by 96/72 so the
+    # 612×792 viewBox becomes a true 612×792-point US Letter PDF page.
+    cairosvg.svg2pdf(bytestring=svg.encode('utf-8'), write_to=outpath, scale=96 / 72)
 
     print(f"\nPDF: {outpath} ({os.path.getsize(outpath)//1024} KB)")
 
