@@ -573,7 +573,7 @@
 
 <div class="lang-toggle">
   <a href="#" class="active" data-lang="en">EN</a>
-  <a href="#" data-lang="es">ES</a>
+  <a href="index_es.html" data-lang="es">ES</a>
 </div>
 
 <!-- ── Eyebrow ── -->
@@ -861,14 +861,6 @@ handleCheckoutReturn().catch(() => {
   status.textContent = 'Payment status could not be loaded. Please refresh this page.';
 });
 
-// ── Language toggle placeholder ──
-document.querySelectorAll('.lang-toggle a').forEach(function(btn) {
-  btn.addEventListener('click', function(e) {
-    e.preventDefault();
-    document.querySelectorAll('.lang-toggle a').forEach(function(b) { b.classList.remove('active'); });
-    this.classList.add('active');
-  });
-});
 </script>
 
 </body>
