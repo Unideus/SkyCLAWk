@@ -712,52 +712,12 @@
         </select>
       </div>
       <div class="form-row">
-        <label data-i18n="form_birth">Birth Date &amp; Time</label>
-        <div class="form-row-inline">
-          <input type="number" id="year" name="year" placeholder="Year" required min="1900" max="2030">
-          <input type="number" id="month" name="month" placeholder="Month" required min="1" max="12">
-          <input type="number" id="day" name="day" placeholder="Day" required min="1" max="31">
-        </div>
+        <label for="birthDateTime" data-i18n="form_birth">Birth Date &amp; Time</label>
+        <input type="datetime-local" id="birthDateTime" name="birthDateTime" required min="1900-01-01T00:00">
       </div>
       <div class="form-row">
-        <label data-i18n="form_time">Time of Birth</label>
-        <div class="form-row-inline">
-          <input type="number" id="hour" name="hour" placeholder="Hour (0-23)" required min="0" max="23">
-          <input type="number" id="min" name="min" placeholder="Minute" required min="0" max="59">
-          <select id="tz" name="tz">
-            <option value="EST">EST (UTC-5)</option>
-            <option value="EDT">EDT (UTC-4)</option>
-            <option value="CST">CST (UTC-6)</option>
-            <option value="CDT">CDT (UTC-5)</option>
-            <option value="MST">MST (UTC-7)</option>
-            <option value="MDT">MDT (UTC-6)</option>
-            <option value="PST">PST (UTC-8)</option>
-            <option value="PDT">PDT (UTC-7)</option>
-            <option value="HST">HST (UTC-10)</option>
-            <option value="GMT">GMT/UTC</option>
-            <option value="IST">IST (UTC+5:30)</option>
-            <option value="COT">COT (UTC-5)</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <label data-i18n="form_location">Birth Location</label>
-        <div class="form-row-half">
-          <input type="text" id="city" name="city" placeholder="City" required>
-          <input type="text" id="state" name="state" placeholder="State / Region">
-        </div>
-      </div>
-      <div class="form-row">
-        <label for="lat" data-i18n="form_lat">Latitude</label>
-        <input type="number" id="lat" name="lat" step="0.01" placeholder="e.g. 41.88" required>
-      </div>
-      <div class="form-row">
-        <label for="lon" data-i18n="form_lon">Longitude</label>
-        <input type="number" id="lon" name="lon" step="0.01" placeholder="e.g. -87.63" required>
-      </div>
-      <div class="form-row">
-        <label for="scope" data-i18n="form_scope">Report Scope (optional)</label>
-        <textarea id="scope" name="scope" rows="2" placeholder="e.g. 'Focus on career and relationships' or 'I want to understand my Saturn return'" style="resize:vertical;"></textarea>
+        <label for="location" data-i18n="form_location">Birth Location</label>
+        <input type="text" id="location" name="location" required autocomplete="off" placeholder="e.g. Chicago, Illinois, USA">
       </div>
       <button type="submit" class="submit-btn" id="formSubmitBtn" data-i18n="form_submit">Generate My Report — $19</button>
       <div class="form-note" data-i18n="form_note">Your report will be generated and emailed to you within a few minutes.</div>
@@ -810,44 +770,43 @@ document.querySelectorAll('.faq-item .q').forEach(function(q) {
   });
 });
 
-// ── Form submit — POST to VPS endpoint ──
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const apiBase = isLocal ? 'http://localhost:3011' : 'https://signandsoil.online';
+
+// ── Form submit — create a pending order, then pay on Stripe Checkout ──
 document.getElementById('reportForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   const btn = document.getElementById('formSubmitBtn');
   const status = document.getElementById('formStatus');
   btn.disabled = true;
-  btn.textContent = 'Generating...';
+  btn.textContent = 'Opening secure checkout...';
   status.style.display = 'block';
   status.className = 'form-status';
-  status.textContent = 'Generating your report... this takes about 30 seconds.';
+  status.textContent = 'Preparing your secure Stripe checkout...';
+
+  const birthDateTime = document.getElementById('birthDateTime').value;
+  const [birthDate, birthTime] = birthDateTime.split('T');
+  const [year, month, day] = birthDate.split('-').map(Number);
+  const [hour, min] = birthTime.split(':').map(Number);
 
   const data = {
     name: document.getElementById('name').value.trim(),
     email: document.getElementById('email').value.trim(),
-    year: parseInt(document.getElementById('year').value),
-    month: parseInt(document.getElementById('month').value),
-    day: parseInt(document.getElementById('day').value),
-    hour: parseInt(document.getElementById('hour').value),
-    min: parseInt(document.getElementById('min').value),
-    tz: document.getElementById('tz').value,
-    lat: parseFloat(document.getElementById('lat').value),
-    lon: parseFloat(document.getElementById('lon').value),
-    location: document.getElementById('city').value.trim() + ', ' + document.getElementById('state').value.trim(),
+    year, month, day, hour, min,
+    location: document.getElementById('location').value.trim(),
     lang: document.getElementById('lang').value,
-    scope: document.getElementById('scope').value.trim(),
   };
 
   try {
-    const resp = await fetch('https://signandsoil.online/api/cosmic-report', {
+    const resp = await fetch(`${apiBase}/api/cosmic-report/checkout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
     const result = await resp.json();
-    if (resp.ok) {
-      status.className = 'form-status success';
-      status.textContent = '✅ Report generated! Check your email (may take a few minutes).';
-      document.getElementById('reportForm').reset();
+    if (resp.ok && result.checkoutUrl) {
+      window.location.assign(result.checkoutUrl);
+      return;
     } else {
       status.className = 'form-status error';
       status.textContent = 'Error: ' + (result.error || 'Something went wrong. Please try again.');
@@ -859,6 +818,47 @@ document.getElementById('reportForm').addEventListener('submit', async function(
     btn.disabled = false;
     btn.textContent = 'Generate My Report — $19';
   }
+});
+
+async function handleCheckoutReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const checkout = params.get('checkout');
+  const sessionId = params.get('session_id');
+  if (!checkout) return;
+  const status = document.getElementById('formStatus');
+  status.style.display = 'block';
+  status.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if (checkout === 'cancelled') {
+    status.className = 'form-status error';
+    status.textContent = 'Checkout was cancelled. You have not been charged.';
+    return;
+  }
+  if (!sessionId) return;
+  status.className = 'form-status';
+  status.textContent = 'Payment received. We are preparing your report...';
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    const response = await fetch(`${apiBase}/api/cosmic-report/order-status?session_id=${encodeURIComponent(sessionId)}`);
+    const result = await response.json();
+    if (response.ok && result.status === 'ready') {
+      status.className = 'form-status success';
+      status.innerHTML = `✅ Your report is ready. <a href="${apiBase}${result.downloadUrl}" target="_blank" rel="noopener">Download your PDF</a>${result.emailed ? ' — a copy was also emailed to you.' : '.'}`;
+      return;
+    }
+    if (result.status === 'failed') {
+      status.className = 'form-status error';
+      status.textContent = 'We received your payment, but report generation needs attention. Your order is recorded; please contact support.';
+      return;
+    }
+    await new Promise(resolve => setTimeout(resolve, 3000));
+  }
+  status.textContent = 'Payment received. Your report is still processing; this page can be refreshed safely.';
+}
+
+handleCheckoutReturn().catch(() => {
+  const status = document.getElementById('formStatus');
+  status.style.display = 'block';
+  status.className = 'form-status error';
+  status.textContent = 'Payment status could not be loaded. Please refresh this page.';
 });
 
 // ── Language toggle placeholder ──

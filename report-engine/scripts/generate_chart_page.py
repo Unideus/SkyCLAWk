@@ -315,10 +315,15 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
     # ── Top-right: Cosmic Blueprint note ──
     # Title at 10px (same as recipient name), body at 8px (same as birth info)
     nx = W - MARGIN - 4
-    svg += f'<text x="{nx}" y="34" font-size="10" font-weight="bold" text-anchor="end" font-family="DejaVu Sans, sans-serif" fill="#1a3a5c">The Cosmic Blueprint</text>'
-    svg += f'<text x="{nx}" y="48" font-size="8" text-anchor="end" font-family="DejaVu Sans, sans-serif" fill="#666">The houses are the cosmic pattern</text>'
-    svg += f'<text x="{nx}" y="58" font-size="8" text-anchor="end" font-family="DejaVu Sans, sans-serif" fill="#666">manifest in the body — Aries at the</text>'
-    svg += f'<text x="{nx}" y="68" font-size="8" text-anchor="end" font-family="DejaVu Sans, sans-serif" fill="#666">head, Pisces at the feet.</text>'
+    blueprint = (
+        ("El Plano Cósmico", "Las casas son el patrón cósmico", "manifestado en el cuerpo — Aries en", "la cabeza, Piscis en los pies.")
+        if is_es else
+        ("The Cosmic Blueprint", "The houses are the cosmic pattern", "manifest in the body — Aries at the", "head, Pisces at the feet.")
+    )
+    svg += f'<text x="{nx}" y="34" font-size="10" font-weight="bold" text-anchor="end" font-family="DejaVu Sans, sans-serif" fill="#1a3a5c">{blueprint[0]}</text>'
+    svg += f'<text x="{nx}" y="48" font-size="8" text-anchor="end" font-family="DejaVu Sans, sans-serif" fill="#666">{blueprint[1]}</text>'
+    svg += f'<text x="{nx}" y="58" font-size="8" text-anchor="end" font-family="DejaVu Sans, sans-serif" fill="#666">{blueprint[2]}</text>'
+    svg += f'<text x="{nx}" y="68" font-size="8" text-anchor="end" font-family="DejaVu Sans, sans-serif" fill="#666">{blueprint[3]}</text>'
 
     # ── Layout: two concentric rings + aspect core ──
     # Outer: tropical signs ring (pastel by element)

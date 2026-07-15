@@ -5,7 +5,7 @@
 2. Resumen Ejecutivo
 Este informe comienza con el clima colectivo de su nacimiento, luego se estrecha hacia su firma natal personal. Ese orden importa. Una carta natal no flota en un espacio vacío; nace dentro de una estación histórica, una época elemental y una onda civilizacional más larga.
 
-En este modelo, su vida se sitúa en un umbral triple: la generación Nomada de la Generación X, la transición elemental de Tierra a Aire, y el cambio de Yuga desde una conciencia material densa hacia una percepción energética y en red. Estas no son historias separadas. Son ondas anidadas que describen la misma era desde escalas diferentes.
+En este modelo, su vida se sitúa en un umbral triple: la generación Nómada de la Generación X, la transición elemental de Tierra a Aire, y el cambio de Yuga desde una conciencia material densa hacia una percepción energética y en red. Estas no son historias separadas. Son ondas anidadas que describen la misma era desde escalas diferentes.
 
 [EXECUTIVE_SUMMARY_PERSONAL]
 

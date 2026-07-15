@@ -634,52 +634,12 @@
         </select>
       </div>
       <div class="form-row">
-        <label>Fecha y Hora de Nacimiento</label>
-        <div class="form-row-inline">
-          <input type="number" id="year" name="year" placeholder="Año" required min="1900" max="2030">
-          <input type="number" id="month" name="month" placeholder="Mes" required min="1" max="12">
-          <input type="number" id="day" name="day" placeholder="Día" required min="1" max="31">
-        </div>
+        <label for="birthDateTime">Fecha y Hora de Nacimiento</label>
+        <input type="datetime-local" id="birthDateTime" name="birthDateTime" required min="1900-01-01T00:00">
       </div>
       <div class="form-row">
-        <label>Hora de Nacimiento</label>
-        <div class="form-row-inline">
-          <input type="number" id="hour" name="hour" placeholder="Hora (0-23)" required min="0" max="23">
-          <input type="number" id="min" name="min" placeholder="Minuto" required min="0" max="59">
-          <select id="tz" name="tz">
-            <option value="EST">EST (UTC-5)</option>
-            <option value="EDT">EDT (UTC-4)</option>
-            <option value="CST">CST (UTC-6)</option>
-            <option value="CDT">CDT (UTC-5)</option>
-            <option value="MST">MST (UTC-7)</option>
-            <option value="MDT">MDT (UTC-6)</option>
-            <option value="PST">PST (UTC-8)</option>
-            <option value="PDT">PDT (UTC-7)</option>
-            <option value="HST">HST (UTC-10)</option>
-            <option value="GMT">GMT/UTC</option>
-            <option value="IST">IST (UTC+5:30)</option>
-            <option value="COT">COT (UTC-5)</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <label>Lugar de Nacimiento</label>
-        <div class="form-row-half">
-          <input type="text" id="city" name="city" placeholder="Ciudad" required>
-          <input type="text" id="state" name="state" placeholder="Estado / Región">
-        </div>
-      </div>
-      <div class="form-row">
-        <label for="lat">Latitud</label>
-        <input type="number" id="lat" name="lat" step="0.01" placeholder="Ej: 41.88" required>
-      </div>
-      <div class="form-row">
-        <label for="lon">Longitud</label>
-        <input type="number" id="lon" name="lon" step="0.01" placeholder="Ej: -87.63" required>
-      </div>
-      <div class="form-row">
-        <label for="scope">Alcance del Informe (opcional)</label>
-        <textarea id="scope" name="scope" rows="2" placeholder="Ej: 'Enfócate en carrera y relaciones' o 'Quiero entender mi retorno de Saturno'" style="resize:vertical;"></textarea>
+        <label for="location">Lugar de Nacimiento</label>
+        <input type="text" id="location" name="location" required autocomplete="off" placeholder="Ej: Bogotá, Colombia">
       </div>
       <button type="submit" class="submit-btn" id="formSubmitBtn">Generar mi Informe — $19</button>
       <div class="form-note">Tu informe se generará y se enviará a tu email en unos minutos.</div>
@@ -729,43 +689,42 @@ document.querySelectorAll('.faq-item .q').forEach(function(q) {
   });
 });
 
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const apiBase = isLocal ? 'http://localhost:3011' : 'https://signandsoil.online';
+
 document.getElementById('reportForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   const btn = document.getElementById('formSubmitBtn');
   const status = document.getElementById('formStatus');
   btn.disabled = true;
-  btn.textContent = 'Generando...';
+  btn.textContent = 'Abriendo pago seguro...';
   status.style.display = 'block';
   status.className = 'form-status';
-  status.textContent = 'Generando tu informe... esto toma unos 30 segundos.';
+  status.textContent = 'Preparando el pago seguro con Stripe...';
+
+  const birthDateTime = document.getElementById('birthDateTime').value;
+  const [birthDate, birthTime] = birthDateTime.split('T');
+  const [year, month, day] = birthDate.split('-').map(Number);
+  const [hour, min] = birthTime.split(':').map(Number);
 
   const data = {
     name: document.getElementById('name').value.trim(),
     email: document.getElementById('email').value.trim(),
-    year: parseInt(document.getElementById('year').value),
-    month: parseInt(document.getElementById('month').value),
-    day: parseInt(document.getElementById('day').value),
-    hour: parseInt(document.getElementById('hour').value),
-    min: parseInt(document.getElementById('min').value),
-    tz: document.getElementById('tz').value,
-    lat: parseFloat(document.getElementById('lat').value),
-    lon: parseFloat(document.getElementById('lon').value),
-    location: document.getElementById('city').value.trim() + ', ' + document.getElementById('state').value.trim(),
+    year, month, day, hour, min,
+    location: document.getElementById('location').value.trim(),
     lang: document.getElementById('lang').value,
-    scope: document.getElementById('scope').value.trim(),
   };
 
   try {
-    const resp = await fetch('https://signandsoil.online/api/cosmic-report', {
+    const resp = await fetch(`${apiBase}/api/cosmic-report/checkout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
     const result = await resp.json();
-    if (resp.ok) {
-      status.className = 'form-status success';
-      status.textContent = '✅ ¡Informe generado! Revisa tu email (puede tardar unos minutos).';
-      document.getElementById('reportForm').reset();
+    if (resp.ok && result.checkoutUrl) {
+      window.location.assign(result.checkoutUrl);
+      return;
     } else {
       status.className = 'form-status error';
       status.textContent = 'Error: ' + (result.error || 'Algo salió mal. Intenta de nuevo.');
@@ -777,6 +736,47 @@ document.getElementById('reportForm').addEventListener('submit', async function(
     btn.disabled = false;
     btn.textContent = 'Generar mi Informe — $19';
   }
+});
+
+async function handleCheckoutReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const checkout = params.get('checkout');
+  const sessionId = params.get('session_id');
+  if (!checkout) return;
+  const status = document.getElementById('formStatus');
+  status.style.display = 'block';
+  status.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if (checkout === 'cancelled') {
+    status.className = 'form-status error';
+    status.textContent = 'El pago fue cancelado. No se realizó ningún cargo.';
+    return;
+  }
+  if (!sessionId) return;
+  status.className = 'form-status';
+  status.textContent = 'Pago recibido. Estamos preparando tu informe...';
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    const response = await fetch(`${apiBase}/api/cosmic-report/order-status?session_id=${encodeURIComponent(sessionId)}`);
+    const result = await response.json();
+    if (response.ok && result.status === 'ready') {
+      status.className = 'form-status success';
+      status.innerHTML = `✅ Tu informe está listo. <a href="${apiBase}${result.downloadUrl}" target="_blank" rel="noopener">Descarga tu PDF</a>${result.emailed ? ' — también enviamos una copia a tu email.' : '.'}`;
+      return;
+    }
+    if (result.status === 'failed') {
+      status.className = 'form-status error';
+      status.textContent = 'Recibimos tu pago, pero la generación del informe necesita atención. Tu pedido está registrado; contacta con soporte.';
+      return;
+    }
+    await new Promise(resolve => setTimeout(resolve, 3000));
+  }
+  status.textContent = 'Pago recibido. Tu informe sigue procesándose; puedes actualizar esta página con seguridad.';
+}
+
+handleCheckoutReturn().catch(() => {
+  const status = document.getElementById('formStatus');
+  status.style.display = 'block';
+  status.className = 'form-status error';
+  status.textContent = 'No se pudo cargar el estado del pago. Actualiza esta página.';
 });
 </script>
 

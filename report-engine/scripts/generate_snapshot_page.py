@@ -239,6 +239,7 @@ def find_sj_conjunctions(year, tol=0.5):
 ES_SIGNS = {"Aries":"Aries","Taurus":"Tauro","Gemini":"Géminis","Cancer":"Cáncer","Leo":"Leo","Virgo":"Virgo","Libra":"Libra","Scorpio":"Escorpio","Sagittarius":"Sagitario","Capricorn":"Capricornio","Aquarius":"Acuario","Pisces":"Piscis"}
 ES_ELEMENTS = {"Fire":"Fuego","Earth":"Tierra","Air":"Aire","Water":"Agua"}
 ES_QUALITIES = {"Cardinal":"Cardinal","Fixed":"Fijo","Mutable":"Mutable"}
+ES_PLANETS = {"Sun":"Sol","Moon":"Luna","Mercury":"Mercurio","Venus":"Venus","Mars":"Marte","Jupiter":"Júpiter","Saturn":"Saturno","Uranus":"Urano","Neptune":"Neptuno","Pluto":"Plutón","N.Node":"Nodo"}
 ES_GEN_NAMES = {"Builder":"Constructor","Boomer":"Boomer","Gen X":"Gen X","Millennial":"Millennial","Gen Z":"Gen Z","Gen Alpha":"Gen Alpha","Unknown":"Desconocida"}
 ES_ARCH_NAMES = {"Prophet":"Profeta","Nomad":"Nómada","Hero":"Héroe","Artist":"Artista","Prophet_GenAlpha":"Profeta","Unknown":"Desconocido"}
 ES_TURNING_NAMES = {"High":"Alto","Awakening":"Despertar","Unraveling":"Desenredo","Crisis":"Crisis","Unknown":"Desconocido"}
@@ -498,6 +499,7 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
         era_label_short = "Era Elemental"
         yuga_label_short = "Posición de Yuga"
         ruler_label = "Señor de la Carta"
+        chart_ruler_display = ES_PLANETS.get(chart_ruler, chart_ruler)
         aspects_label = "Aspectos Clave"
         sect_label = "Secta"
         sect_val = "Día" if is_day else "Noche"
@@ -536,6 +538,7 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
         era_label_short = "Elemental Era"
         yuga_label_short = "Yuga Position"
         ruler_label = "Chart Ruler"
+        chart_ruler_display = chart_ruler
         aspects_label = "Key Aspects"
         sect_label = "Sect"
         sect_val = "Day" if is_day else "Night"
@@ -807,7 +810,7 @@ body {{ background:#ffffff; margin:0; padding:0; font-family:Georgia,"DejaVu Ser
 </div>
 <div class="info-row">
 <div class="info-cell label">{ruler_label}</div>
-<div class="info-cell value">{chart_ruler}</div>
+<div class="info-cell value">{chart_ruler_display}</div>
 </div>
 <div class="info-row">
 <div class="info-cell label">{sect_label}</div>
