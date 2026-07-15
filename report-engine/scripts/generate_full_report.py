@@ -88,7 +88,7 @@ def degree_in_sign(lon):
 def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birth_time="",
                                   birth_location="", display_year=2026, display_date="", lang="en"):
     """Build a print-native cohort screw from 1940 through the report year."""
-    width, height = 1000, 328
+    width, height = 1000, 342
     left, right = 0, 1000
     plot_top, plot_bottom = 48, 238
     phase_height = (plot_bottom - plot_top) / 4.0
@@ -154,12 +154,14 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
         turning_names = {"Crisis": "Crisis", "High": "Alto", "Awakening": "Despertar", "Unraveling": "Desenredo"}
         born_word = "NACIMIENTO"
         wave_label = "SAECULUM"
+        wave_title = "EL SAECULUM · CICLO CIVILIZACIONAL DE 80 AÑOS"
     else:
         sign_names = {}
         element_names = {}
         turning_names = {}
         born_word = "BORN"
         wave_label = "SAECULUM"
+        wave_title = "THE SAECULUM · 80-YEAR CIVILIZATIONAL CYCLE"
 
     # Each cohort is the region between two parallel lifetime trajectories.
     # One 20-year horizontal span rises exactly one archetypal life-stage row.
@@ -214,7 +216,7 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
         if index == 0:
             anchor, text_x, glyph_center = "start", x + 2, x + 24
         elif index == len(visible_events) - 1:
-            anchor, text_x, glyph_center = "end", x - 2, x - 16
+            anchor, text_x, glyph_center = "end", x - 2, x - 24
         else:
             anchor, text_x, glyph_center = "middle", x, x
         grid_parts.append(
@@ -329,6 +331,13 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
     natal_when = html_escape(" · ".join(part for part in (birth_date, birth_time) if part))
     natal_where = html_escape(birth_location)
     current_date_label = html_escape((display_date or str(now_year)).upper())
+    legend_width = min(370, max(
+        240,
+        len(current_date_label) * 9.0 + 28,
+        len(full_name) * 9.0 + 28,
+        len(natal_when) * 7.1 + 28,
+        len(natal_where) * 7.1 + 28,
+    ))
 
     # Exact seasonal 80-year sine wave: Crisis/Winter is the trough, High/Spring
     # the rising midpoint, Awakening/Summer the crest, and Unraveling/Autumn
@@ -342,7 +351,7 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
     wave_breaks = sorted(set(year for year in wave_breaks if year <= timeline_end))
 
     def wave_y(value):
-        return 292 + 19 * math.cos(2 * math.pi * (value - 1940) / 80.0)
+        return 306 + 19 * math.cos(2 * math.pi * (value - 1940) / 80.0)
 
     for index in range(len(wave_breaks) - 1):
         start_year, end_year = wave_breaks[index], wave_breaks[index + 1]
@@ -374,6 +383,7 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
   .stage-age {{ font-size:7.5px; font-weight:700; fill:#66727d; }}
   .stage-range {{ font-size:8px; fill:#66727d; }}
   .age-tick {{ font-size:9px; font-weight:700; fill:#b7443e; }}
+  .wave-title {{ font-size:13px; font-weight:800; letter-spacing:1.3px; fill:#203b55; }}
   .wave-phase {{ font-size:9px; font-weight:700; letter-spacing:1px; }}
 </style>
 <defs>
@@ -396,7 +406,7 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
 {''.join(cohort_parts)}
 <rect x="{left}" y="238" width="{right-left}" height="26" fill="none" stroke="#aab6bf" stroke-width="1"/>
 <g>
-  <rect x="{left+10}" y="{plot_top+10}" width="370" height="108" rx="4" fill="#ffffff" fill-opacity="0.94" stroke="#aab6bf" stroke-width="1"/>
+  <rect x="{left+10}" y="{plot_top+10}" width="{legend_width:.1f}" height="108" rx="4" fill="#ffffff" fill-opacity="0.94" stroke="#aab6bf" stroke-width="1"/>
   <text x="{left+22}" y="{plot_top+30}" style="font-size:12pt;font-weight:700;fill:#203b55;">{current_date_label}</text>
   <text x="{left+22}" y="{plot_top+51}" style="font-size:12pt;font-weight:700;letter-spacing:.5px;fill:#203b55;">{full_name}</text>
   <text x="{left+22}" y="{plot_top+70}" style="font-size:11pt;fill:#203b55;">{natal_when}</text>
@@ -405,7 +415,7 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
   <text x="{left+68}" y="{plot_top+105}" style="font-size:10pt;font-weight:700;fill:#b7443e;">YOUR LIFELINE</text>
 </g>
 {''.join(event_parts)}
-<text x="{left}" y="276" class="wave-phase" fill="#6b7782">{wave_label}</text>
+<text x="{(left+right)/2:.1f}" y="282" text-anchor="middle" class="wave-title">{wave_title}</text>
 {''.join(wave_parts)}
 {''.join(wave_label_parts)}
 </svg>'''
