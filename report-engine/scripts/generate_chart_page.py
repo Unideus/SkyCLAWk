@@ -249,7 +249,7 @@ NON_ASPECT_BODIES = {"N.Node"}
 # We build the SVG at 612×792 (1:1 with PDF points) so there's NO scaling,
 # NO aspect-ratio mismatch, and NO off-center pushing.
 
-def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_time="", birth_location="", house_system="Hellenistic Houses of Antiquity", rulers=None, jd=None, chart_title="Natal Chart", lang="en"):
+def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_time="", birth_location="", house_system="Whole Houses", rulers=None, jd=None, chart_title="Natal Chart", lang="en"):
     W, H = 612, 792          # US Letter in points (72dpi)
     MARGIN = 18              # 0.25" printer-safe margin on all sides
     cx, cy = W / 2, 280      # Wheel centered on page, kept high
@@ -310,7 +310,7 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
     if birth_location:
         svg += f'<text x="{hx}" y="{hy + 42}" font-size="8" font-family="DejaVu Sans, sans-serif" fill="#666">{birth_location}</text>'
     if house_system:
-        svg += f'<text x="{hx}" y="{hy + 54}" font-size="8" font-family="DejaVu Sans, sans-serif" fill="#666">{"Sistema de Casas" if chart_title == "Carta Natal" else "House System"}: {house_system}</text>'
+        svg += f'<text x="{hx}" y="{hy + 54}" font-size="8" font-family="DejaVu Sans, sans-serif" fill="#666">{house_system}</text>'
 
     # ── Top-right: Cosmic Blueprint note ──
     # Title at 10px (same as recipient name), body at 8px (same as birth info)
@@ -924,7 +924,7 @@ def main():
     birth_location = args.location
 
     # Build SVG → PDF directly (cairosvg, no PNG intermediate, no WeasyPrint)
-    svg = build_wheel_svg(planets, asc, mc, args.name, birth_date, birth_time, birth_location, "Hellenistic Houses of Antiquity", rulers, jd)
+    svg = build_wheel_svg(planets, asc, mc, args.name, birth_date, birth_time, birth_location, "Whole Houses", rulers, jd)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     outpath = os.path.join(OUTPUT_DIR, args.output)
 

@@ -88,19 +88,18 @@ def degree_in_sign(lon):
 def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birth_time="",
                                   birth_location="", display_year=2026, display_date="", lang="en"):
     """Build a print-native cohort screw from 1940 through the report year."""
-    width, height = 1000, 342
-    left, right = 0, 1000
+    width, height = 1000, 356
+    left, right = 0, 960
     plot_top, plot_bottom = 48, 238
     phase_height = (plot_bottom - plot_top) / 4.0
     timeline_start = 1940
     timeline_end = 2040
     now_year = max(2020, min(int(display_year), timeline_end))
-
     def year_x_raw(value):
         return left + (value - timeline_start) / (timeline_end - timeline_start) * (right - left)
 
     def year_x(value):
-        return year_x_raw(max(timeline_start, min(timeline_end, value)))
+        return year_x_raw(value)
 
     now_x = year_x(now_year)
 
@@ -112,14 +111,17 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
         2020: 2100, 2040: 2120,
     }
 
-    def life_y(at_year, birth_boundary):
+    def life_y_at_screen(screen_x, birth_boundary):
         start_x = year_x_raw(birth_boundary)
         top_x = year_x_raw(boundary_top_years[birth_boundary])
         denominator = top_x - start_x
         if abs(denominator) < 0.001:
             return plot_top
-        progress = (year_x_raw(at_year) - start_x) / denominator
+        progress = (screen_x - start_x) / denominator
         return plot_bottom + (plot_top - plot_bottom) * progress
+
+    def life_y(at_year, birth_boundary):
+        return life_y_at_screen(year_x_raw(at_year), birth_boundary)
 
     is_es = lang == "es"
     events = [
@@ -154,23 +156,23 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
         turning_names = {"Crisis": "Crisis", "High": "Alto", "Awakening": "Despertar", "Unraveling": "Desenredo"}
         born_word = "NACIMIENTO"
         wave_label = "SAECULUM"
-        wave_title = "EL SAECULUM · CICLO CIVILIZACIONAL DE 80 AÑOS"
+        wave_title = "SAECULUM · UN CICLO DE 80 AÑOS"
     else:
         sign_names = {}
         element_names = {}
         turning_names = {}
         born_word = "BORN"
         wave_label = "SAECULUM"
-        wave_title = "THE SAECULUM · 80-YEAR CIVILIZATIONAL CYCLE"
+        wave_title = "SAECULUM · ONE 80-YEAR CYCLE"
 
     # Each cohort is the region between two parallel lifetime trajectories.
     # One 20-year horizontal span rises exactly one archetypal life-stage row.
     diagonal_parts = []
     for start, end, label, color in cohorts:
-        y_ls = life_y(1940, start)
-        y_le = life_y(1940, end)
-        y_rs = life_y(timeline_end, start)
-        y_re = life_y(timeline_end, end)
+        y_ls = life_y_at_screen(left, start)
+        y_le = life_y_at_screen(left, end)
+        y_rs = life_y_at_screen(right, start)
+        y_re = life_y_at_screen(right, end)
         diagonal_parts.append(
             f'<polygon points="{left},{y_ls:.1f} {left},{y_le:.1f} '
             f'{right},{y_re:.1f} {right},{y_rs:.1f}" '
@@ -180,7 +182,7 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
     grid_parts = []
     event_parts = []
     visible_events = [event for event in events if event[0] <= timeline_end]
-    def sign_icon(cx, cy, sign):
+    def sign_icon(cx, cy, sign, element):
         # True DejaVu Sans zodiac outlines, embedded as paths so PDF rendering
         # never substitutes or drops the astrological characters.
         zodiac_paths = {
@@ -192,8 +194,9 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
         path, (x_min, y_min, x_max, y_max) = zodiac_paths[sign]
         glyph_scale = 18.0 / max(x_max - x_min, y_max - y_min)
         mid_x, mid_y = (x_min + x_max) / 2.0, (y_min + y_max) / 2.0
+        glyph_color = "#4f8060" if element == "Earth" else "#b18424"
         return (
-            f'<path d="{path}" fill="#203b55" transform="translate({cx},{cy}) '
+            f'<path d="{path}" fill="{glyph_color}" transform="translate({cx},{cy}) '
             f'scale({glyph_scale:.7f},{-glyph_scale:.7f}) translate({-mid_x:.1f},{-mid_y:.1f})"/>'
         )
 
@@ -225,7 +228,7 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
         )
         event_parts.append(
             f'<text x="{text_x:.1f}" y="15" text-anchor="{anchor}" class="event-year">{event_year}</text>'
-            f'{sign_icon(glyph_center - 12, 34, sign)}'
+            f'{sign_icon(glyph_center - 12, 34, sign, element)}'
             f'{element_icon(glyph_center + 12, 34, element)}'
         )
 
@@ -248,8 +251,11 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
         "Gen Z": "Artist", "Gen Alpha": "Prophet",
     }
     stage_parts = []
+    stage_label_parts = []
     stage_gradient_parts = []
-    stage_split_x = now_x + (right - now_x) * .58
+    panel_x = now_x
+    panel_right = right
+    stage_split_x = panel_x + (panel_right - panel_x) * .58
     for start, end, label, color in cohorts:
         if not (start <= now_year <= boundary_top_years[end]):
             continue
@@ -272,11 +278,15 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
         )
         show_archetype = row_height >= 13 and not (label == "Gen Alpha" and row_bottom >= plot_bottom - .1)
         stage_parts.append(
-            f'<rect x="{now_x:.1f}" y="{row_top:.1f}" width="{right-now_x:.1f}" height="{row_height:.1f}" fill="#fffdf8"/>'
-            f'<rect x="{now_x:.1f}" y="{row_top:.1f}" width="{right-now_x:.1f}" height="{row_height:.1f}" fill="url(#{gradient_id})"/>'
-            f'<line x1="{now_x:.1f}" y1="{row_top:.1f}" x2="{stage_split_x:.1f}" y2="{row_top:.1f}" stroke="#aab6bf" stroke-width="1"/>'
-            + (f'<text x="{now_x + 10:.1f}" y="{row_top + row_height * .64:.1f}" class="stage-name">{archetype}</text>' if show_archetype else '')
+            f'<rect x="{panel_x:.1f}" y="{row_top:.1f}" width="{panel_right-panel_x:.1f}" height="{row_height:.1f}" fill="#fffdf8"/>'
+            f'<rect x="{panel_x:.1f}" y="{row_top:.1f}" width="{panel_right-panel_x:.1f}" height="{row_height:.1f}" fill="url(#{gradient_id})"/>'
+            f'<line x1="{panel_x:.1f}" y1="{row_top:.1f}" x2="{stage_split_x:.1f}" y2="{row_top:.1f}" stroke="#aab6bf" stroke-width="1"/>'
         )
+        if show_archetype:
+            stage_label_parts.append(
+                f'<text x="{panel_x + 10:.1f}" y="{row_top + row_height * .64:.1f}" '
+                f'class="stage-name">{archetype}</text>'
+            )
 
     # Age lanes remain fixed while the archetypes scroll behind them.
     age_lane_parts = []
@@ -285,12 +295,12 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
     for index, (life_stage, age_range) in enumerate(age_labels):
         y = plot_top + index * phase_height
         age_lane_parts.append(
-            f'<line x1="{stage_split_x:.1f}" y1="{y:.1f}" x2="{right}" y2="{y:.1f}" stroke="#aab6bf" stroke-width="1"/>'
-            f'<text x="{right - 8}" y="{y + phase_height * .40:.1f}" text-anchor="end" class="stage-age">{life_stage}</text>'
-            f'<text x="{right - 8}" y="{y + phase_height * .70:.1f}" text-anchor="end" class="stage-range">{age_range}</text>'
+            f'<line x1="{stage_split_x:.1f}" y1="{y:.1f}" x2="{panel_right:.1f}" y2="{y:.1f}" stroke="#aab6bf" stroke-width="1"/>'
+            f'<text x="{panel_right - 8:.1f}" y="{y + phase_height * .40:.1f}" text-anchor="end" class="stage-age">{life_stage}</text>'
+            f'<text x="{panel_right - 8:.1f}" y="{y + phase_height * .70:.1f}" text-anchor="end" class="stage-range">{age_range}</text>'
         )
     age_lane_parts.append(
-        f'<line x1="{stage_split_x:.1f}" y1="{plot_bottom}" x2="{right}" y2="{plot_bottom}" stroke="#aab6bf" stroke-width="1"/>'
+        f'<line x1="{stage_split_x:.1f}" y1="{plot_bottom}" x2="{panel_right:.1f}" y2="{plot_bottom}" stroke="#aab6bf" stroke-width="1"/>'
     )
     stage_boundaries = [plot_top, plot_bottom]
 
@@ -323,9 +333,9 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
             age_tick_parts.append(
                 f'<line x1="{tick_x-7:.1f}" y1="{tick_y:.1f}" x2="{tick_x+7:.1f}" y2="{tick_y:.1f}" '
                 f'stroke="#b7443e" stroke-width="3"/>'
-                f'<rect x="{tick_x+7:.1f}" y="{tick_y-17:.1f}" width="45" height="14" rx="2" '
+                f'<rect x="{tick_x-52:.1f}" y="{tick_y-17:.1f}" width="45" height="14" rx="2" '
                 f'fill="#ffffff" fill-opacity="0.86"/>'
-                f'<text x="{tick_x+10:.1f}" y="{tick_y-5:.1f}" class="age-tick">'
+                f'<text x="{tick_x-49:.1f}" y="{tick_y-5:.1f}" class="age-tick">'
                 f'{age_word} {age_at_conjunction}</text>'
             )
     natal_when = html_escape(" · ".join(part for part in (birth_date, birth_time) if part))
@@ -351,7 +361,7 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
     wave_breaks = sorted(set(year for year in wave_breaks if year <= timeline_end))
 
     def wave_y(value):
-        return 306 + 19 * math.cos(2 * math.pi * (value - 1940) / 80.0)
+        return 292 + 19 * math.cos(2 * math.pi * (value - 1940) / 80.0)
 
     for index in range(len(wave_breaks) - 1):
         start_year, end_year = wave_breaks[index], wave_breaks[index + 1]
@@ -383,7 +393,7 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
   .stage-age {{ font-size:7.5px; font-weight:700; fill:#66727d; }}
   .stage-range {{ font-size:8px; fill:#66727d; }}
   .age-tick {{ font-size:9px; font-weight:700; fill:#b7443e; }}
-  .wave-title {{ font-size:13px; font-weight:800; letter-spacing:1.3px; fill:#203b55; }}
+  .wave-title {{ font-size:11px; font-weight:800; letter-spacing:1.2px; fill:#203b55; }}
   .wave-phase {{ font-size:9px; font-weight:700; letter-spacing:1px; }}
 </style>
 <defs>
@@ -394,15 +404,17 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
 <g clip-path="url(#screw-clip)">
   <rect x="{left}" y="{plot_top}" width="{right-left}" height="{plot_bottom-plot_top}" fill="#f8f7f3"/>
   {''.join(diagonal_parts)}
-  <line x1="{birth_x:.1f}" y1="{plot_bottom}" x2="{now_x:.1f}" y2="{birth_end_y:.1f}" stroke="#b7443e" stroke-width="3.5"/>
 </g>
 <rect x="{left}" y="{plot_top}" width="{right-left}" height="{plot_bottom-plot_top}" fill="none" stroke="#8fa0ad" stroke-width="1.2"/>
 {''.join(grid_parts)}
-{''.join(age_tick_parts)}
-<line x1="{now_x:.1f}" y1="{plot_top-2:.1f}" x2="{now_x:.1f}" y2="{plot_bottom}" stroke="#203b55" stroke-width="1.8"/>
 {''.join(stage_parts)}
 {''.join(age_lane_parts)}
-<rect x="{now_x:.1f}" y="{stage_boundaries[0]:.1f}" width="{right-now_x:.1f}" height="{stage_boundaries[-1]-stage_boundaries[0]:.1f}" fill="none" stroke="#8fa0ad" stroke-width="1.2"/>
+<rect x="{panel_x:.1f}" y="{stage_boundaries[0]:.1f}" width="{panel_right-panel_x:.1f}" height="{stage_boundaries[-1]-stage_boundaries[0]:.1f}" fill="none" stroke="#8fa0ad" stroke-width="1.2"/>
+<g clip-path="url(#screw-clip)">
+  <line x1="{birth_x:.1f}" y1="{plot_bottom}" x2="{now_x:.1f}" y2="{birth_end_y:.1f}" stroke="#b7443e" stroke-width="3.5"/>
+  {''.join(age_tick_parts)}
+</g>
+{''.join(stage_label_parts)}
 {''.join(cohort_parts)}
 <rect x="{left}" y="238" width="{right-left}" height="26" fill="none" stroke="#aab6bf" stroke-width="1"/>
 <g>
@@ -415,9 +427,10 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
   <text x="{left+68}" y="{plot_top+105}" style="font-size:10pt;font-weight:700;fill:#b7443e;">YOUR LIFELINE</text>
 </g>
 {''.join(event_parts)}
-<text x="{(left+right)/2:.1f}" y="282" text-anchor="middle" class="wave-title">{wave_title}</text>
 {''.join(wave_parts)}
 {''.join(wave_label_parts)}
+<path d="M {year_x(1940):.1f},318 v 7 H {year_x(2020):.1f} v -7" fill="none" stroke="#203b55" stroke-width="1.5"/>
+<text x="{(year_x(1940)+year_x(2020))/2:.1f}" y="344" text-anchor="middle" class="wave-title">{wave_title}</text>
 </svg>'''
 
 def get_saeculum(jd):
@@ -1855,7 +1868,7 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     chart_ruler, master, predominator, is_day = calculate_hellenistic_rulers(planets, asc, sun_lon, moon_lon)
     rulers = {"chart_ruler": chart_ruler, "master": master, "predominator": predominator, "is_day": is_day}
 
-    house_sys_label = ES["chart_house_system"] if lang == "es" else "Hellenistic Houses of Antiquity"
+    house_sys_label = ES["chart_house_system"] if lang == "es" else "Whole Houses"
     chart_title_label = "Carta Natal" if lang == "es" else "Natal Chart"
     chart_svg = build_chart_svg(planets, asc, mc, recipient_name, birth_date, birth_time, birth_location, house_sys_label, jd=jd, chart_title=chart_title_label, lang=lang)
 
