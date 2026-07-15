@@ -6,7 +6,7 @@ Usage:
     python3 scripts/generate_full_report.py --year 1982 --month 5 --day 2 --hour 2 --min 16 --tz EDT --lat 30.22 --lon -81.68 --location "NAS Jacksonville, Florida" --name "Cheryl K. Beggs"
 """
 
-import os, sys, math, argparse, json, re, tempfile
+import os, sys, math, argparse, json, re, tempfile, base64
 from html import escape as html_escape
 from pathlib import Path
 import swisseph as swe
@@ -904,7 +904,7 @@ def prose_to_html(prose):
     for p in paragraphs:
         p = p.strip()
         if not p: continue
-        if p.startswith('<h2') or p.startswith('<h3') or p.startswith('<p'):
+        if p.startswith(('<h2', '<h3', '<p', '<div', '<table', '<svg')):
             result.append(p)
         else:
             result.append(f'<p>{p}</p>')
@@ -1823,9 +1823,13 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
             display_date=prepared_date,
             lang=lang,
         )
+        timeline_svg_uri = base64.b64encode(timeline_svg.encode("utf-8")).decode("ascii")
         prose = prose.replace(
             "[TIMELINE_IMAGE]",
-            f'<div style="text-align:center; margin:14px 0 12px;">{timeline_svg}</div>'
+            f'<div style="text-align:center; margin:14px 0 12px;">'
+            f'<img src="data:image/svg+xml;base64,{timeline_svg_uri}" '
+            f'alt="Generational screw and saeculum timeline" '
+            f'style="display:block; width:100%; height:auto;"/></div>'
         )
         prose = prose.replace("[LIFE_TIMELINE_TABLE]", life_section)
         prose = prose.replace("[KEY_MARKERS_TABLE]", markers_section)
