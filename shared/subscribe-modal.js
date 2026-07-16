@@ -38,6 +38,9 @@
   }
 
   function buildModal() {
+    let selectedLanguage = document.documentElement.lang === 'es' || /_es(?:\.html)?$/.test(window.location.pathname)
+      ? 'es'
+      : 'en';
     const overlay = document.createElement('div');
     overlay.className = 'zy-subscribe-overlay';
     overlay.id = 'zySubscribeOverlay';
@@ -52,20 +55,46 @@
             <circle cx="24" cy="24" r="6" fill="currentColor" opacity="0.15"/>
           </svg>
         </div>
-        <h3 class="zy-subscribe-title">See Your Place in Cosmic History</h3>
-        <p class="zy-subscribe-subtitle">Enter your email for a free Yuga Era & Saeculum Report — discover what cosmic era you were born into.</p>
+        <label for="zySubscribeLanguage" style="display:block;text-align:right;margin-bottom:8px;font-size:12px;opacity:.8;">
+          <span id="zySubscribeLanguageLabel">Language</span>
+          <select id="zySubscribeLanguage" style="margin-left:6px;padding:3px 6px;border-radius:4px;">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+          </select>
+        </label>
+        <h3 class="zy-subscribe-title" id="zySubscribeTitle">See Your Place in Cosmic History</h3>
+        <p class="zy-subscribe-subtitle" id="zySubscribeSubtitle">Enter your email for a free Yuga Era & Saeculum Report — discover what cosmic era you were born into.</p>
         <form class="zy-subscribe-form" id="zySubscribeForm">
           <input type="email" class="zy-subscribe-input" id="zySubscribeEmail" placeholder="Enter your email" required autocomplete="email">
           <button type="submit" class="zy-subscribe-btn" id="zySubscribeBtn">Get My Free Report</button>
         </form>
-        <p class="zy-subscribe-disclaimer">No spam. Unsubscribe anytime.</p>
+        <p class="zy-subscribe-disclaimer" id="zySubscribeDisclaimer">No spam. Unsubscribe anytime.</p>
         <a href="#" class="zy-subscribe-dismiss" id="zySubscribeDismiss">Not now, maybe later</a>
         <div class="zy-subscribe-success" id="zySubscribeSuccess" style="display:none;">
-          <p>✅ Check your inbox for your free report!</p>
+          <p id="zySubscribeSuccessText">✅ Check your inbox for your free report!</p>
         </div>
       </div>
     `;
     document.body.appendChild(overlay);
+
+    const languageSelect = document.getElementById('zySubscribeLanguage');
+    languageSelect.value = selectedLanguage;
+    function setLanguage(language) {
+      selectedLanguage = language === 'es' ? 'es' : 'en';
+      const spanish = selectedLanguage === 'es';
+      document.getElementById('zySubscribeLanguageLabel').textContent = spanish ? 'Idioma' : 'Language';
+      document.getElementById('zySubscribeTitle').textContent = spanish ? 'Descubre tu lugar en la historia cósmica' : 'See Your Place in Cosmic History';
+      document.getElementById('zySubscribeSubtitle').textContent = spanish
+        ? 'Ingresa tu correo para recibir un informe gratuito sobre la Era Yuga y el Saeculum — descubre en qué era cósmica naciste.'
+        : 'Enter your email for a free Yuga Era & Saeculum Report — discover what cosmic era you were born into.';
+      document.getElementById('zySubscribeEmail').placeholder = spanish ? 'Ingresa tu correo' : 'Enter your email';
+      document.getElementById('zySubscribeBtn').textContent = spanish ? 'Obtener mi informe gratuito' : 'Get My Free Report';
+      document.getElementById('zySubscribeDisclaimer').textContent = spanish ? 'Sin spam. Puedes cancelar tu suscripción cuando quieras.' : 'No spam. Unsubscribe anytime.';
+      document.getElementById('zySubscribeDismiss').textContent = spanish ? 'Ahora no, quizás más tarde' : 'Not now, maybe later';
+      document.getElementById('zySubscribeSuccessText').textContent = spanish ? '✅ Revisa tu correo para ver tu informe gratuito.' : '✅ Check your inbox for your free report!';
+    }
+    languageSelect.addEventListener('change', function() { setLanguage(this.value); });
+    setLanguage(selectedLanguage);
 
     // Close button
     document.getElementById('zySubscribeClose').addEventListener('click', function(e) {
@@ -89,13 +118,10 @@
       btn.disabled = true;
       btn.textContent = 'Sending...';
       try {
-        const pageLanguage = document.documentElement.lang === 'es' || /_es(?:\.html)?$/.test(window.location.pathname)
-          ? 'es'
-          : 'en';
         const resp = await fetch('/subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, lang: pageLanguage })
+          body: JSON.stringify({ email, lang: selectedLanguage })
         });
         if (resp.ok) {
           markSubscribed();
