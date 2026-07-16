@@ -3,7 +3,7 @@
 // Set MAILERLITE_API_KEY in Cloudflare Pages → Settings → Environment Variables
 
 const GROUP_IDS = {
-  en: '188188521706554950',
+  en: '193186846127163324',
   es: '193183324450063960',
 };
 const ML_API_URL = 'https://connect.mailerlite.com/api/subscribers';
