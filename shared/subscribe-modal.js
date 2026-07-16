@@ -89,10 +89,13 @@
       btn.disabled = true;
       btn.textContent = 'Sending...';
       try {
+        const pageLanguage = document.documentElement.lang === 'es' || /_es(?:\.html)?$/.test(window.location.pathname)
+          ? 'es'
+          : 'en';
         const resp = await fetch('/subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
+          body: JSON.stringify({ email, lang: pageLanguage })
         });
         if (resp.ok) {
           markSubscribed();

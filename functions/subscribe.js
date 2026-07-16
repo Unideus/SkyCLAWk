@@ -2,7 +2,10 @@
 // Subscribes an email to MailerLite group via the API
 // Set MAILERLITE_API_KEY in Cloudflare Pages → Settings → Environment Variables
 
-const GROUP_ID = '188188521706554950';
+const GROUP_IDS = {
+  en: '188188521706554950',
+  es: '193183324450063960',
+};
 const ML_API_URL = 'https://connect.mailerlite.com/api/subscribers';
 
 export async function onRequest(context) {
@@ -26,6 +29,7 @@ export async function onRequest(context) {
   }
 
   const email = (body.email || '').trim().toLowerCase();
+  const lang = body.lang === 'es' ? 'es' : 'en';
 
   // Basic email validation
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -42,9 +46,10 @@ export async function onRequest(context) {
       },
       body: JSON.stringify({
         email,
-        groups: [GROUP_ID],
+        groups: [GROUP_IDS[lang]],
         fields: {
           source: 'zodiyuga-timeline-modal',
+          language: lang,
         },
       }),
     });
