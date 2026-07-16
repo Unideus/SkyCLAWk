@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thank You — Cosmic History Report</title>
+  <style>
+    :root { color-scheme: dark; --bg:#05060a; --panel:#0b0f18; --border:rgba(216,181,106,.38); --text:#edf1fb; --muted:#a4adbe; --gold:#d8b56a; --good:#90d59a; --bad:#ef9a9a; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; display:grid; place-items:center; padding:24px; background:radial-gradient(ellipse at 50% 10%,#18253a 0,#080b12 45%,var(--bg) 80%); color:var(--text); font-family:"Trebuchet MS","Segoe UI",sans-serif; }
+    main { width:min(620px,100%); padding:clamp(28px,7vw,54px); text-align:center; background:rgba(11,15,24,.96); border:1px solid var(--border); border-radius:16px; box-shadow:0 24px 80px rgba(0,0,0,.45); }
+    .brand { color:var(--gold); font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; }
+    h1 { margin:18px 0 12px; font-size:clamp(28px,6vw,42px); line-height:1.15; }
+    #message { min-height:52px; margin:0 auto 22px; color:var(--muted); font-size:17px; line-height:1.55; }
+    .spinner { width:34px; height:34px; margin:26px auto; border:3px solid rgba(216,181,106,.2); border-top-color:var(--gold); border-radius:50%; animation:spin .9s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .download { display:none; width:100%; padding:17px 24px; border-radius:9px; background:var(--gold); color:#05060a; text-decoration:none; font-size:18px; font-weight:800; box-shadow:0 8px 28px rgba(216,181,106,.2); }
+    .download:hover { background:#e6c47a; }
+    .secondary { display:inline-block; margin-top:24px; color:var(--muted); font-size:14px; }
+    .secondary:hover { color:var(--text); }
+    .error { color:var(--bad)!important; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="brand">Zodi-Yuga</div>
+    <h1 id="title">Thank you for your order</h1>
+    <div id="spinner" class="spinner" aria-label="Preparing report"></div>
+    <p id="message">Payment received. We’re preparing your Cosmic History Report now.</p>
+    <a id="download" class="download" href="#" target="_blank" rel="noopener">Download Your PDF</a>
+    <a id="home" class="secondary" href="https://zodiyuga.com/">Return to Zodi-Yuga</a>
+  </main>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const isSpanish = params.get('lang') === 'es';
+    const sessionId = params.get('session_id');
+    const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    const apiBase = isLocal ? 'http://localhost:3011' : 'https://signandsoil.online';
+    const copy = isSpanish ? {
+      title:'Gracias por tu pedido', preparing:'Pago recibido. Estamos preparando tu Informe de Historia Cósmica.', ready:'Tu informe está listo.', emailed:'Tu informe está listo. También enviamos una copia a tu email.', download:'Descargar tu PDF', home:'Volver a Zodi-Yuga', failed:'Recibimos tu pago, pero la generación del informe necesita atención. Tu pedido está registrado; contacta con soporte.', delayed:'Tu informe todavía se está preparando. Puedes actualizar esta página de forma segura.', missing:'No encontramos la referencia de tu pedido. Usa el enlace de regreso de Stripe o contacta con soporte.'
+    } : {
+      title:'Thank you for your order', preparing:'Payment received. We’re preparing your Cosmic History Report now.', ready:'Your report is ready.', emailed:'Your report is ready. We also sent a copy to your email.', download:'Download Your PDF', home:'Return to Zodi-Yuga', failed:'We received your payment, but report generation needs attention. Your order is recorded; please contact support.', delayed:'Your report is still being prepared. You can safely refresh this page.', missing:'We could not find your order reference. Please use Stripe’s return link or contact support.'
+    };
+    document.documentElement.lang = isSpanish ? 'es' : 'en';
+    document.title = `${copy.title} — Cosmic History Report`;
+    document.getElementById('title').textContent = copy.title;
+    document.getElementById('message').textContent = copy.preparing;
+    document.getElementById('download').textContent = copy.download;
+    document.getElementById('home').textContent = copy.home;
+
+    function stop(message, error=false) {
+      document.getElementById('spinner').style.display = 'none';
+      const el = document.getElementById('message');
+      el.textContent = message;
+      el.classList.toggle('error', error);
+    }
+    async function poll() {
+      if (!sessionId) { stop(copy.missing, true); return; }
+      for (let attempt = 0; attempt < 60; attempt += 1) {
+        try {
+          const response = await fetch(`${apiBase}/api/cosmic-report/order-status?session_id=${encodeURIComponent(sessionId)}`);
+          const result = await response.json();
+          if (response.ok && result.status === 'ready') {
+            stop(result.emailed ? copy.emailed : copy.ready);
+            const button = document.getElementById('download');
+            button.href = `${apiBase}${result.downloadUrl}`;
+            button.style.display = 'block';
+            button.focus();
+            return;
+          }
+          if (result.status === 'failed') { stop(copy.failed, true); return; }
+        } catch (_) { /* A transient network error should not abandon a paid order. */ }
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      }
+      stop(copy.delayed);
+    }
+    poll();
+  </script>
+</body>
+</html>

@@ -115,12 +115,12 @@ const cosmicSrc = resolve(root, 'cosmic-report')
 const cosmicDst = resolve(dist, 'cosmic-report')
 if (existsSync(cosmicSrc)) {
     mkdirSync(cosmicDst, { recursive: true })
-    for (const f of ['index_es.html', 'cosmic-report.js', 'cosmic-report.css']) {
+    for (const f of ['index_es.html', 'thank-you.html', 'chart_sample.png', 'cosmic-report.js', 'cosmic-report.css']) {
         const src = resolve(cosmicSrc, f)
         const dst = resolve(cosmicDst, f)
         if (existsSync(src)) cpSync(src, dst)
     }
-    console.log('Copied: cosmic-report scripts and CSS')
+    console.log('Copied: cosmic-report static pages and assets')
 }
 
 // Copy auspicious WASM + public assets

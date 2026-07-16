@@ -54,6 +54,17 @@ QUALITIES = {"Aries":"Cardinal","Taurus":"Fixed","Gemini":"Mutable","Cancer":"Ca
 
 ASPECT_GLYPHS = {"Conjunction":"☌","Sextile":"⚹","Square":"□","Trine":"△","Opposition":"☍"}
 
+def aspect_glyph_html(aspect, color, size=17):
+    """Render aspect marks as paths so PDF output never depends on font coverage."""
+    glyph = snapshot_gen.aspect_glyph_svg(aspect, color, size)
+    if not glyph:
+        return html_escape(ASPECT_GLYPHS.get(aspect, ""))
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" '
+        f'viewBox="0 0 {size} {size}" aria-label="{html_escape(aspect)}" '
+        f'style="display:inline-block;vertical-align:-3px;">{glyph}</svg>'
+    )
+
 # ── Saeculum data ───────────────────────────────────────────────────────────
 # Boundaries are exact conjunction Julian Days — a birth moment before the
 # conjunction belongs to the prior generation, after it belongs to the next.
@@ -254,8 +265,10 @@ def build_generational_screw_svg(recipient_name, birth_year, birth_date="", birt
     stage_label_parts = []
     stage_gradient_parts = []
     panel_x = now_x
-    panel_right = right
-    stage_split_x = panel_x + (panel_right - panel_x) * .58
+    # The SVG has a 40-unit print margin beyond the screw. Use most of it for
+    # the life-stage lane, where Spanish labels in particular need more room.
+    panel_right = width - 8
+    stage_split_x = panel_x + (panel_right - panel_x) * .55
     for start, end, label, color in cohorts:
         if not (start <= now_year <= boundary_top_years[end]):
             continue
@@ -1828,11 +1841,12 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
         # Planet glyphs are always black (matches box-row treatment, prints cleanly)
         p1_color = PLANET_FG
         p2_color = PLANET_FG
+        aspect_mark = aspect_glyph_html(name, aspect_color, 17)
         aspect_rows += f"""
         <tr style="background-color:{row_bg};">
             <td style="font-size:16px;text-align:center;" class="astroglyph">
                 <span style="color:{p1_color};">{p1['glyph']}</span>
-                <span style="color:{aspect_color};font-weight:bold;"> {glyph} </span>
+                <span style="display:inline-block;margin:0 3px;">{aspect_mark}</span>
                 <span style="color:{p2_color};">{p2['glyph']}</span>
             </td>
             <td>{p1_name} {asp_name} {p2_name}</td>
@@ -1902,7 +1916,8 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     # Top 3 aspects for the cheat sheet
     cheat_aspects = ""
     for p1, p2, d, name, orb, target, meaning, glyph in aspects[:3]:
-        cheat_aspects += f"<span style='font-size:18px;' class='astroglyph'>{p1['glyph']}{glyph}{p2['glyph']}</span> <span style='font-size:9pt;color:#555;'>{name} {orb:.1f}°</span><br>"
+        aspect_mark = aspect_glyph_html(name, '#c62828' if name in HARD_ASPECTS else '#1565c0', 17)
+        cheat_aspects += f"<span style='font-size:18px;' class='astroglyph'>{p1['glyph']}</span>{aspect_mark}<span style='font-size:18px;' class='astroglyph'>{p2['glyph']}</span> <span style='font-size:9pt;color:#555;'>{name} {orb:.1f}°</span><br>"
 
     if lang == "es":
         cheat_sheet = f"""
