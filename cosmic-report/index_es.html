@@ -691,6 +691,15 @@ document.querySelectorAll('.faq-item .q').forEach(function(q) {
 
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const apiBase = isLocal ? 'http://localhost:3011' : 'https://signandsoil.online';
+const campaignAttribution = (() => {
+  const keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+  const saved = JSON.parse(localStorage.getItem('zy_utm') || '{}');
+  const params = new URLSearchParams(window.location.search);
+  const attribution = { ...saved };
+  keys.forEach(key => { const value = params.get(key); if (value) attribution[key] = value.slice(0, 120); });
+  if (Object.keys(attribution).length) localStorage.setItem('zy_utm', JSON.stringify(attribution));
+  return attribution;
+})();
 
 document.getElementById('reportForm').addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -713,6 +722,7 @@ document.getElementById('reportForm').addEventListener('submit', async function(
     year, month, day, hour, min,
     location: document.getElementById('location').value.trim(),
     lang: document.getElementById('lang').value,
+    attribution: campaignAttribution,
   };
 
   try {
