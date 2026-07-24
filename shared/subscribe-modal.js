@@ -7,6 +7,7 @@
   const SHOW_DELAY_MS = 12000;
   const SCROLL_THRESHOLD = 0.6;
   const STORED_UNTIL_MS = 365 * 24 * 60 * 60 * 1000; // 1 year
+  const GUIDE_DOWNLOAD_URL = '/downloads/your-place-in-the-saeculum.pdf';
 
   let shown = false;
   // Skip email capture modal during local development
@@ -62,16 +63,21 @@
             <option value="es">Español</option>
           </select>
         </label>
-        <h3 class="zy-subscribe-title" id="zySubscribeTitle">See Your Place in Cosmic History</h3>
-        <p class="zy-subscribe-subtitle" id="zySubscribeSubtitle">Enter your email for a free Yuga Era & Saeculum Report — discover what cosmic era you were born into.</p>
+        <h3 class="zy-subscribe-title" id="zySubscribeTitle">Get Your Free Saeculum Guide</h3>
+        <p class="zy-subscribe-subtitle" id="zySubscribeSubtitle">Download <em>Your Place in the Saeculum</em>, a free, non-personalized guide to the generational cycle, and receive Zodi Yuga email updates.</p>
         <form class="zy-subscribe-form" id="zySubscribeForm">
           <input type="email" class="zy-subscribe-input" id="zySubscribeEmail" placeholder="Enter your email" required autocomplete="email">
-          <button type="submit" class="zy-subscribe-btn" id="zySubscribeBtn">Get My Free Report</button>
+          <label class="zy-subscribe-consent" for="zySubscribeConsent">
+            <input type="checkbox" id="zySubscribeConsent" name="marketingConsent" required>
+            <span id="zySubscribeConsentText">I agree to receive Zodi Yuga email updates and marketing. I can unsubscribe at any time.</span>
+          </label>
+          <button type="submit" class="zy-subscribe-btn" id="zySubscribeBtn">Subscribe &amp; Get the Guide</button>
         </form>
-        <p class="zy-subscribe-disclaimer" id="zySubscribeDisclaimer">No spam. Unsubscribe anytime.</p>
+        <p class="zy-subscribe-disclaimer" id="zySubscribeDisclaimer">The guide is general and is not based on your birth data. No spam. Unsubscribe anytime.</p>
         <a href="#" class="zy-subscribe-dismiss" id="zySubscribeDismiss">Not now, maybe later</a>
         <div class="zy-subscribe-success" id="zySubscribeSuccess" style="display:none;">
-          <p id="zySubscribeSuccessText">✅ Check your inbox for your free report!</p>
+          <p id="zySubscribeSuccessText">✅ You’re subscribed. Your free guide is ready.</p>
+          <a class="zy-subscribe-download" id="zySubscribeDownload" href="${GUIDE_DOWNLOAD_URL}" download="your-place-in-the-saeculum.pdf">Download <em>Your Place in the Saeculum</em> (PDF)</a>
         </div>
       </div>
     `;
@@ -83,15 +89,25 @@
       selectedLanguage = language === 'es' ? 'es' : 'en';
       const spanish = selectedLanguage === 'es';
       document.getElementById('zySubscribeLanguageLabel').textContent = spanish ? 'Idioma' : 'Language';
-      document.getElementById('zySubscribeTitle').textContent = spanish ? 'Descubre tu lugar en la historia cósmica' : 'See Your Place in Cosmic History';
+      document.getElementById('zySubscribeTitle').textContent = spanish ? 'Obtén tu guía gratuita del Saeculum' : 'Get Your Free Saeculum Guide';
       document.getElementById('zySubscribeSubtitle').textContent = spanish
-        ? 'Ingresa tu correo para recibir un informe gratuito sobre la Era Yuga y el Saeculum — descubre en qué era cósmica naciste.'
-        : 'Enter your email for a free Yuga Era & Saeculum Report — discover what cosmic era you were born into.';
+        ? 'Descarga Tu lugar en el Saeculum, una guía general no personalizada sobre el ciclo generacional, y recibe novedades de Zodi Yuga por correo. La guía está en inglés.'
+        : 'Download Your Place in the Saeculum, a free, non-personalized guide to the generational cycle, and receive Zodi Yuga email updates.';
       document.getElementById('zySubscribeEmail').placeholder = spanish ? 'Ingresa tu correo' : 'Enter your email';
-      document.getElementById('zySubscribeBtn').textContent = spanish ? 'Obtener mi informe gratuito' : 'Get My Free Report';
-      document.getElementById('zySubscribeDisclaimer').textContent = spanish ? 'Sin spam. Puedes cancelar tu suscripción cuando quieras.' : 'No spam. Unsubscribe anytime.';
+      document.getElementById('zySubscribeConsentText').textContent = spanish
+        ? 'Acepto recibir novedades y mensajes de marketing de Zodi Yuga por correo electrónico. Puedo cancelar mi suscripción en cualquier momento.'
+        : 'I agree to receive Zodi Yuga email updates and marketing. I can unsubscribe at any time.';
+      document.getElementById('zySubscribeBtn').textContent = spanish ? 'Suscribirme y obtener la guía' : 'Subscribe & Get the Guide';
+      document.getElementById('zySubscribeDisclaimer').textContent = spanish
+        ? 'La guía es general y no se basa en tus datos de nacimiento. Sin spam. Puedes cancelar tu suscripción cuando quieras.'
+        : 'The guide is general and is not based on your birth data. No spam. Unsubscribe anytime.';
       document.getElementById('zySubscribeDismiss').textContent = spanish ? 'Ahora no, quizás más tarde' : 'Not now, maybe later';
-      document.getElementById('zySubscribeSuccessText').textContent = spanish ? '✅ Revisa tu correo para ver tu informe gratuito.' : '✅ Check your inbox for your free report!';
+      document.getElementById('zySubscribeSuccessText').textContent = spanish
+        ? '✅ Ya estás suscrito. Tu guía gratuita está lista.'
+        : '✅ You’re subscribed. Your free guide is ready.';
+      document.getElementById('zySubscribeDownload').textContent = spanish
+        ? 'Descargar Tu lugar en el Saeculum (PDF en inglés)'
+        : 'Download Your Place in the Saeculum (PDF)';
     }
     languageSelect.addEventListener('change', function() { setLanguage(this.value); });
     setLanguage(selectedLanguage);
@@ -113,27 +129,29 @@
     document.getElementById('zySubscribeForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const email = document.getElementById('zySubscribeEmail').value.trim();
-      if (!email) return;
+      const marketingConsent = document.getElementById('zySubscribeConsent').checked;
+      if (!email || !marketingConsent) return;
       const btn = document.getElementById('zySubscribeBtn');
       btn.disabled = true;
-      btn.textContent = 'Sending...';
+      btn.textContent = selectedLanguage === 'es' ? 'Enviando…' : 'Subscribing…';
       try {
         const resp = await fetch('/subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, lang: selectedLanguage })
+          body: JSON.stringify({ email, lang: selectedLanguage, marketingConsent })
         });
         if (resp.ok) {
           markSubscribed();
           document.getElementById('zySubscribeForm').style.display = 'none';
+          document.getElementById('zySubscribeDisclaimer').style.display = 'none';
+          document.getElementById('zySubscribeDismiss').style.display = 'none';
           document.getElementById('zySubscribeSuccess').style.display = 'block';
-          setTimeout(hideModal, 2500);
         } else {
-          btn.textContent = 'Try Again';
+          btn.textContent = selectedLanguage === 'es' ? 'Intentar de nuevo' : 'Try Again';
           btn.disabled = false;
         }
       } catch (_) {
-        btn.textContent = 'Try Again';
+        btn.textContent = selectedLanguage === 'es' ? 'Intentar de nuevo' : 'Try Again';
         btn.disabled = false;
       }
     });

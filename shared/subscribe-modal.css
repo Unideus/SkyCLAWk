@@ -100,6 +100,29 @@
   color: #5a6a7a;
 }
 
+.zy-subscribe-consent {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 9px;
+  align-items: start;
+  color: #9aa8b5;
+  font-size: 11px;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.zy-subscribe-consent input {
+  width: 16px;
+  height: 16px;
+  margin: 1px 0 0;
+  accent-color: #3b8b6e;
+}
+
+.zy-subscribe-consent input:focus-visible {
+  outline: 2px solid #4ad9a4;
+  outline-offset: 2px;
+}
+
 .zy-subscribe-btn {
   background: #3b8b6e;
   color: #fff;
@@ -150,7 +173,25 @@
   color: #4ad9a4;
   font-size: 14px;
   font-weight: 500;
-  margin: 0;
+  margin: 0 0 14px;
+}
+
+.zy-subscribe-download {
+  display: inline-block;
+  background: #3b8b6e;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  padding: 11px 14px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.zy-subscribe-download:hover,
+.zy-subscribe-download:focus-visible {
+  background: #4ad9a4;
 }
 
 /* Mobile: full width at bottom */

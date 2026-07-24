@@ -55,6 +55,10 @@
     const url = new URL(getPermacultureAppUrl());
     url.searchParams.set("source", "planting");
     url.searchParams.set("action", action);
+    url.searchParams.set("utm_source", "zodiyuga");
+    url.searchParams.set("utm_medium", "referral");
+    url.searchParams.set("utm_campaign", "skyclawk_planting");
+    url.searchParams.set("utm_content", "start_new_plan");
     return url.toString();
   }
 
@@ -63,7 +67,7 @@
     if (host === "localhost" || host === "127.0.0.1") {
       return "http://localhost:3000/";
     }
-    return "http://permaculture.zodi-yugaskyclock.com/";
+    return "https://signandsoil.online/";
   }
 
   function initPlantingOverlayToggle(toggleId, gridId) {

@@ -224,15 +224,13 @@ Valid `--tz` values: `EST`, `EDT`, `CST`, `CDT`, `MST`, `MDT`, `PST`, `PDT`, `HS
 
 | Name | Birth Data | Lang | Output |
 |------|------------|------|--------|
-| Cheryl K Beggs | 1982-05-02 02:16 EDT, NAS Jacksonville, FL (30.22, -81.68) | en/es | v40+ |
-| Astrid Restrepo | 1969-08-21 13:30 COT, Yopal, Casanare, Colombia (5.34, -72.40) | en/es | v7+ |
-| Steve Malecki | 1961-04-13 09:12 CDT, Chicago, IL (41.88, -87.63) | en | current |
-| Julian Beggs | 2008-03-04 22:54 EST, Watertown, NY (43.97, -75.91) | en | current |
-| Conor McGregor | 1988-07-14 01:30 IST, Dublin, Ireland (53.35, -6.26) | en | current |
+| Synthetic Reference 1 | 1982-06-01 12:00 UTC, London, UK (51.51, -0.13) | en/es | current |
+| Synthetic Reference 2 | 1969-09-01 12:00 COT, Bogotá, Colombia (4.71, -74.07) | en/es | current |
+| Synthetic Reference 3 | 1961-05-01 12:00 CDT, Chicago, IL (41.88, -87.63) | en | current |
+| Synthetic Reference 4 | 2008-04-01 12:00 EDT, New York, NY (40.71, -74.01) | en | current |
 
 ### Known Limitations
 
 - Spanish reports are ~1 page longer than English due to expanded translations.
 - Planet placement interpretations in Spanish are currently suppressed; a Spanish interpretation JSON is needed to restore them.
 - Payment gating (`zodiyuga.com/cosmic-report`) and live API deployment are tracked separately.
-

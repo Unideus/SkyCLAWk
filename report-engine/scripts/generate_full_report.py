@@ -3,7 +3,7 @@
 
 Usage:
     source ~/.hermes/hermes-agent/venv/bin/activate
-    python3 scripts/generate_full_report.py --year 1982 --month 5 --day 2 --hour 2 --min 16 --tz EDT --lat 30.22 --lon -81.68 --location "NAS Jacksonville, Florida" --name "Cheryl K. Beggs"
+    python3 scripts/generate_full_report.py --year 1982 --month 6 --day 1 --hour 12 --min 0 --tz UTC --lat 51.5074 --lon -0.1278 --location "London, United Kingdom" --name "Synthetic Reference"
 """
 
 import os, sys, math, argparse, json, re, tempfile, base64
@@ -21,17 +21,16 @@ from generate_chart_page import build_wheel_svg as build_chart_svg
 from generate_chart_page import calculate_hellenistic_rulers
 from generate_chart_page import PLANET_COLORS
 import generate_snapshot_page as snapshot_gen
+from ephemeris_utils import calc_ut_checked, configure_ephemeris
 
 PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ENGINE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(PROJECT, "report-engine", "output")
 TEMPLATE_DIR = Path(os.path.join(PROJECT, "report-engine", "templates"))
 ASSETS_DIR = os.path.join(PROJECT, "report-engine", "assets")
-os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # ── Swiss Ephemeris setup ───────────────────────────────────────────────────
-EPHE_PATH = os.path.join(PROJECT, 'public', 'ephe')
-swe.set_ephe_path(EPHE_PATH)
+EPHE_PATH = configure_ephemeris()
 
 SWE_BODIES = {
     "Sun": swe.SUN, "Moon": swe.MOON,
@@ -70,7 +69,6 @@ def aspect_glyph_html(aspect, color, size=17):
 # conjunction belongs to the prior generation, after it belongs to the next.
 SAECULUM_BOUNDARIES = [
     # (jd_boundary, saeculum_data)  — boundary = FIRST exact conjunction of the cycle
-    (2425167.50, {"name":"Builder","archetype":"Prophet","conj_year":1928,"conj_sign":"Leo","conj_element":"Fire","turning":"Crisis"}),  # S/J conj 1928 Leo
     (2429849.56, {"name":"Boomer","archetype":"Prophet","conj_year":1940,"conj_sign":"Taurus","conj_element":"Earth","turning":"Crisis"}),  # S/J conj 1940 Taurus
     (2437349.50, {"name":"Gen X","archetype":"Nomad","conj_year":1961,"conj_sign":"Capricorn","conj_element":"Earth","turning":"High"}),  # S/J conj 1961 Capricorn
     (2444605.39, {"name":"Millennial","archetype":"Hero","conj_year":1981,"conj_sign":"Libra","conj_element":"Air","turning":"Awakening"}),  # S/J conj 1981 Libra
@@ -467,7 +465,7 @@ def get_saeculum(jd):
 def get_planet_data(jd):
     results = []
     for name, body_id in SWE_BODIES.items():
-        result, ret = swe.calc_ut(jd, body_id, swe.FLG_SWIEPH)
+        result, ret = calc_ut_checked(jd, body_id, swe.FLG_SWIEPH)
         ld = result[0] % 360
         si = int(ld // 30)
         d, m = int(ld % 30), int((ld % 30 - int(ld % 30)) * 60)
@@ -534,7 +532,7 @@ def find_saturn_returns(natal_saturn_lon, natal_jd, swe):
         best_diff = float('inf')
         jd = jd_start
         while jd < jd_end:
-            res, _ = swe.calc_ut(jd, swe.SATURN, swe.FLG_SWIEPH)
+            res, _ = calc_ut_checked(jd, swe.SATURN, swe.FLG_SWIEPH)
             trans_lon = res[0] % 360
             diff = abs(trans_lon - natal_saturn_lon)
             if diff > 180:
@@ -548,7 +546,7 @@ def find_saturn_returns(natal_saturn_lon, natal_jd, swe):
             jd = best_jd - 30
             best_diff = float('inf')
             while jd < best_jd + 30:
-                res, _ = swe.calc_ut(jd, swe.SATURN, swe.FLG_SWIEPH)
+                res, _ = calc_ut_checked(jd, swe.SATURN, swe.FLG_SWIEPH)
                 trans_lon = res[0] % 360
                 diff = abs(trans_lon - natal_saturn_lon)
                 if diff > 180:
@@ -575,7 +573,7 @@ def find_uranus_opposition(natal_uranus_lon, natal_jd, swe):
     best_diff = float('inf')
     jd = jd_start
     while jd < jd_end:
-        res, _ = swe.calc_ut(jd, swe.URANUS, swe.FLG_SWIEPH)
+        res, _ = calc_ut_checked(jd, swe.URANUS, swe.FLG_SWIEPH)
         trans_lon = res[0] % 360
         diff = abs(trans_lon - target_lon)
         if diff > 180:
@@ -589,7 +587,7 @@ def find_uranus_opposition(natal_uranus_lon, natal_jd, swe):
         jd = best_jd - 30
         best_diff = float('inf')
         while jd < best_jd + 30:
-            res, _ = swe.calc_ut(jd, swe.URANUS, swe.FLG_SWIEPH)
+            res, _ = calc_ut_checked(jd, swe.URANUS, swe.FLG_SWIEPH)
             trans_lon = res[0] % 360
             diff = abs(trans_lon - target_lon)
             if diff > 180:
@@ -614,8 +612,8 @@ def find_saturn_neptune_conjunction(natal_jd, swe, start_year_offset=20, search_
     best_diff = float('inf')
     jd = jd_start
     while jd < jd_end:
-        res_s, _ = swe.calc_ut(jd, swe.SATURN, swe.FLG_SWIEPH)
-        res_n, _ = swe.calc_ut(jd, swe.NEPTUNE, swe.FLG_SWIEPH)
+        res_s, _ = calc_ut_checked(jd, swe.SATURN, swe.FLG_SWIEPH)
+        res_n, _ = calc_ut_checked(jd, swe.NEPTUNE, swe.FLG_SWIEPH)
         s_lon = res_s[0] % 360
         n_lon = res_n[0] % 360
         diff = abs(s_lon - n_lon)
@@ -630,8 +628,8 @@ def find_saturn_neptune_conjunction(natal_jd, swe, start_year_offset=20, search_
         jd = best_jd - 30
         best_diff = float('inf')
         while jd < best_jd + 30:
-            res_s, _ = swe.calc_ut(jd, swe.SATURN, swe.FLG_SWIEPH)
-            res_n, _ = swe.calc_ut(jd, swe.NEPTUNE, swe.FLG_SWIEPH)
+            res_s, _ = calc_ut_checked(jd, swe.SATURN, swe.FLG_SWIEPH)
+            res_n, _ = calc_ut_checked(jd, swe.NEPTUNE, swe.FLG_SWIEPH)
             s_lon = res_s[0] % 360
             n_lon = res_n[0] % 360
             diff = abs(s_lon - n_lon)
@@ -643,7 +641,7 @@ def find_saturn_neptune_conjunction(natal_jd, swe, start_year_offset=20, search_
             jd += 1.0
     if best_jd and best_diff < 2.0:
         year = swe.revjul(best_jd)[0]
-        res_s, _ = swe.calc_ut(best_jd, swe.SATURN, swe.FLG_SWIEPH)
+        res_s, _ = calc_ut_checked(best_jd, swe.SATURN, swe.FLG_SWIEPH)
         sign_idx = int(res_s[0] % 360) // 30
         sign = SIGNS[sign_idx]
         return (best_jd, year, sign)
@@ -721,10 +719,10 @@ MOON_SIGN_INTERPRETATIONS_ES = {
 ES = {
     "cover_title": "Informe de Historia Cósmica",
     "cover_subtitle": "Un informe de historia cósmica que muestra dónde se sitúa su carta natal dentro de ciclos generacionales, elementales y civilizacionales de onda larga.",
-    "cover_generated": "Generado por Zodiyuga SkyClock usando el Efemérides Suizo (DE440) · zodiyuga.com",
+    "cover_generated": "Generado por Zodi Yuga · SkyCLAWk usando archivos de Efemérides Suizas basados en JPL DE431 · zodiyuga.com",
     "cover_sun": "Sol en {sun} · Luna en {moon} · {asc} Ascendente · {gen} / Arquetipo {arch}",
     "s1_title": "1. Su Instantánea Cósmica",
-    "s1_intro": "Esta sección provee un tablero claro y exhaustivo de su firma de tiempo y asignación de desarrollo central dentro del modelo Zodiyuga SkyClock.",
+    "s1_intro": "Esta sección ofrece un tablero claro y exhaustivo de su firma de tiempo y asignación de desarrollo central dentro del modelo Zodi Yuga / SkyCLAWk.",
     "s1_heading": "1. Su Clima Cósmico",
     "birth_anchor": "Ancla de Nacimiento",
     "core_natal": "Firma Natal Central",
@@ -800,7 +798,7 @@ ES = {
         ("Era de Aire:", "La era elemental actual, fijada por la conjunción Saturno-Júpiter de 2020 en Acuario. Caracterizada por datos, redes, protocolos, poder distribuido, infraestructura invisible y coordinación a distancia. Se extiende hasta aproximadamente 2219."),
         ("Era de Agua:", "La era elemental que sigue a la Era de Aire, comenzando cuando las conjunciones Saturno-Júpiter se agrupan en signos de Agua. Las eras de Agua no han dominado el período moderno, pero históricamente coinciden con el surgimiento de movimientos emocionales masivos, psicología profunda, expansión oceánica y submarina, la emergencia de material colectivo largamente enterrado, y la disolución de las estructuras duras de la era anterior. La firma de una era de Agua es la saturación de la vida pública con sentimiento — lo que la era anterior endureció, esta era lo disuelve, y lo que la era anterior ignoró, esta era lo nombra."),
         ("Era de Fuego:", "La era elemental que sigue a la Era de Agua, comenzando con la primera conjunción Saturno-Júpiter en un signo de Fuego. Las eras de Fuego históricas coinciden con expansión civilizacional, liderazgo carismático, fervor doctrinal e ideológico, grandes movilizaciones religiosas y militares, y la ignición visible de nuevas épocas culturales. La firma de una era de Fuego es una nueva carta mítica — una historia fundacional fresca que la era anterior no pudo proveer."),
-        ("Precesión:", "En términos astronómicos estándar, la precesión se describe como un desplazamiento axial de 26.000 años del eje de rotación de la Tierra, cambiando gradualmente la alineación entre el zodíaco tropical (estacional) y el zodíaco sidéreo (basado en estrellas). En el marco de Zodiyuga SkyClock, esto se procesa puramente como el mecanismo de tiempo geométrico que impulsa la onda de Yuga: a medida que la relación angular entre los puntos de referencia celestes evoluciona, la densidad colectiva de percepción sube y baja."),
+        ("Precesión:", "En términos astronómicos estándar, la precesión se describe como un desplazamiento axial de 26.000 años del eje de rotación de la Tierra, cambiando gradualmente la alineación entre el zodíaco tropical (estacional) y el zodíaco sidéreo (basado en estrellas). En el marco de Zodi Yuga / SkyCLAWk, esto se procesa puramente como el mecanismo de tiempo geométrico que impulsa la onda de Yuga: a medida que la relación angular entre los puntos de referencia celestes evoluciona, la densidad colectiva de percepción sube y baja."),
         ("Onda de Yuga:", "El ciclo de conciencia de 26.000 años usado en este modelo para mapear el ascenso y descenso civilizacional relativo a la densidad y percepción energética. El Kali Yuga (Edad de Hierro) representa la conciencia material más densa; el Dvapara Yuga (Edad de Bronce) marca la ascensión hacia la percepción energética e informacional."),
         ("Las Estaciones, los Signos y la Eclíptica:", "La eclíptica es el camino aparente que el Sol traza a través del cielo en el curso de un año. Los doce signos del zodíaco son segmentos de 30 grados de este círculo, nombrados según las constelaciones que alguna vez se alinearon con ellos. Debido a que el zodíaco tropical está anclado a las estaciones, el signo Aries siempre comienza en el equinoccio de primavera — independientemente de dónde se encuentren actualmente las estrellas. Cada signo pertenece a uno de cuatro elementos (Fuego, Tierra, Aire, Agua) y a una de tres cualidades (Cardinal, Fija, Mutable), dando a cada signo un carácter distinto que colorea cualquier planeta que pase por él."),
     ],
@@ -812,7 +810,7 @@ ES = {
     "aspects_title": "Strongest Major Aspects by Orb",
     "th_planets": "Planets", "th_aspect": "Aspect", "th_orb": "Orb",
         "houses": [],
-    "footer1": "Generado por Zodiyuga SkyClock con las Efemérides Suizas (DE440) | zodiyuga.com",
+    "footer1": "Generado por Zodi Yuga · SkyCLAWk con archivos de Efemérides Suizas basados en JPL DE431 | zodiyuga.com",
     "footer2": "Este informe está calibrado exclusivamente para fines educativos, estructurales y de investigación.",
     "page_of": "Page {n} of {total}",
     "moon_para": "\nYour Moon in {moon} shapes the inner emotional weather beneath the Sun identity. Where the Sun is how you shine, the Moon is how you feel. This placement gives you {interp}. The Moon sign is the private instrument through which you process the macro-weather described above - it colors how you receive, digest, and respond to the structural pressures of your era.\n",
@@ -1174,12 +1172,17 @@ def build_wheel_svg(planets, asc, mc):
 
 # ── Main HTML generation ────────────────────────────────────────────────────
 
-def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month, day, hour, minute, tz_offset, tz_label, recipient_name="", lang="en", solar_chart=False):
+def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month, day, hour, minute, tz_offset, tz_label, recipient_name="", lang="en", solar_chart=False, temp_dir=None):
     """Returns (html, chart_pdf_path)."""
     global LANG
     LANG = lang
     utc_hour_frac = (hour + tz_offset) + minute / 60.0
     jd = swe.julday(year, month, day, utc_hour_frac)
+    if jd < SAECULUM_BOUNDARIES[0][0]:
+        raise ValueError(
+            "Cosmic History reports currently support births on or after "
+            "the first modeled Saturn-Jupiter boundary (1940-08-08 01:26 UTC)."
+        )
 
     planets = get_planet_data(jd)
     aspects = get_aspects(planets)
@@ -1241,7 +1244,7 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
         yuga_label = ES["yuga_pre2020"] if year < 2020 else ES["yuga_post2020"]
         era_label = ES["era_pre2000"] if year < 2000 else ES["era_post2000"]
         dashboard_rows = f"""
-        <tr><th>{ES['birth_anchor']}</th><td>{birth_date}, {birth_time}, {birth_location}</td></tr>
+        <tr><th>{ES['birth_anchor']}</th><td>{html_escape(birth_date)}, {html_escape(birth_time)}, {html_escape(birth_location)}</td></tr>
         <tr><th>{ES['core_natal']}</th><td>Sol {ES_SIGNS.get(sun_sign,sun_sign)}, Luna {ES_SIGNS.get(moon_sign,moon_sign)}, {ES_SIGNS.get(asc_sign,asc_sign)} Ascendente</td></tr>
         <tr><th>{ES['generation']}</th><td>{ES_GEN_NAMES.get(saec['name'],saec['name'])} / Arquetipo {ES_ARCH_NAMES.get(saec['archetype'],saec['archetype'])}</td></tr>
         <tr><th>{ES['birth_turning']}</th><td>{ES_TURNING_NAMES.get(saec['turning'],saec['turning'])}</td></tr>
@@ -1253,7 +1256,7 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
         yuga_label = "Closing Iron Age pressure field, later crossing into ascending Dvapara/Bronze Age after 2020" if year < 2020 else "First ascending Bronze generation"
         era_label = "Earth Era closing; Air Era beginning to seed itself" if year < 2000 else "Air Era established"
         dashboard_rows = f"""
-        <tr><th>Birth Anchor</th><td>{birth_date}, {birth_time}, {birth_location}</td></tr>
+        <tr><th>Birth Anchor</th><td>{html_escape(birth_date)}, {html_escape(birth_time)}, {html_escape(birth_location)}</td></tr>
         <tr><th>Core Natal Signature</th><td>{sun_sign} Sun, {moon_sign} Moon, {asc_sign} Rising</td></tr>
         <tr><th>Generation</th><td>{saec['name']} / {saec['archetype']} Archetype</td></tr>
         <tr><th>Birth Turning</th><td>{saec['turning']}</td></tr>
@@ -1437,9 +1440,8 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
 
     # Saturn-Jupiter conjunction marker data — the 7 modern conjunctions used as the structural
     # backbone of this report. Each entry is the year/sign/turning + a one-line era description
-    # used for the row's "How to use" cell. The 1921 Virgo entry is the actual predecessor of
-    # the 1940 conjunction; included for completeness but the 1928 Leo entry is intentionally
-    # omitted (it is not an actual S-J conjunction — that boundary is a known data issue).
+    # used for the row's "How to use" cell. The verified 1921 Virgo entry is shown as historical
+    # context, while the customer classification model begins at the verified 1940 boundary.
     SJ_MARKER_DATA = [
         (1921, "Virgo",    "Crisis",     "Earth", "Pre-modern conjunction preceding the 1940 sequence. Last pre-industrial alignment in the Earth era's opening sequence."),
         (1940, "Taurus",   "Crisis",     "Earth", "The crisis that built the world you were born into. World War II, Great Depression, and the reconstruction template that defined the post-war order. This is the structural foundation your childhood stood on — understanding it reveals why the institutions of your youth were built the way they were."),
@@ -1485,8 +1487,8 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     a_best_jd  = a_jd_start
     a_best_orb = 360.0
     for d in range(int(a_jd_start), int(a_jd_end) + 1):
-        sat, _ = swe.calc_ut(d, swe.SATURN, swe.FLG_SWIEPH)
-        jup, _ = swe.calc_ut(d, swe.JUPITER, swe.FLG_SWIEPH)
+        sat, _ = calc_ut_checked(d, swe.SATURN, swe.FLG_SWIEPH)
+        jup, _ = calc_ut_checked(d, swe.JUPITER, swe.FLG_SWIEPH)
         diff = (sat[0] - jup[0] + 180) % 360 - 180
         if abs(diff) < abs(a_best_orb):
             a_best_orb = diff
@@ -1495,11 +1497,11 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     lo, hi = a_best_jd - 1, a_best_jd + 1
     for _ in range(50):
         mid = (lo + hi) / 2
-        sat, _ = swe.calc_ut(mid, swe.SATURN, swe.FLG_SWIEPH)
-        jup, _ = swe.calc_ut(mid, swe.JUPITER, swe.FLG_SWIEPH)
+        sat, _ = calc_ut_checked(mid, swe.SATURN, swe.FLG_SWIEPH)
+        jup, _ = calc_ut_checked(mid, swe.JUPITER, swe.FLG_SWIEPH)
         diff = (sat[0] - jup[0] + 180) % 360 - 180
-        sat_lo, _ = swe.calc_ut(lo, swe.SATURN, swe.FLG_SWIEPH)
-        jup_lo, _ = swe.calc_ut(lo, swe.JUPITER, swe.FLG_SWIEPH)
+        sat_lo, _ = calc_ut_checked(lo, swe.SATURN, swe.FLG_SWIEPH)
+        jup_lo, _ = calc_ut_checked(lo, swe.JUPITER, swe.FLG_SWIEPH)
         diff_lo = ((sat_lo[0] - jup_lo[0]) % 360 + 180) % 360 - 180
         if abs(diff_lo) < abs(diff):
             hi = mid
@@ -1894,7 +1896,9 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
     chart_svg = build_chart_svg(planets, asc, mc, recipient_name, birth_date, birth_time, birth_location, house_sys_label, jd=jd, chart_title=chart_title_label, lang=lang)
 
     # Convert chart SVG to a single-page PDF via cairosvg
-    chart_pdf_path = os.path.join(tempfile.gettempdir(), f"chart_page_{year}{month:02d}{day:02d}.pdf")
+    if not temp_dir:
+        raise ValueError("A private temporary workspace is required")
+    chart_pdf_path = os.path.join(temp_dir, "chart-page.pdf")
     # CairoSVG interprets the SVG's unitless dimensions as 96-DPI CSS pixels.
     # A 612×792 viewBox therefore needs a 96/72 scale to produce an actual
     # 612×792-point US Letter PDF page. scale=2 created a 918×1188 page that
@@ -1924,7 +1928,7 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
 <div style="page-break-before:always; page-break-after:always; border:3px solid #1a3a5c; border-radius:12px; padding:28px; margin:0; background:linear-gradient(135deg,#f8fbff 0%,#eef4fa 100%);">
 <div style="text-align:center; margin-bottom:20px;">
 <div style="font-size:11pt; letter-spacing:3px; color:#1a3a5c; text-transform:uppercase; font-weight:bold;">Hoja de Referencia Cósmica</div>
-<div style="font-size:8pt; color:#888; margin-top:4px;">{recipient_name} · {birth_date}</div>
+<div style="font-size:8pt; color:#888; margin-top:4px;">{html_escape(recipient_name)} · {html_escape(birth_date)}</div>
 </div>
 <table style="border:none; width:100%; margin:0;">
 <tr style="border:none;">
@@ -1969,7 +1973,7 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
 <div style="text-align:center; line-height:2.2;">{cheat_aspects}</div>
 </div>
 <div style="border-top:2px solid rgba(26,58,92,0.15); margin:14px 0; padding-top:10px; text-align:center;">
-<div style="font-size:8pt; color:#888;">Zodiyuga SkyClock · zodiyuga.com</div>
+<div style="font-size:8pt; color:#888;">Zodi Yuga · SkyCLAWk · zodiyuga.com</div>
 </div>
 </div>
 """
@@ -1978,7 +1982,7 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
 <div style="page-break-before:always; page-break-after:always; border:3px solid #1a3a5c; border-radius:12px; padding:28px; margin:0; background:linear-gradient(135deg,#f8fbff 0%,#eef4fa 100%);">
 <div style="text-align:center; margin-bottom:20px;">
 <div style="font-size:11pt; letter-spacing:3px; color:#1a3a5c; text-transform:uppercase; font-weight:bold;">Cosmic Cheat Sheet</div>
-<div style="font-size:8pt; color:#888; margin-top:4px;">{recipient_name} &middot; {birth_date}</div>
+<div style="font-size:8pt; color:#888; margin-top:4px;">{html_escape(recipient_name)} &middot; {html_escape(birth_date)}</div>
 </div>
 <table style="border:none; width:100%; margin:0;">
 <tr style="border:none;">
@@ -2023,7 +2027,7 @@ def generate_html(birth_date, birth_time, birth_location, lat, lon, year, month,
 <div style="text-align:center; line-height:2.2;">{cheat_aspects}</div>
 </div>
 <div style="border-top:2px solid rgba(26,58,92,0.15); margin:14px 0; padding-top:10px; text-align:center;">
-<div style="font-size:8pt; color:#888;">Zodiyuga SkyClock &middot; zodiyuga.com</div>
+<div style="font-size:8pt; color:#888;">Zodi Yuga &middot; SkyCLAWk &middot; zodiyuga.com</div>
 </div>
 </div>
 """
@@ -2094,10 +2098,10 @@ tr {{ page-break-inside: avoid; }}
 <div class="cover">
 <h1>{ES['cover_title']}</h1>
 <p style="font-size:13px;color:#666;margin-top:8px;">{ES['cover_subtitle']}</p>
-{f'<p style="font-size:26px;color:#1a3a5c;margin-top:20px;font-weight:bold;">{recipient_name}</p>' if recipient_name else ''}
-<p style="font-size:20px;color:#1a3a5c;margin-top:20px;">{birth_date}</p>
-<p style="font-size:14px;">{birth_time}</p>
-<p style="font-size:14px;">{birth_location}</p>
+{f'<p style="font-size:26px;color:#1a3a5c;margin-top:20px;font-weight:bold;">{html_escape(recipient_name)}</p>' if recipient_name else ''}
+<p style="font-size:20px;color:#1a3a5c;margin-top:20px;">{html_escape(birth_date)}</p>
+<p style="font-size:14px;">{html_escape(birth_time)}</p>
+<p style="font-size:14px;">{html_escape(birth_location)}</p>
 
 <!-- Generation / Archetype as element-colored header -->
 <p style="font-size:32px;font-weight:bold;letter-spacing:2px;margin-top:34px;color:{ELEMENT_COLORS.get(saec['conj_element'], '#1a3a5c')};text-transform:uppercase;">{ES_GEN_NAMES.get(saec['name'],saec['name'])} <span style="font-size:18px;opacity:0.7;">/</span> Arquetipo {ES_ARCH_NAMES.get(saec['archetype'],saec['archetype'])}</p>
@@ -2144,7 +2148,7 @@ tr {{ page-break-inside: avoid; }}
 
 <h2 style="page-break-before:always;">Fuentes y Lecturas Adicionales</h2>
 <p style="font-size:9.5pt;color:#555;">
-<strong>Motor Astronómico:</strong> Efemérides Suizas (DE440/JPL) — el estándar de posiciones planetarias. Datos astronómicos derivados de las efemérides planetarias de NASA/JPL.<br><br>
+<strong>Motor Astronómico:</strong> Efemérides Suizas; los metadatos de los archivos planetarios incluidos identifican JPL DE431 como su base.<br><br>
 <strong>Astrología Helenística — Fuentes Primarias:</strong><br>
 • <em>Tetrabiblos</em> — Claudio Ptolomeo (siglo II d.C.). El texto fundacional de la astrología técnica: dignidades de signos, doctrina de aspectos, significados de casas.<br>
 • <em>Antologías</em> — Vettius Valens (siglo II d.C.). El tratado astrológico helenístico superviviente más extenso: sistemas de señores del tiempo, lotes, métodos de análisis natal.<br>
@@ -2200,10 +2204,10 @@ tr {{ page-break-inside: avoid; }}
 <div class="cover">
 <h1>Cosmic History Report</h1>
 <p style="font-size:13px;color:#666;margin-top:8px;">A cosmic history report showing where your natal chart sits inside generational, elemental, and long-wave civilizational cycles.</p>
-{f'<p style="font-size:26px;color:#1a3a5c;margin-top:20px;font-weight:bold;">{recipient_name}</p>' if recipient_name else ''}
-<p style="font-size:20px;color:#1a3a5c;margin-top:20px;">{birth_date}</p>
-<p style="font-size:14px;">{birth_time}</p>
-<p style="font-size:14px;">{birth_location}</p>
+{f'<p style="font-size:26px;color:#1a3a5c;margin-top:20px;font-weight:bold;">{html_escape(recipient_name)}</p>' if recipient_name else ''}
+<p style="font-size:20px;color:#1a3a5c;margin-top:20px;">{html_escape(birth_date)}</p>
+<p style="font-size:14px;">{html_escape(birth_time)}</p>
+<p style="font-size:14px;">{html_escape(birth_location)}</p>
 
 <!-- Generation / Archetype as element-colored header -->
 <p style="font-size:32px;font-weight:bold;letter-spacing:2px;margin-top:34px;color:{ELEMENT_COLORS.get(saec['conj_element'], '#1a3a5c')};text-transform:uppercase;">{saec['name']} <span style="font-size:18px;opacity:0.7;">/</span> {saec['archetype']} Archetype</p>
@@ -2212,7 +2216,7 @@ tr {{ page-break-inside: avoid; }}
 <p style="font-size:17px;color:#333;margin-top:10px;font-weight:500;" class="astroglyph">Sun in {sun_sign} &middot; Moon in {moon_sign} &middot; {asc_sign} Rising</p>
 
 <!-- "Generated by" line as a small footer -->
-<p style="font-size:9px;color:#888;position:absolute;bottom:24px;left:0;right:0;text-align:center;">Generated by Zodiyuga SkyClock using the Swiss Ephemeris (DE440) &middot; zodiyuga.com<br/>Date prepared: {prepared_date}</p>
+<p style="font-size:9px;color:#888;position:absolute;bottom:24px;left:0;right:0;text-align:center;">Generated by Zodi Yuga &middot; SkyCLAWk using Swiss Ephemeris files based on JPL DE431 &middot; zodiyuga.com<br/>Date prepared: {prepared_date}</p>
 </div>
 
 {narrative_html}
@@ -2243,7 +2247,7 @@ tr {{ page-break-inside: avoid; }}
 <p><strong>Air Era:</strong> The current elemental era, locked in by the 2020 Saturn-Jupiter conjunction in Aquarius. Characterized by data, networks, protocols, distributed power, invisible infrastructure, and coordination across distance. Runs until approximately 2219.</p>
 <p><strong>Water Era:</strong> The elemental era that follows the Air Era, beginning when Saturn-Jupiter conjunctions cluster in Water signs. Water eras have not dominated the modern period, but historically they coincide with the rise of mass emotional movements, depth psychology, oceanic and submarine expansion, the surfacing of long-buried collective material, and the dissolution of the previous era's hard structures. The signature of a Water era is the saturation of public life with feeling — what the previous era hardened, this era dissolves, and what the previous era ignored, this era names.</p>
 <p><strong>Fire Era:</strong> The elemental era that follows the Water Era, beginning with the first Saturn-Jupiter conjunction in a Fire sign. Historical Fire eras coincide with civilizational expansion, charismatic leadership, doctrinal and ideological fervor, major religious and military mobilizations, and the visible ignition of new cultural epochs. The signature of a Fire era is a new mythic charter — a fresh founding story that the previous era could not supply.</p>
-<p><strong>Precession:</strong> In standard astronomical terms, precession is described as a 26,000-year axial shift of the Earth's rotational axis, gradually changing the alignment between the tropical zodiac (seasonal) and the sidereal zodiac (star-based). In the Zodiyuga SkyClock framework, this is processed purely as the geometric timing mechanism driving the Yuga wave: as the angular relationship between the celestial reference points evolves, the collective density of perception rises and falls.</p>
+<p><strong>Precession:</strong> In standard astronomical terms, precession is described as a 26,000-year axial shift of the Earth's rotational axis, gradually changing the alignment between the tropical zodiac (seasonal) and the sidereal zodiac (star-based). In the Zodi Yuga / SkyCLAWk framework, this is processed purely as the geometric timing mechanism driving the Yuga wave: as the angular relationship between the celestial reference points evolves, the collective density of perception rises and falls.</p>
 <p><strong>Yuga Wave:</strong> The 26,000-year consciousness cycle used in this model to map civilizational ascent and descent relative to density and energetic perception. The Kali Yuga (Iron Age) represents the densest material consciousness; Dvapara Yuga (Bronze Age) marks the ascent into energetic and informational perception.</p>
 <p><strong>The Seasons, Signs, and the Ecliptic:</strong> The ecliptic is the apparent path the Sun traces through the sky over the course of a year. The twelve signs of the zodiac are 30-degree segments of this circle, named after the constellations that once aligned with them. Because the tropical zodiac is anchored to the seasons, the sign Aries always begins at the spring equinox — regardless of where the stars currently sit. Each sign belongs to one of four elements (Fire, Earth, Air, Water) and one of three qualities (Cardinal, Fixed, Mutable), giving every sign a distinct character that colors any planet passing through it.</p>
 
@@ -2267,7 +2271,7 @@ tr {{ page-break-inside: avoid; }}
 
 <h2 style="page-break-before:always;">Sources &amp; Further Reading</h2>
 <p style="font-size:9.5pt;color:#555;">
-<strong>Astronomical Engine:</strong> Swiss Ephemeris (DE440/JPL) — the planetary position standard. Astronomical data derived from NASA/JPL planetary ephemerides.<br><br>
+<strong>Astronomical Engine:</strong> Swiss Ephemeris; embedded metadata in the bundled planetary files identifies JPL DE431 as their basis.<br><br>
 <strong>Hellenistic Astrology — Primary Sources:</strong><br>
 • <em>Tetrabiblos</em> — Claudius Ptolemy (2nd century CE). The foundational text of technical astrology: sign dignities, aspect doctrine, house meanings.<br>
 • <em>Anthologies</em> — Vettius Valens (2nd century CE). The most extensive surviving Hellenistic astrological treatise: time-lord systems, lots, natal analysis methods.<br>
@@ -2283,7 +2287,7 @@ tr {{ page-break-inside: avoid; }}
 </p>
 
 <div class="footer">
-<p>Generated by Zodiyuga SkyClock using the Swiss Ephemeris (DE440) | zodiyuga.com</p>
+<p>Generated by Zodi Yuga · SkyCLAWk using Swiss Ephemeris files based on JPL DE431 | zodiyuga.com</p>
 <p>This report is calibrated strictly for educational, structural, and research integration.</p>
 </div>
 
@@ -2303,6 +2307,11 @@ def main():
     parser.add_argument("--location", default="NAS Jacksonville, Florida")
     parser.add_argument("--name", default="", help="Recipient name on cover")
     parser.add_argument("--output", default="cosmic_history_report.pdf")
+    parser.add_argument(
+        "--work-dir",
+        default="",
+        help="Private renderer workspace supplied and cleaned by the calling service",
+    )
     parser.add_argument("--tz", default="EDT", choices=["EST","EDT","CST","CDT","MST","MDT","PST","PDT","HST","AKST","COT","IST","GMT","UTC"], help="Legacy timezone abbreviation")
     parser.add_argument("--utc-offset", type=float, default=None, help="Hours added to local time to obtain UTC; supports worldwide and fractional offsets")
     parser.add_argument("--tz-label", default="", help="Resolved timezone label shown in the report")
@@ -2325,20 +2334,29 @@ def main():
     birth_date = f"{months[args.month-1]} {args.day}, {args.year}"
     birth_time = f"{args.hour}:{args.min:02d} {tz_label}"
 
-    print(f"Generating report for {birth_date} at {birth_time}, {args.location}")
+    print("Generating Cosmic History Report")
     if args.solar_chart:
         print(f"  [solar-chart mode: noon, ASC aligned to 0° Aries]")
     print(f"UTC conversion offset: {tz_offset:+g} hours")
 
+    temp_workspace = None
+    if args.work_dir:
+        workspace_path = os.path.abspath(args.work_dir)
+        os.makedirs(workspace_path, mode=0o700, exist_ok=True)
+        os.chmod(workspace_path, 0o700)
+    else:
+        temp_workspace = tempfile.TemporaryDirectory(prefix="zodi-yuga-report-")
+        workspace_path = temp_workspace.name
     html, chart_pdf_path = generate_html(birth_date, birth_time, args.location, args.lat, args.lon,
                         args.year, args.month, args.day, args.hour, args.min, tz_offset,
-                        tz_label, recipient_name=args.name, lang=args.lang, solar_chart=args.solar_chart)
+                        tz_label, recipient_name=args.name, lang=args.lang, solar_chart=args.solar_chart,
+                        temp_dir=workspace_path)
 
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
     outpath = os.path.join(OUTPUT_DIR, args.output)
+    os.makedirs(os.path.dirname(os.path.abspath(outpath)), exist_ok=True)
 
     # Generate the report body (cover + narrative + appendix, no chart or snapshot)
-    report_pdf_path = os.path.join(tempfile.gettempdir(), f"report_body_{args.year}{args.month:02d}{args.day:02d}.pdf")
+    report_pdf_path = os.path.join(workspace_path, "report-body.pdf")
     HTML(string=html).write_pdf(report_pdf_path)
     print(f"[report] Body PDF: {report_pdf_path} ({os.path.getsize(report_pdf_path)//1024} KB)")
 
@@ -2348,7 +2366,7 @@ def main():
         args.year, args.month, args.day, args.hour, args.min, tz_offset,
         tz_label, recipient_name=args.name, lang=args.lang, solar_chart=args.solar_chart
     )
-    snapshot_pdf_path = os.path.join(tempfile.gettempdir(), f"snapshot_page_{args.year}{args.month:02d}{args.day:02d}.pdf")
+    snapshot_pdf_path = os.path.join(workspace_path, "snapshot-page.pdf")
     HTML(string=snapshot_html).write_pdf(snapshot_pdf_path)
     print(f"[report] Snapshot PDF: {snapshot_pdf_path} ({os.path.getsize(snapshot_pdf_path)//1024} KB)")
 
@@ -2392,6 +2410,9 @@ def main():
         page.insert_text((x, y), text, fontsize=fontsize, fontname="helv", color=(0.33, 0.33, 0.33))
     final.saveIncr()
     final.close()
+    os.chmod(outpath, 0o600)
+    if temp_workspace is not None:
+        temp_workspace.cleanup()
 
     print(f"PDF: {outpath} ({os.path.getsize(outpath)//1024} KB, {total} pages)")
 

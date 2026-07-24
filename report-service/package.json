@@ -1,0 +1,27 @@
+{
+  "name": "@zodi-yuga/cosmic-report-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Standalone payment and fulfillment service for Zodi Yuga Cosmic History Reports",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test test/*.test.js",
+    "check": "node --check src/server.js && node --check src/app.js && node --check src/coordinator.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^4.21.2",
+    "luxon": "^3.7.2",
+    "nodemailer": "^9.0.3",
+    "stripe": "^18.3.0",
+    "tz-lookup": "^6.1.25"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.4"
+  },
+  "license": "UNLICENSED"
+}

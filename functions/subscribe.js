@@ -30,10 +30,14 @@ export async function onRequest(context) {
 
   const email = (body.email || '').trim().toLowerCase();
   const lang = body.lang === 'es' ? 'es' : 'en';
+  const marketingConsent = body.marketingConsent === true;
 
   // Basic email validation
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return new Response('Valid email required', { status: 400 });
+  }
+  if (!marketingConsent) {
+    return new Response('Email consent required', { status: 400 });
   }
 
   try {
@@ -48,7 +52,7 @@ export async function onRequest(context) {
         email,
         groups: [GROUP_IDS[lang]],
         fields: {
-          source: 'zodiyuga-timeline-modal',
+          source: 'zodiyuga-timeline-modal-consent-v1',
           language: lang,
         },
       }),

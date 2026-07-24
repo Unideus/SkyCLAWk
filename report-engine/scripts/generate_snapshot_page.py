@@ -6,20 +6,21 @@ Key aspect boxes match the chart page's planet box style (rect, pastel fill, col
 
 Usage:
     source ~/.hermes/hermes-agent/venv/bin/activate
-    python3 scripts/generate_snapshot_page.py --year 1969 --month 8 --day 21 --hour 13 --min 30 --tz COT --lat 5.34 --lon -72.40 --location "Yopal, Casanare, Colombia" --name "Astrid Restrepo" --output snapshot_astrid.pdf
+    python3 scripts/generate_snapshot_page.py --year 1969 --month 9 --day 1 --hour 12 --min 0 --tz COT --lat 4.71 --lon -74.07 --location "Bogotá, Colombia" --name "Synthetic Reference" --output snapshot_reference.pdf
 """
 
 import os, sys, math, argparse
+from html import escape as html_escape
 import swisseph as swe
 from weasyprint import HTML
 
 CHART_PAGE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, CHART_PAGE_DIR)
 from generate_chart_page import calculate_hellenistic_rulers
+from ephemeris_utils import calc_ut_checked, configure_ephemeris
 
 # ── Swiss Ephemeris setup ───────────────────────────────────────────────────
-EPHE_PATH = '/mnt/e/Hermes Project/GitHub/Timeline_ARCHIVED/app-timeline/public/ephe'
-swe.set_ephe_path(EPHE_PATH)
+EPHE_PATH = configure_ephemeris()
 
 SWE_BODIES = {
     "Sun": swe.SUN, "Moon": swe.MOON,
@@ -177,7 +178,6 @@ def aspect_glyph_svg(aspect, color, size=16):
     return glyph_svg_path(info["d"], info["bbox"], size, color) if info else ""
 
 SAECULUM_BOUNDARIES = [
-    (2425167.50, {"name":"Builder","archetype":"Prophet","conj_year":1928,"conj_sign":"Leo","conj_element":"Fire","turning":"Crisis"}),
     (2429849.56, {"name":"Boomer","archetype":"Prophet","conj_year":1940,"conj_sign":"Taurus","conj_element":"Earth","turning":"Crisis"}),
     (2437349.50, {"name":"Gen X","archetype":"Nomad","conj_year":1961,"conj_sign":"Capricorn","conj_element":"Earth","turning":"High"}),
     (2444605.39, {"name":"Millennial","archetype":"Hero","conj_year":1981,"conj_sign":"Libra","conj_element":"Air","turning":"Awakening"}),
@@ -188,53 +188,83 @@ SAECULUM_BOUNDARIES = [
 MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 ES_MONTHS = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"]
 
-def find_sj_conjunctions(year, tol=0.5):
-    """Find all exact Saturn-Jupiter conjunctions in a calendar year.
+def _sj_signed_separation(jd):
+    """Return Saturn minus Jupiter longitude in the signed -180..180 range."""
+    sat, _ = calc_ut_checked(jd, swe.SATURN, swe.FLG_SWIEPH)
+    jup, _ = calc_ut_checked(jd, swe.JUPITER, swe.FLG_SWIEPH)
+    return (sat[0] - jup[0] + 180) % 360 - 180
 
-    Returns list of (jd, sign_name, lon, orb_deg). When Saturn and Jupiter are
-    near-conjunct with one in retrograde, there can be 2-3 exact passes; the
-    snapshot displays all of them and notes the retrograde triple-pass when
-    present.
-    """
-    jd_start = swe.julday(year, 1, 1, 0)
-    jd_end   = swe.julday(year+1, 1, 1, 0)
-    candidates = []
-    for d in range(int(jd_start), int(jd_end)+1):
-        sat, _ = swe.calc_ut(d, swe.SATURN, swe.FLG_SWIEPH)
-        jup, _ = swe.calc_ut(d, swe.JUPITER, swe.FLG_SWIEPH)
+
+def _find_sj_conjunctions_between(jd_start, jd_end, tol=0.5):
+    """Find exact Saturn-Jupiter longitude crossings inside a Julian-day range."""
+    scan_start = math.floor(jd_start)
+    scan_end = math.ceil(jd_end)
+    previous_jd = scan_start
+    previous_diff = _sj_signed_separation(previous_jd)
+    roots = []
+
+    for current_jd in range(scan_start + 1, scan_end + 1):
+        current_diff = _sj_signed_separation(current_jd)
+        crosses_zero = (
+            previous_diff == 0
+            or current_diff == 0
+            or previous_diff * current_diff < 0
+        )
+        if crosses_zero:
+            lo, hi = previous_jd, current_jd
+            diff_lo, diff_hi = previous_diff, current_diff
+            for _ in range(60):
+                mid = (lo + hi) / 2
+                diff_mid = _sj_signed_separation(mid)
+                if diff_lo == 0:
+                    hi = lo
+                    break
+                if diff_hi == 0:
+                    lo = hi
+                    break
+                if diff_lo * diff_mid <= 0:
+                    hi, diff_hi = mid, diff_mid
+                else:
+                    lo, diff_lo = mid, diff_mid
+            root_jd = (lo + hi) / 2
+            if jd_start <= root_jd <= jd_end and (
+                not roots or root_jd - roots[-1] > 1
+            ):
+                roots.append(root_jd)
+        previous_jd = current_jd
+        previous_diff = current_diff
+
+    conjunctions = []
+    for root_jd in roots:
+        sat, _ = calc_ut_checked(root_jd, swe.SATURN, swe.FLG_SWIEPH)
         sat_lon = sat[0] % 360
-        jup_lon = jup[0] % 360
-        diff = (sat_lon - jup_lon + 180) % 360 - 180
-        candidates.append((d, abs(diff), sat_lon, jup_lon))
-    # Local minima of |diff|
-    minimas = []
-    for i in range(1, len(candidates)-1):
-        if candidates[i][1] < candidates[i-1][1] and candidates[i][1] < candidates[i+1][1]:
-            minimas.append(candidates[i])
-    refined = []
-    for jd_approx, _, _, _ in minimas:
-        lo, hi = jd_approx - 1, jd_approx + 1
-        for _ in range(50):
-            mid = (lo + hi) / 2
-            sat, _ = swe.calc_ut(mid, swe.SATURN, swe.FLG_SWIEPH)
-            jup, _ = swe.calc_ut(mid, swe.JUPITER, swe.FLG_SWIEPH)
-            diff = (sat[0] - jup[0] + 180) % 360 - 180
-            sat_lo, _ = swe.calc_ut(lo, swe.SATURN, swe.FLG_SWIEPH)
-            jup_lo, _ = swe.calc_ut(lo, swe.JUPITER, swe.FLG_SWIEPH)
-            diff_lo = ((sat_lo[0] - jup_lo[0]) % 360 + 180) % 360 - 180
-            if abs(diff_lo) < abs(diff):
-                hi = mid
-            else:
-                lo = mid
-        sat, _ = swe.calc_ut(lo, swe.SATURN, swe.FLG_SWIEPH)
-        sat_lon = sat[0] % 360
-        sign_idx = int(sat_lon // 30)
-        sign_name = SIGNS[sign_idx]
-        # Final orb
-        jup, _ = swe.calc_ut(lo, swe.JUPITER, swe.FLG_SWIEPH)
-        diff_final = (sat_lon - jup[0] % 360 + 180) % 360 - 180
-        refined.append((lo, sign_name, sat_lon, abs(diff_final)))
-    return [(jd, sign, lon, orb) for jd, sign, lon, orb in refined if orb < tol]
+        orb = abs(_sj_signed_separation(root_jd))
+        if orb < tol:
+            conjunctions.append((
+                root_jd,
+                SIGNS[int(sat_lon // 30)],
+                sat_lon,
+                orb,
+            ))
+    return conjunctions
+
+
+def find_sj_conjunctions(year, tol=0.5):
+    """Find all exact Saturn-Jupiter conjunctions in a calendar year."""
+    return _find_sj_conjunctions_between(
+        swe.julday(year, 1, 1, 0),
+        swe.julday(year + 1, 1, 1, 0),
+        tol,
+    )
+
+
+def find_sj_conjunction_sequence(anchor_jd, tol=0.5, window_days=370):
+    """Find every pass belonging to the conjunction sequence around an anchor."""
+    return _find_sj_conjunctions_between(
+        anchor_jd - window_days,
+        anchor_jd + window_days,
+        tol,
+    )
 
 ES_SIGNS = {"Aries":"Aries","Taurus":"Tauro","Gemini":"Géminis","Cancer":"Cáncer","Leo":"Leo","Virgo":"Virgo","Libra":"Libra","Scorpio":"Escorpio","Sagittarius":"Sagitario","Capricorn":"Capricornio","Aquarius":"Acuario","Pisces":"Piscis"}
 ES_ELEMENTS = {"Fire":"Fuego","Earth":"Tierra","Air":"Aire","Water":"Agua"}
@@ -268,17 +298,17 @@ def house_from_lon(lon, cusps):
     return 1
 
 def get_saeculum(jd):
-    current = {"name":"Unknown","archetype":"","conj_year":0,"conj_sign":"","conj_element":"","turning":""}
+    current = {"name":"Unknown","archetype":"","conj_year":0,"conj_jd":None,"conj_sign":"","conj_element":"","turning":""}
     for jd_boundary, data in SAECULUM_BOUNDARIES:
         if jd < jd_boundary:
             return current
-        current = data
+        current = {**data, "conj_jd": jd_boundary}
     return current
 
 def get_planet_data(jd):
     results = []
     for name, body_id in SWE_BODIES.items():
-        result, ret = swe.calc_ut(jd, body_id, swe.FLG_SWIEPH)
+        result, ret = calc_ut_checked(jd, body_id, swe.FLG_SWIEPH)
         ld = result[0] % 360
         si = int(ld // 30)
         d, m = int(ld % 30), int((ld % 30 - int(ld % 30)) * 60)
@@ -315,6 +345,10 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
                         recipient_name="", lang="en", solar_chart=False):
     is_es = (lang == "es")
     """Build the snapshot page HTML."""
+    recipient_name = html_escape(str(recipient_name))
+    birth_date = html_escape(str(birth_date))
+    birth_time = html_escape(str(birth_time))
+    birth_location = html_escape(str(birth_location))
 
     utc_hour_frac = (hour + tz_offset) + minute / 60.0
     jd = swe.julday(year, month, day, utc_hour_frac)
@@ -468,7 +502,10 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
         gen_text = f"{ES_GEN_NAMES.get(saec['name'],saec['name'])} / {ES_ARCH_NAMES.get(saec['archetype'],saec['archetype'])}"
         turning_text = ES_TURNING_NAMES.get(saec['turning'], saec['turning'])
         # S/J conjunction date(s) and retrograde blurb
-        _conjs = find_sj_conjunctions(saec['conj_year'])
+        _conjs = (
+            find_sj_conjunction_sequence(saec['conj_jd'])
+            if saec['conj_jd'] is not None else []
+        )
         # Date string includes the year (the leading element+sign already provides context)
         _conj_date_strs = [f"{ES_MONTHS[out[1]-1]} {out[2]}, {out[0]}" for jd, _, _, _ in _conjs for out in [swe.revjul(jd)]] if _conjs else []
         if len(_conjs) == 1:
@@ -511,7 +548,10 @@ def build_snapshot_html(birth_date, birth_time, birth_location, lat, lon,
         gen_text = f"{saec['name']} / {saec['archetype']}"
         turning_text = saec['turning']
         # S/J conjunction date(s) and retrograde blurb
-        _conjs = find_sj_conjunctions(saec['conj_year'])
+        _conjs = (
+            find_sj_conjunction_sequence(saec['conj_jd'])
+            if saec['conj_jd'] is not None else []
+        )
         # Date string includes the year (the leading element+sign already provides context)
         _conj_date_strs = [f"{MONTHS[out[1]-1]} {out[2]}, {out[0]}" for jd, _, _, _ in _conjs for out in [swe.revjul(jd)]] if _conjs else []
         if len(_conjs) == 1:
@@ -834,8 +874,8 @@ body {{ background:#ffffff; margin:0; padding:0; font-family:Georgia,"DejaVu Ser
 </div>
 
 <div class="snap-footer">
-<div class="brand">Zodiyuga SkyClock</div>
-<div class="url">zodiyuga.com &middot; Swiss Ephemeris (DE440)</div>
+<div class="brand">Zodi Yuga · SkyCLAWk</div>
+<div class="url">zodiyuga.com &middot; Swiss Ephemeris (DE431-based files)</div>
 </div>
 
 </div>

@@ -108,7 +108,7 @@
 - Saeculum, turning, conjunction, element shift, archetype
 
 ### Appendix B: Methodology Note
-- Data sources (Swiss Ephemeris / JPL DE440)
+- Data sources (Swiss Ephemeris files based on JPL DE431)
 - Projection used (Gleason AE)
 - House system note
 

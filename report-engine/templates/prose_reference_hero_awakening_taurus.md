@@ -1,5 +1,5 @@
 <|channel>thought
-Cheryl K. Beggs (Taurus Sun, born 1982).
+Synthetic reference profile (Taurus Sun, model year 1982).
 Millennial/Hero archetype; Awakening era; 1981 Saturn-Jupiter Libra conjunction context.
 Transition from Earth Era to Air Era; transition from Kali Yuga to Dvapara Yuga; Outer planet cycles (Uranus/Saturn, Uranus/Neptune, etc.).
 Steady, tangible output, patience vs. rigidity.

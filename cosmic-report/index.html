@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cosmic History Report — Your Life Through the Lens of the Planets</title>
+  <meta name="description" content="A personalized Zodi Yuga report mapping your birth chart into Saturn–Jupiter cycles, elemental epochs, Saeculum patterns, and Yuga ages.">
+  <link rel="canonical" href="https://zodiyuga.com/cosmic-report/">
+  <link rel="alternate" hreflang="en" href="https://zodiyuga.com/cosmic-report/">
+  <link rel="alternate" hreflang="es" href="https://zodiyuga.com/cosmic-report/index_es.html">
+  <meta property="og:title" content="Cosmic History Report by Zodi Yuga">
+  <meta property="og:description" content="See where your birth chart sits inside the larger architecture of historical and celestial time.">
+  <meta property="og:url" content="https://zodiyuga.com/cosmic-report/">
+  <meta property="og:type" content="website">
   <style>
     :root {
       --bg: #05060a;
@@ -431,6 +439,27 @@
       color: var(--muted);
       text-align: center;
     }
+    .order-form .field-help {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .order-form .consent-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      margin: 4px 0 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .order-form .consent-row input {
+      width: auto;
+      margin-top: 3px;
+      flex: 0 0 auto;
+    }
 
     .order-form .form-status {
       padding: 10px 14px;
@@ -519,6 +548,9 @@
       font-size: 13px;
       margin-bottom: 8px;
     }
+    .footer .footer-links { margin-top: 12px; }
+    .footer a,
+    .form-note a { color: var(--gold); }
 
     /* ── Language toggle ── */
     .lang-toggle {
@@ -578,7 +610,7 @@
 
 <!-- ── Eyebrow ── -->
 <div class="container">
-  <div class="eyebrow" data-i18n="eyebrow">Personalized Cosmic History Report</div>
+  <div class="eyebrow" data-i18n="eyebrow">Zodi Yuga · Personalized Cosmic History Report</div>
 </div>
 
 <!-- ── Hero ── -->
@@ -586,13 +618,13 @@
   <div class="hero">
     <h1 data-i18n="hero_title">Your Life Through the <span>Lens of the Planets</span></h1>
     <p class="subhead" data-i18n="hero_sub">
-      A 20-page PDF that maps your birth chart onto the 200-year sweep of the Saturn-Jupiter cycle,
+      An approximately 20-page PDF that maps your birth chart onto the 200-year sweep of the Saturn-Jupiter cycle,
       the elemental shift from Earth to Air, and the Yuga transition — calibrated against
       <strong>NASA JPL Horizons</strong> ephemeris data. Western common terms with native
       (Yuga / Saeculum) cross-references.
     </p>
     <div class="badge-row">
-      <span class="badge"><span class="dot gold"></span> NASA JPL DE440</span>
+      <span class="badge"><span class="dot gold"></span> Swiss Ephemeris · DE431-based files</span>
       <span class="badge"><span class="dot blue"></span> 200+ Year Sweep</span>
       <span class="badge"><span class="dot green"></span> PDF Ready After Payment</span>
     </div>
@@ -608,7 +640,7 @@
     <p class="subtitle" data-i18n="chart_sub">Your natal chart wheel with constellation overlay, house cusps, and aspect lines — rendered from Swiss Ephemeris data.</p>
     <div class="chart-preview">
       <img src="chart_sample.png" alt="Sample natal chart wheel" loading="lazy">
-      <div class="caption" data-i18n="chart_caption">Sample chart: Ian Beggs — Jan 1, 1975, 13:03 HST, Kailua-Kona, HI</div>
+      <div class="caption" data-i18n="chart_caption">Sample chart — illustrative wheel</div>
     </div>
   </div>
 </div>
@@ -677,8 +709,8 @@
       <div class="price">$19</div>
       <div class="price-label" data-i18n="pricing_label">One-time purchase</div>
       <ul class="features">
-        <li data-i18n="pricing_f1">20-page PDF — natal chart + narrative + appendix</li>
-        <li data-i18n="pricing_f2">Calibrated against NASA JPL DE440 ephemeris</li>
+        <li data-i18n="pricing_f1">Approximately 20 pages — natal chart + narrative + appendix</li>
+        <li data-i18n="pricing_f2">Computed with Swiss Ephemeris files based on JPL DE431</li>
         <li data-i18n="pricing_f3">Available in English or Spanish</li>
         <li data-i18n="pricing_f4">Secure download ready within minutes</li>
         <li data-i18n="pricing_f5">One report per birth chart — yours or someone else's</li>
@@ -704,6 +736,10 @@
         <label for="email" data-i18n="form_email">Email Address</label>
         <input type="email" id="email" name="email" required placeholder="jane@example.com">
       </div>
+      <label class="consent-row" for="marketingConsent">
+        <input type="checkbox" id="marketingConsent" name="marketingConsent">
+        <span>Email me occasional Zodi Yuga research notes, product updates, and new episode notices. Optional; purchasing does not subscribe you.</span>
+      </label>
       <div class="form-row">
         <label for="lang" data-i18n="form_lang">Report Language</label>
         <select id="lang" name="lang">
@@ -713,14 +749,26 @@
       </div>
       <div class="form-row">
         <label for="birthDateTime" data-i18n="form_birth">Birth Date &amp; Time</label>
-        <input type="datetime-local" id="birthDateTime" name="birthDateTime" required min="1900-01-01T00:00">
+        <input type="datetime-local" id="birthDateTime" name="birthDateTime" required min="1940-08-08T00:00">
+      </div>
+      <div class="form-row" id="utcOffsetRow" hidden>
+        <label for="utcOffsetMinutes">Which occurrence of this clock time?</label>
+        <select id="utcOffsetMinutes" name="utcOffsetMinutes"></select>
+        <span class="field-help">On the fall daylight-saving transition, the same local clock time occurs twice. Choose the occurrence that matches the birth record.</span>
       </div>
       <div class="form-row">
         <label for="location" data-i18n="form_location">Birth Location</label>
         <input type="text" id="location" name="location" required autocomplete="off" placeholder="e.g. Chicago, Illinois, USA">
       </div>
+      <div class="form-row" id="locationConfirmationRow" hidden>
+        <label class="consent-row" for="locationConfirmation">
+          <input type="checkbox" id="locationConfirmation">
+          <span id="locationConfirmationText"></span>
+        </label>
+        <span class="field-help">Confirm the resolved place before payment. This protects the chart from a similarly named city or region.</span>
+      </div>
       <button type="submit" class="submit-btn" id="formSubmitBtn" data-i18n="form_submit">Generate My Report — $19</button>
-      <div class="form-note" data-i18n="form_note">Keep the confirmation page open while we prepare your secure download.</div>
+      <div class="form-note">Stripe handles payment. Zodi Yuga uses your birth details only to generate this order, removes them from the order record after successful generation, and keeps the secured PDF for up to 7 days. <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></div>
     </form>
   </div>
 </div>
@@ -732,15 +780,15 @@
     <div class="faq-list">
       <div class="faq-item">
         <div class="q" data-i18n="faq_1_q">What data do you need from me?</div>
-        <div class="a" data-i18n="faq_1_a">Your full birth date, exact time of birth, and birth location. The time matters — it determines your rising sign and house cusps. If you don't know your birth time, we can still generate a partial report using sunrise as a default, but the house placements and rising sign will be approximate.</div>
+        <div class="a" data-i18n="faq_1_a">Your full birth date, exact time of birth, and birth location. The time matters because it determines your rising sign and house cusps. The current paid report requires a birth time; do not guess if you need an exact chart.</div>
       </div>
       <div class="faq-item">
         <div class="q" data-i18n="faq_2_q">How is the report generated?</div>
-        <div class="a" data-i18n="faq_2_a">The report is generated by a Python engine using the Swiss Ephemeris library, calibrated against NASA JPL DE440 ephemeris data. The chart wheel is rendered as a vector graphic, and the narrative is assembled from archetype-specific templates written for each generation and rising sign. No AI is used — every word is hand-authored.</div>
+        <div class="a" data-i18n="faq_2_a">The report is generated by a Python engine using Swiss Ephemeris planetary files whose embedded metadata identifies JPL DE431 as their basis. The chart wheel is rendered as a vector graphic, and the narrative is assembled from archetype-specific templates written for each generation and rising sign. No AI is used — every word is hand-authored.</div>
       </div>
       <div class="faq-item">
         <div class="q" data-i18n="faq_3_q">Is the report refundable?</div>
-        <div class="a" data-i18n="faq_3_a">Yes. If the report doesn't meet your expectations, email us within 7 days and we'll refund your $19. No questions asked. The report is a one-time purchase — there's no subscription to cancel.</div>
+        <div class="a" data-i18n="faq_3_a">Yes. If the report doesn't meet your expectations, reply to your delivery email within 7 days and we'll refund your $19. The report is a one-time purchase — there's no subscription to cancel.</div>
       </div>
       <div class="faq-item">
         <div class="q" data-i18n="faq_4_q">What format is the PDF?</div>
@@ -757,8 +805,9 @@
 <!-- ── Footer ── -->
 <div class="container">
   <div class="footer">
-    <p class="brand" data-i18n="footer_brand">Zodi-Yuga Holdings</p>
-    <p data-i18n="footer_text">Data-driven celestial mechanics. Open-source where possible. The Cosmic History Report is a product of the SkyCLAWk Relationship Engine — a professional instrument for visualizing the relationship between the tropical zodiac, sidereal constellations, precessional cycle, and Yuga ages. Report funded by the company, not by subscriptions.</p>
+    <p class="brand" data-i18n="footer_brand">Zodi Yuga</p>
+    <p data-i18n="footer_text">The Cosmic History Report is generated by the SkyCLAWk Relationship Engine. Astrology material is offered for education and personal reflection, not as medical, legal, financial, or mental-health advice.</p>
+    <p class="footer-links"><a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/support/">Support</a></p>
   </div>
 </div>
 
@@ -771,7 +820,52 @@ document.querySelectorAll('.faq-item .q').forEach(function(q) {
 });
 
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const apiBase = isLocal ? 'http://localhost:3011' : 'https://signandsoil.online';
+const apiBase = isLocal ? 'http://localhost:3100' : 'https://reports.zodiyuga.com';
+const utcOffsetRow = document.getElementById('utcOffsetRow');
+const utcOffsetSelect = document.getElementById('utcOffsetMinutes');
+const locationConfirmationRow = document.getElementById('locationConfirmationRow');
+const locationConfirmation = document.getElementById('locationConfirmation');
+const locationConfirmationText = document.getElementById('locationConfirmationText');
+let resolvedLocation = '';
+function formatUtcOffset(minutes) {
+  const sign = minutes >= 0 ? '+' : '−';
+  const absolute = Math.abs(minutes);
+  return `UTC${sign}${String(Math.floor(absolute / 60)).padStart(2, '0')}:${String(absolute % 60).padStart(2, '0')}`;
+}
+function requestUtcOffsetChoice(offsets) {
+  const ordered = [...new Set(offsets.map(Number).filter(Number.isFinite))].sort((a, b) => b - a);
+  utcOffsetSelect.replaceChildren();
+  ordered.forEach((offset, index) => {
+    const option = document.createElement('option');
+    option.value = String(offset);
+    option.textContent = `${index === 0 ? 'Earlier occurrence' : 'Later occurrence'} (${formatUtcOffset(offset)})`;
+    utcOffsetSelect.appendChild(option);
+  });
+  utcOffsetRow.hidden = ordered.length === 0;
+  if (!utcOffsetRow.hidden) utcOffsetSelect.focus();
+}
+function resetUtcOffsetChoice() {
+  utcOffsetRow.hidden = true;
+  utcOffsetSelect.replaceChildren();
+}
+function requestLocationConfirmation(label, timeZone) {
+  resolvedLocation = String(label || '');
+  locationConfirmation.checked = false;
+  locationConfirmationText.textContent = `Use “${resolvedLocation}” (${timeZone}) as my birthplace.`;
+  locationConfirmationRow.hidden = false;
+  locationConfirmation.focus();
+}
+function resetLocationConfirmation() {
+  resolvedLocation = '';
+  locationConfirmation.checked = false;
+  locationConfirmationRow.hidden = true;
+  locationConfirmationText.textContent = '';
+}
+document.getElementById('birthDateTime').addEventListener('change', resetUtcOffsetChoice);
+document.getElementById('location').addEventListener('input', () => {
+  resetUtcOffsetChoice();
+  resetLocationConfirmation();
+});
 const campaignAttribution = (() => {
   const keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
   const saved = JSON.parse(localStorage.getItem('zy_utm') || '{}');
@@ -782,9 +876,70 @@ const campaignAttribution = (() => {
   return attribution;
 })();
 
+// Keep the birth-data form closed until the report service explicitly confirms
+// that checkout is available. A network or DNS failure must fail closed so a
+// visitor never enters sensitive details only to discover that sales are paused.
+const reportForm = document.getElementById('reportForm');
+const reportSubmitButton = document.getElementById('formSubmitBtn');
+const reportFormStatus = document.getElementById('formStatus');
+const pricingCta = document.querySelector('.pricing-card .cta-primary');
+const reportSalesControls = reportForm.querySelectorAll('input, select, button');
+let reportSalesEnabled = false;
+
+function setReportSalesAvailability(enabled) {
+  reportSalesEnabled = enabled === true;
+  reportSalesControls.forEach(control => {
+    control.disabled = !reportSalesEnabled;
+  });
+  if (pricingCta) {
+    pricingCta.setAttribute('aria-disabled', String(!reportSalesEnabled));
+    pricingCta.textContent = reportSalesEnabled
+      ? 'Order Your Report'
+      : 'Checkout Temporarily Closed';
+  }
+  if (reportSalesEnabled) {
+    if (reportFormStatus.dataset.availability === 'closed') {
+      reportFormStatus.style.display = 'none';
+      reportFormStatus.textContent = '';
+      delete reportFormStatus.dataset.availability;
+    }
+    reportSubmitButton.textContent = 'Generate My Report — $19';
+    return;
+  }
+  reportFormStatus.dataset.availability = 'closed';
+  reportFormStatus.style.display = 'block';
+  reportFormStatus.className = 'form-status error';
+  reportFormStatus.textContent =
+    'Report checkout is temporarily closed while delivery verification is completed. Please check back soon; no birth details have been submitted.';
+  reportSubmitButton.textContent = 'Checkout Temporarily Closed';
+}
+
+setReportSalesAvailability(false);
+fetch(`${apiBase}/healthz`, {
+  method: 'GET',
+  headers: { Accept: 'application/json' },
+  cache: 'no-store',
+})
+  .then(response => response.ok ? response.json() : Promise.reject(new Error('availability unavailable')))
+  .then(health => setReportSalesAvailability(health.salesEnabled === true))
+  .catch(() => setReportSalesAvailability(false));
+
+if (pricingCta) {
+  pricingCta.addEventListener('click', event => {
+    if (reportSalesEnabled) return;
+    event.preventDefault();
+    reportFormStatus.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+}
+
 // ── Form submit — create a pending order, then pay on Stripe Checkout ──
-document.getElementById('reportForm').addEventListener('submit', async function(e) {
+reportForm.addEventListener('submit', async function(e) {
   e.preventDefault();
+  if (!reportSalesEnabled) {
+    setReportSalesAvailability(false);
+    reportFormStatus.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
   const btn = document.getElementById('formSubmitBtn');
   const status = document.getElementById('formStatus');
   btn.disabled = true;
@@ -803,9 +958,16 @@ document.getElementById('reportForm').addEventListener('submit', async function(
     email: document.getElementById('email').value.trim(),
     year, month, day, hour, min,
     location: document.getElementById('location').value.trim(),
+    confirmedLocation: locationConfirmation.checked ? resolvedLocation : '',
     lang: document.getElementById('lang').value,
+    marketingConsent: document.getElementById('marketingConsent').checked,
+    marketingConsentVersion: 'zy-email-v1',
+    marketingConsentSource: 'cosmic-report-checkout',
     attribution: campaignAttribution,
   };
+  if (!utcOffsetRow.hidden && utcOffsetSelect.value) {
+    data.utcOffsetMinutes = Number(utcOffsetSelect.value);
+  }
 
   try {
     const resp = await fetch(`${apiBase}/api/cosmic-report/checkout`, {
@@ -817,6 +979,25 @@ document.getElementById('reportForm').addEventListener('submit', async function(
     if (resp.ok && result.checkoutUrl) {
       window.location.assign(result.checkoutUrl);
       return;
+    } else if (result.error === 'ambiguous_local_time' && Array.isArray(result.allowedUtcOffsets)) {
+      requestUtcOffsetChoice(result.allowedUtcOffsets);
+      status.className = 'form-status error';
+      status.textContent = 'This local clock time occurred twice because daylight saving time ended. Choose the earlier or later occurrence shown below, then submit again.';
+    } else if (result.error === 'invalid_local_time') {
+      status.className = 'form-status error';
+      status.textContent = 'That local clock time did not exist because of a daylight-saving transition. Verify the time or choose a valid nearby time.';
+    } else if (result.error === 'location_not_found') {
+      status.className = 'form-status error';
+      status.textContent = 'We could not resolve that birthplace accurately. Add the city, state or region, and country, then try again.';
+    } else if (result.error === 'birth_date_not_supported') {
+      status.className = 'form-status error';
+      status.textContent = 'The current report model supports births after the first verified boundary it includes: August 8, 1940 at 01:26 UTC.';
+    } else if (result.error === 'location_confirmation_required' && result.resolvedLocation) {
+      requestLocationConfirmation(result.resolvedLocation, result.timeZone || 'resolved timezone');
+      status.className = 'form-status error';
+      status.textContent = 'Check the resolved birthplace below. If it is correct, confirm it and submit again; otherwise make the location more specific.';
+    } else if (result.error === 'sales_temporarily_disabled') {
+      setReportSalesAvailability(false);
     } else {
       status.className = 'form-status error';
       status.textContent = 'Error: ' + (result.error || 'Something went wrong. Please try again.');
@@ -825,8 +1006,10 @@ document.getElementById('reportForm').addEventListener('submit', async function(
     status.className = 'form-status error';
     status.textContent = 'Could not reach the server. Please try again later.';
   } finally {
-    btn.disabled = false;
-    btn.textContent = 'Generate My Report — $19';
+    btn.disabled = !reportSalesEnabled;
+    btn.textContent = reportSalesEnabled
+      ? 'Generate My Report — $19'
+      : 'Checkout Temporarily Closed';
   }
 });
 
@@ -851,12 +1034,13 @@ async function handleCheckoutReturn() {
     const result = await response.json();
     if (response.ok && result.status === 'ready') {
       status.className = 'form-status success';
-      status.innerHTML = `✅ Your report is ready. <a href="${apiBase}${result.downloadUrl}" target="_blank" rel="noopener">Download your PDF</a>${result.emailed ? ' — a copy was also emailed to you.' : '.'}`;
+      const downloadUrl = new URL(result.downloadUrl, `${apiBase}/`).toString();
+      status.innerHTML = `✅ Your report is ready. <a href="${downloadUrl}" target="_blank" rel="noopener">Download your PDF</a>${result.emailed ? ' — a copy was also emailed to you.' : '.'}`;
       return;
     }
-    if (result.status === 'failed') {
+    if (result.status === 'failed' || result.status === 'expired_unfulfilled') {
       status.className = 'form-status error';
-      status.textContent = 'We received your payment, but report generation needs attention. Your order is recorded; please contact support.';
+      status.textContent = result.message || 'We received your payment, but report generation needs attention. Your order is recorded; please contact support.';
       return;
     }
     await new Promise(resolve => setTimeout(resolve, 3000));

@@ -6,7 +6,7 @@ Self-contained PDF generator for the Zodiyuga Cosmic History Report.
 
 ```bash
 cd report-engine/scripts
-python3 generate_full_report.py   --year 1982 --month 5 --day 2 --hour 2 --min 16   --tz EDT --lat 30.22 --lon -81.68   --location "NAS Jacksonville, Florida"   --name "Cheryl K Beggs"   --lang en   --output ../output/cosmic_history_report_cheryl.pdf
+python3 generate_full_report.py   --year 1982 --month 6 --day 1 --hour 12 --min 0   --tz UTC --lat 51.5074 --lon -0.1278   --location "London, United Kingdom"   --name "Synthetic Reference"   --lang en   --output ../output/cosmic_history_report_reference.pdf
 ```
 
 ## Report structure
@@ -25,6 +25,18 @@ python3 generate_full_report.py   --year 1982 --month 5 --day 2 --hour 2 --min 1
 ## Timezones
 
 EST, EDT, CST, CDT, MST, MDT, PST, PDT, HST, AKST, COT, IST, GMT, UTC.
+
+## Tests
+
+Run the focused astronomy regressions from the repository root with the same
+Python environment used by the renderer:
+
+```bash
+python3 -m unittest discover -s report-engine/tests -p 'test_*.py' -v
+```
+
+The suite verifies the exact cross-year Saturn-Jupiter triple-pass sequence and
+its English and Spanish snapshot text.
 
 ## Templates
 

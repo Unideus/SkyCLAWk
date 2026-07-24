@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy — Zodi Yuga Cosmic History Report</title>
+  <meta name="description" content="How Zodi Yuga handles the information used to create and deliver a Cosmic History Report. English and Spanish.">
+  <link rel="canonical" href="https://zodiyuga.com/privacy/">
+  <link rel="stylesheet" href="/customer-pages.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/cosmic-report/">
+        <span class="brand-mark" aria-hidden="true">✦</span>
+        <span>Zodi Yuga<small>Cosmic History Report</small></span>
+      </a>
+      <nav class="site-nav" aria-label="Customer information">
+        <a href="/privacy/" aria-current="page">Privacy</a>
+        <a href="/terms/">Terms</a>
+        <a href="/support/">Support</a>
+        <a href="/cosmic-report/">Report</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="page-shell">
+    <section class="hero">
+      <p class="eyebrow">Customer information</p>
+      <h1>Privacy, in plain language</h1>
+      <p class="lede">A Cosmic History Report needs unusually specific birth information. This page explains what enters the report pipeline, where it goes, and when our working copies are removed.</p>
+      <div class="meta-row">
+        <span>Effective July 23, 2026</span>
+        <span>Applies to the Cosmic History Report</span>
+        <span class="language-jump" aria-label="Jump to language">
+          <a href="#english">English</a>
+          <a href="#espanol" lang="es">Español</a>
+        </span>
+      </div>
+    </section>
+
+    <article id="english" class="language-block" lang="en">
+      <span class="language-label">English</span>
+
+      <h2>The short version</h2>
+      <p>We use your name, email address, birth date, birth time, and birth location to validate the order, calculate the chart, generate your personalized PDF, and deliver it. Stripe handles payment. Our email service delivers the report. MailerLite receives your contact information only when you separately choose the optional marketing checkbox.</p>
+      <div class="callout">
+        <strong>Birth-detail scrubbing:</strong> once the PDF has been generated successfully, the report service immediately removes your name, birth location, coordinates, date, time, and timezone data from its working order record. The finished PDF necessarily contains personalized chart information. The secured PDF and the remaining limited order record are removed within seven days.
+      </div>
+
+      <h2>Information you provide</h2>
+      <ul>
+        <li>Your name and email address.</li>
+        <li>Your local birth date and exact or best-known birth time.</li>
+        <li>Your birth city or location, which is converted into coordinates and a timezone so the chart can be calculated.</li>
+        <li>Your selected language and whether you checked the optional marketing-consent box.</li>
+      </ul>
+      <p>If the link that brought you to the order page contains campaign tags, the page may remember those tags in your browser and attach them to checkout. They help us understand which content led to an order. They are not used to calculate your chart.</p>
+
+      <h2>What happens during an order</h2>
+      <ol>
+        <li>Our report service checks that the required fields are present and uses a location lookup service to resolve the birth location and timezone.</li>
+        <li>A pending order is created and you are sent to Stripe Checkout. Payment-card details are entered directly with Stripe; Zodi Yuga does not receive your full card number.</li>
+        <li>After Stripe confirms payment, the report engine calculates and generates your PDF.</li>
+        <li>As soon as the PDF succeeds, the service scrubs the working birth details described above.</li>
+        <li>A secure, time-limited download is created. A copy is delivered through our Titan-hosted email/SMTP delivery setup.</li>
+        <li>If—and only if—you checked the optional marketing box, your name, email, language, and subscription group are sent to MailerLite.</li>
+      </ol>
+
+      <h2>Services involved</h2>
+      <table class="plain-table">
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Why it is involved</th>
+            <th>What it may receive</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Zodi Yuga report service</td>
+            <td>Order validation, chart calculation, PDF generation, secure download, and fulfillment status.</td>
+            <td>The report inputs and limited order/delivery information described on this page.</td>
+          </tr>
+          <tr>
+            <td>Location lookup</td>
+            <td>Converts the entered birth location into coordinates used to determine the correct timezone.</td>
+            <td>The location text you enter.</td>
+          </tr>
+          <tr>
+            <td>Stripe</td>
+            <td>Secure checkout, payment confirmation, receipts, refunds, and payment records.</td>
+            <td>Your checkout email, payment information, amount, language, and a non-birth-data order reference.</td>
+          </tr>
+          <tr>
+            <td>Titan / email delivery</td>
+            <td>Sends the requested report and support replies.</td>
+            <td>Your email address, delivery message, and attached report.</td>
+          </tr>
+          <tr>
+            <td>MailerLite</td>
+            <td>Optional Zodi Yuga news and product email.</td>
+            <td>Your name, email, language, and list group, only after explicit consent.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>Those providers handle information under their own service and privacy terms. Stripe and email providers may retain their own transaction or message records longer than our seven-day report window.</p>
+
+      <h2>Retention</h2>
+      <ul>
+        <li><strong>Working birth details:</strong> removed from our order record immediately after successful PDF generation. If generation fails, they remain only while the limited order is available for retry/support and are removed no later than the seven-day order expiry.</li>
+        <li><strong>Secured PDF and limited order record:</strong> retained for download, delivery recovery, and support for up to seven days, then removed by the service.</li>
+        <li><strong>Stripe records:</strong> retained by Stripe and, where necessary, as minimal transaction records for refunds, accounting, fraud prevention, or legal obligations. They do not need the birth details used to calculate the report.</li>
+        <li><strong>Email:</strong> the delivery message and attachment may remain in the sender’s and recipient’s mail systems according to those systems’ settings.</li>
+        <li><strong>Optional marketing record:</strong> remains in MailerLite until you unsubscribe or ask us to remove it.</li>
+      </ul>
+
+      <h2>Security and sharing</h2>
+      <p>Generated files are stored outside the public website and downloads require a signed, expiring link. Service folders use restricted permissions. No online system can promise perfect security, but we limit the information retained and the length of time we retain it. We do not sell your birth details or use them to build advertising profiles.</p>
+      <p>We may disclose information if required to respond to a valid legal process or to protect the service and its customers from fraud or abuse. We do not combine this commercial report data with The Reconciled.</p>
+
+      <h2>Your choices and privacy requests</h2>
+      <ul>
+        <li>Marketing is optional. Leaving the marketing checkbox blank does not affect checkout, report generation, or delivery.</li>
+        <li>Every marketing email includes an unsubscribe method.</li>
+        <li>For access, correction, deletion, or another privacy request, reply to your report-delivery email from the same address used at checkout. Put <strong>Privacy request</strong> in the subject and include the approximate purchase date or Stripe order reference. Do not send a full card number.</li>
+        <li>If you subscribed but did not purchase, reply to the most recent Zodi Yuga email or use its unsubscribe link.</li>
+      </ul>
+      <p>Because birth details are scrubbed promptly and report files expire, we may no longer have the item you ask us to inspect or delete. We will explain what remains in our systems and what is controlled by a provider such as Stripe.</p>
+
+      <h2>Scope and updates</h2>
+      <p>This page covers the Zodi Yuga Cosmic History Report on zodiyuga.com and its report-delivery service. Sign &amp; Soil by Zodi Yuga is a separate commercial product line with its own privacy page. The Reconciled is operationally separate from both commercial brands.</p>
+      <p>If this process changes materially, we will update this page and its effective date. A change will not turn an earlier “no” to marketing into consent.</p>
+
+      <div class="page-links" aria-label="Related pages">
+        <a href="/terms/">Read the terms</a>
+        <a href="/support/">Get support</a>
+        <a href="/cosmic-report/">Return to the report</a>
+      </div>
+    </article>
+
+    <article id="espanol" class="language-block" lang="es">
+      <span class="language-label">Español</span>
+
+      <h2>La versión breve</h2>
+      <p>Usamos tu nombre, correo electrónico, fecha, hora y lugar de nacimiento para validar el pedido, calcular la carta, generar tu PDF personalizado y entregarlo. Stripe procesa el pago. Nuestro servicio de correo entrega el informe. MailerLite recibe tus datos de contacto solamente si eliges por separado la casilla opcional de marketing.</p>
+      <div class="callout">
+        <strong>Eliminación de datos natales:</strong> cuando el PDF se genera correctamente, el servicio elimina inmediatamente de su registro de trabajo tu nombre, lugar de nacimiento, coordenadas, fecha, hora y zona horaria. El PDF terminado contiene necesariamente información personalizada de la carta. El PDF protegido y el registro limitado del pedido se eliminan dentro de siete días.
+      </div>
+
+      <h2>Información que proporcionas</h2>
+      <ul>
+        <li>Tu nombre y correo electrónico.</li>
+        <li>Tu fecha local de nacimiento y la hora exacta o más precisa que conozcas.</li>
+        <li>Tu ciudad o lugar de nacimiento, que se convierte en coordenadas y zona horaria para calcular la carta.</li>
+        <li>El idioma elegido y si marcaste la casilla opcional de consentimiento de marketing.</li>
+      </ul>
+      <p>Si el enlace que te llevó a la página del pedido contiene etiquetas de campaña, la página puede recordarlas en tu navegador y adjuntarlas al checkout. Nos ayudan a saber qué contenido produjo un pedido. No se usan para calcular tu carta.</p>
+
+      <h2>Qué ocurre durante un pedido</h2>
+      <ol>
+        <li>Nuestro servicio verifica los campos obligatorios y usa un servicio de ubicación para resolver el lugar y la zona horaria de nacimiento.</li>
+        <li>Se crea un pedido pendiente y pasas a Stripe Checkout. Los datos de la tarjeta se introducen directamente en Stripe; Zodi Yuga no recibe el número completo de tu tarjeta.</li>
+        <li>Después de que Stripe confirma el pago, el motor calcula y genera tu PDF.</li>
+        <li>En cuanto el PDF se completa, el servicio elimina los datos natales de trabajo indicados arriba.</li>
+        <li>Se crea una descarga segura y temporal. También se entrega una copia mediante nuestra configuración de correo/SMTP alojada por Titan.</li>
+        <li>Si —y solamente si— marcaste la casilla opcional de marketing, se envían a MailerLite tu nombre, correo, idioma y grupo de suscripción.</li>
+      </ol>
+
+      <h2>Servicios que intervienen</h2>
+      <table class="plain-table">
+        <thead>
+          <tr>
+            <th>Servicio</th>
+            <th>Para qué se usa</th>
+            <th>Qué puede recibir</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Servicio de informes Zodi Yuga</td>
+            <td>Validación del pedido, cálculo de la carta, generación del PDF, descarga segura y estado de entrega.</td>
+            <td>Los datos del informe y la información limitada de pedido y entrega descrita aquí.</td>
+          </tr>
+          <tr>
+            <td>Búsqueda de ubicación</td>
+            <td>Convierte el lugar introducido en coordenadas para determinar la zona horaria correcta.</td>
+            <td>El texto de ubicación que introduces.</td>
+          </tr>
+          <tr>
+            <td>Stripe</td>
+            <td>Checkout seguro, confirmación del pago, recibos, reembolsos y registros de pago.</td>
+            <td>Tu correo de compra, datos de pago, importe, idioma y una referencia de pedido sin datos natales.</td>
+          </tr>
+          <tr>
+            <td>Titan / entrega por correo</td>
+            <td>Envía el informe solicitado y las respuestas de soporte.</td>
+            <td>Tu correo electrónico, el mensaje de entrega y el informe adjunto.</td>
+          </tr>
+          <tr>
+            <td>MailerLite</td>
+            <td>Noticias y correos opcionales de productos Zodi Yuga.</td>
+            <td>Tu nombre, correo, idioma y grupo de lista, solo con consentimiento explícito.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>Estos proveedores manejan información según sus propias condiciones y políticas de privacidad. Stripe y los proveedores de correo pueden conservar sus registros de transacciones o mensajes por más tiempo que nuestra ventana de siete días.</p>
+
+      <h2>Plazos de conservación</h2>
+      <ul>
+        <li><strong>Datos natales de trabajo:</strong> se eliminan del registro de pedido inmediatamente después de generar correctamente el PDF. Si la generación falla, permanecen solo durante el periodo limitado de reintento/soporte y se eliminan, como máximo, al vencer el pedido a los siete días.</li>
+        <li><strong>PDF protegido y registro limitado:</strong> se conservan para descarga, recuperación de entrega y soporte por un máximo de siete días; después el servicio los elimina.</li>
+        <li><strong>Registros de Stripe:</strong> Stripe los conserva y, cuando sea necesario, mantenemos datos mínimos de transacción para reembolsos, contabilidad, prevención de fraude u obligaciones legales. No necesitan los datos natales usados para calcular el informe.</li>
+        <li><strong>Correo:</strong> el mensaje y el adjunto pueden permanecer en los sistemas de correo del remitente y del destinatario según su configuración.</li>
+        <li><strong>Registro opcional de marketing:</strong> permanece en MailerLite hasta que canceles la suscripción o pidas su eliminación.</li>
+      </ul>
+
+      <h2>Seguridad y divulgación</h2>
+      <p>Los archivos generados se guardan fuera del sitio web público y las descargas requieren un enlace firmado con vencimiento. Las carpetas del servicio usan permisos restringidos. Ningún sistema en línea puede prometer seguridad perfecta, pero limitamos los datos y el tiempo de conservación. No vendemos tus datos natales ni los usamos para crear perfiles publicitarios.</p>
+      <p>Podemos revelar información si debemos responder a un proceso legal válido o proteger el servicio y a sus clientes del fraude o abuso. No combinamos estos datos comerciales con The Reconciled.</p>
+
+      <h2>Tus opciones y solicitudes de privacidad</h2>
+      <ul>
+        <li>El marketing es opcional. No marcar la casilla no afecta el pago, la generación ni la entrega.</li>
+        <li>Cada correo de marketing incluye una forma de cancelar la suscripción.</li>
+        <li>Para solicitar acceso, corrección o eliminación, responde al correo de entrega desde la misma dirección usada en la compra. Escribe <strong>Solicitud de privacidad</strong> en el asunto e incluye la fecha aproximada de compra o la referencia de Stripe. No envíes el número completo de tu tarjeta.</li>
+        <li>Si te suscribiste sin comprar, responde al correo más reciente de Zodi Yuga o usa su enlace para cancelar la suscripción.</li>
+      </ul>
+      <p>Como los datos natales se eliminan pronto y los archivos vencen, es posible que ya no tengamos el elemento que nos pides revisar o borrar. Te explicaremos qué queda en nuestros sistemas y qué controla un proveedor como Stripe.</p>
+
+      <h2>Alcance y cambios</h2>
+      <p>Esta página cubre el Informe de Historia Cósmica de Zodi Yuga en zodiyuga.com y su servicio de entrega. Sign &amp; Soil by Zodi Yuga es una línea comercial separada con su propia página de privacidad. The Reconciled funciona por separado de ambas marcas comerciales.</p>
+      <p>Si el proceso cambia de forma importante, actualizaremos esta página y la fecha de vigencia. Ningún cambio convertirá una negativa anterior al marketing en consentimiento.</p>
+
+      <div class="page-links" aria-label="Páginas relacionadas">
+        <a href="/terms/">Leer los términos</a>
+        <a href="/support/">Obtener ayuda</a>
+        <a href="/cosmic-report/index_es.html">Volver al informe</a>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>Zodi Yuga · Cosmic History Report</p>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="/privacy/">Privacy / Privacidad</a>
+        <a href="/terms/">Terms / Términos</a>
+        <a href="/support/">Support / Ayuda</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

@@ -7,13 +7,15 @@ the full report's page 2 once it looks right.
 Usage:
     source ~/.hermes/hermes-agent/venv/bin/activate
     python3 scripts/generate_chart_page.py \
-        --year 1982 --month 5 --day 2 --hour 2 --min 16 --tz EDT \
-        --lat 30.22 --lon -81.68 --name "Cheryl K. Beggs"
+        --year 1982 --month 6 --day 1 --hour 12 --min 0 --tz UTC \
+        --lat 51.5074 --lon -0.1278 --name "Synthetic Reference"
 """
 
 import os, sys, math, argparse, tempfile, subprocess
+from html import escape as html_escape
 import swisseph as swe
 import cairosvg
+from ephemeris_utils import calc_ut_checked, configure_ephemeris
 
 # Import planet glyph SVG paths from snapshot module (path-based = no font dependency)
 # Deferred: snapshot_page imports calculate_hellenistic_rulers from chart_page at module top,
@@ -32,8 +34,7 @@ def _load_planet_paths():
     return _PLANET_PATHS
 
 # ── Swiss Ephemeris ──────────────────────────────────────────────────────────
-EPHE_PATH = '/mnt/e/Hermes Project/GitHub/Timeline_ARCHIVED/app-timeline/public/ephe'
-swe.set_ephe_path(EPHE_PATH)
+EPHE_PATH = configure_ephemeris()
 
 SWE_BODIES = {
     "Sun": swe.SUN, "Moon": swe.MOON,
@@ -160,7 +161,7 @@ def is_day_birth(jd_ut, lat, lon):
     """
     geopos = [lon, lat, 0]
     try:
-        sun, _ = swe.calc_ut(jd_ut, swe.SUN)
+        sun, _ = calc_ut_checked(jd_ut, swe.SUN)
         res = swe.azalt(jd_ut, swe.ECL2HOR, geopos, 0, 0, [sun[0], 0, 1])
         altitude = res[1]  # +ve = above horizon
         return altitude > 0
@@ -227,7 +228,7 @@ def degree_in_sign(lon):
 def get_planet_data(jd):
     results = []
     for name, body_id in SWE_BODIES.items():
-        result, ret = swe.calc_ut(jd, body_id, swe.FLG_SWIEPH)
+        result, ret = calc_ut_checked(jd, body_id, swe.FLG_SWIEPH)
         ld = result[0] % 360
         si = int(ld // 30)
         d, m = int(ld % 30), int((ld % 30 - int(ld % 30)) * 60)
@@ -250,6 +251,12 @@ NON_ASPECT_BODIES = {"N.Node"}
 # NO aspect-ratio mismatch, and NO off-center pushing.
 
 def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_time="", birth_location="", house_system="Whole Houses", rulers=None, jd=None, chart_title="Natal Chart", lang="en"):
+    recipient_name = html_escape(str(recipient_name))
+    birth_date = html_escape(str(birth_date))
+    birth_time = html_escape(str(birth_time))
+    birth_location = html_escape(str(birth_location))
+    house_system = html_escape(str(house_system))
+    chart_title = html_escape(str(chart_title))
     W, H = 612, 792          # US Letter in points (72dpi)
     MARGIN = 18              # 0.25" printer-safe margin on all sides
     cx, cy = W / 2, 280      # Wheel centered on page, kept high
@@ -869,10 +876,10 @@ def build_wheel_svg(planets, asc, mc, recipient_name="", birth_date="", birth_ti
     disclaimer_y = BOXES_Y + 3 * (BOX_H + BOX_GAP) + 8 + 30
     if is_es:
         disclaimer_1 = "Esta carta es el mapa de coordenadas personales que usa el informe."
-        disclaimer_2 = "Ubica esta carta dentro del marco más amplio del ciclo Zodiyuga SkyClock, no es una lectura natal completa."
+        disclaimer_2 = "Ubica esta carta dentro del marco más amplio de Zodi Yuga / SkyCLAWk; no es una lectura natal completa."
     else:
         disclaimer_1 = "This chart is the personal coordinate map used by the report."
-        disclaimer_2 = "It locates this chart inside the larger Zodiyuga SkyClock cycle framework, not a full natal reading."
+        disclaimer_2 = "It locates this chart inside the larger Zodi Yuga / SkyCLAWk cycle framework, not a full natal reading."
     svg += f'<text x="{cx}" y="{disclaimer_y}" font-size="11" text-anchor="middle" font-family="DejaVu Sans, sans-serif" fill="#666">{disclaimer_1}</text>'
     svg += f'<text x="{cx}" y="{disclaimer_y + 15}" font-size="11" text-anchor="middle" font-family="DejaVu Sans, sans-serif" fill="#666">{disclaimer_2}</text>'
 

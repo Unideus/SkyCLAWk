@@ -123,6 +123,25 @@ if (existsSync(cosmicSrc)) {
     console.log('Copied: cosmic-report static pages and assets')
 }
 
+// Copy the standalone customer-information pages. These intentionally remain
+// plain HTML so /privacy/, /terms/, and /support/ work even if an app bundle is
+// unavailable, and so their English/Spanish text can be printed cleanly.
+const customerPagesCssSrc = resolve(root, 'customer-pages.css')
+const customerPagesCssDst = resolve(dist, 'customer-pages.css')
+if (existsSync(customerPagesCssSrc)) {
+    cpSync(customerPagesCssSrc, customerPagesCssDst)
+    console.log('Copied: customer-pages.css')
+}
+for (const page of ['privacy', 'terms', 'support']) {
+    const src = resolve(root, page)
+    const dst = resolve(dist, page)
+    if (existsSync(src)) {
+        mkdirSync(dst, { recursive: true })
+        cpSync(src, dst, { recursive: true })
+        console.log('Copied: ' + page + '/')
+    }
+}
+
 // Copy auspicious WASM + public assets
 const ausPublicSrc = resolve(root, 'auspicious/public')
 const ausPublicDst = resolve(dist, 'auspicious')

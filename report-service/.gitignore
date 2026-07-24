@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+node_modules/
+runtime/
+*.log
+coverage/
+.DS_Store

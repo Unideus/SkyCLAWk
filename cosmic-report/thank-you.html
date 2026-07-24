@@ -23,23 +23,24 @@
 </head>
 <body>
   <main>
-    <div class="brand">Zodi-Yuga</div>
+    <div class="brand">Zodi Yuga</div>
     <h1 id="title">Thank you for your order</h1>
     <div id="spinner" class="spinner" aria-label="Preparing report"></div>
     <p id="message">Payment received. We’re preparing your Cosmic History Report now.</p>
     <a id="download" class="download" href="#" target="_blank" rel="noopener">Download Your PDF</a>
-    <a id="home" class="secondary" href="https://zodiyuga.com/">Return to Zodi-Yuga</a>
+    <a id="home" class="secondary" href="https://zodiyuga.com/">Return to Zodi Yuga</a>
+    <span aria-hidden="true"> · </span><a id="support" class="secondary" href="https://zodiyuga.com/support/">Support</a>
   </main>
   <script>
     const params = new URLSearchParams(location.search);
     const isSpanish = params.get('lang') === 'es';
     const sessionId = params.get('session_id');
     const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-    const apiBase = isLocal ? 'http://localhost:3011' : 'https://signandsoil.online';
+    const apiBase = isLocal ? 'http://localhost:3100' : 'https://reports.zodiyuga.com';
     const copy = isSpanish ? {
-      title:'Gracias por tu pedido', preparing:'Pago recibido. Estamos preparando tu Informe de Historia Cósmica.', ready:'Tu informe está listo.', emailed:'Tu informe está listo. También enviamos una copia a tu email.', download:'Descargar tu PDF', home:'Volver a Zodi-Yuga', failed:'Recibimos tu pago, pero la generación del informe necesita atención. Tu pedido está registrado; contacta con soporte.', delayed:'Tu informe todavía se está preparando. Puedes actualizar esta página de forma segura.', missing:'No encontramos la referencia de tu pedido. Usa el enlace de regreso de Stripe o contacta con soporte.'
+      title:'Gracias por tu pedido', preparing:'Pago recibido. Estamos preparando tu Informe de Historia Cósmica.', ready:'Tu informe está listo.', emailed:'Tu informe está listo. También enviamos una copia a tu email.', download:'Descargar tu PDF', home:'Volver a Zodi Yuga', support:'Soporte', failed:'Recibimos tu pago, pero la generación del informe necesita atención. Tu pedido está registrado; contacta con soporte.', delayed:'Tu informe todavía se está preparando. Puedes actualizar esta página de forma segura.', missing:'No encontramos la referencia de tu pedido. Usa el enlace de regreso de Stripe o contacta con soporte.'
     } : {
-      title:'Thank you for your order', preparing:'Payment received. We’re preparing your Cosmic History Report now.', ready:'Your report is ready.', emailed:'Your report is ready. We also sent a copy to your email.', download:'Download Your PDF', home:'Return to Zodi-Yuga', failed:'We received your payment, but report generation needs attention. Your order is recorded; please contact support.', delayed:'Your report is still being prepared. You can safely refresh this page.', missing:'We could not find your order reference. Please use Stripe’s return link or contact support.'
+      title:'Thank you for your order', preparing:'Payment received. We’re preparing your Cosmic History Report now.', ready:'Your report is ready.', emailed:'Your report is ready. We also sent a copy to your email.', download:'Download Your PDF', home:'Return to Zodi Yuga', support:'Support', failed:'We received your payment, but report generation needs attention. Your order is recorded; please contact support.', delayed:'Your report is still being prepared. You can safely refresh this page.', missing:'We could not find your order reference. Please use Stripe’s return link or contact support.'
     };
     document.documentElement.lang = isSpanish ? 'es' : 'en';
     document.title = `${copy.title} — Cosmic History Report`;
@@ -47,6 +48,7 @@
     document.getElementById('message').textContent = copy.preparing;
     document.getElementById('download').textContent = copy.download;
     document.getElementById('home').textContent = copy.home;
+    document.getElementById('support').textContent = copy.support;
 
     function stop(message, error=false) {
       document.getElementById('spinner').style.display = 'none';
@@ -63,12 +65,15 @@
           if (response.ok && result.status === 'ready') {
             stop(result.emailed ? copy.emailed : copy.ready);
             const button = document.getElementById('download');
-            button.href = `${apiBase}${result.downloadUrl}`;
+            button.href = new URL(result.downloadUrl, `${apiBase}/`).toString();
             button.style.display = 'block';
             button.focus();
             return;
           }
-          if (result.status === 'failed') { stop(copy.failed, true); return; }
+          if (result.status === 'failed' || result.status === 'expired_unfulfilled') {
+            stop(result.message || copy.failed, true);
+            return;
+          }
         } catch (_) { /* A transient network error should not abandon a paid order. */ }
         await new Promise(resolve => setTimeout(resolve, 3000));
       }

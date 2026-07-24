@@ -17,7 +17,7 @@ Keep the core astrology experience free, make the app feel generous, and charge 
 - `Import to Natal`
 - Standalone zodiac wheel popout
 - Basic Auspicious scoring
-- Free preview report
+- Static, non-personalized `Your Place in the Saeculum` guide
 
 ## What goes in Plus
 
@@ -79,6 +79,14 @@ SkyCLAWk should land between those models:
 - Full natal / cosmic history PDF
 - Deeper interpretation
 - Exact conjunctions and timing narrative
+
+## Lead-magnet boundary
+
+The timeline email modal must not describe the free guide as a personalized
+report. It offers the same static `Your Place in the Saeculum` PDF to every
+subscriber, alongside explicit consent to receive Zodi Yuga email updates and
+marketing. Personalized Cosmic History reports remain a separate one-time
+purchase.
 
 ## Notes
 

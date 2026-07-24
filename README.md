@@ -17,6 +17,20 @@
 | **Cymatics Lab** | `/cymatics/` | Cymatic frequency lab with tone, waveform, author compare mode, and atlas-backed correspondences |
 | **Cymatic Correspondence Atlas** | `/cymatics-correspondence/` | Tree of Life correspondence atlas and data browser for frequency/form/color/planet/herb/metal records |
 
+## Email Lead Magnet
+
+The shared timeline subscription modal offers the static, non-personalized
+**Your Place in the Saeculum** guide and opt-in Zodi Yuga email updates. A
+successful `/subscribe` response reveals the direct PDF download at
+`/downloads/your-place-in-the-saeculum.pdf`. The English and Spanish modal
+paths continue to use their respective MailerLite groups; the current guide
+itself is in English.
+
+The editable source of truth is
+`Company_OS/deliverables/free-saeculum-report/free-saeculum-report.html`, with
+canonical copy in the adjacent Markdown file. Regenerate the PDF from that HTML;
+do not edit the binary directly.
+
 ## Build
 
 ```bash
@@ -41,6 +55,7 @@ SkyCLAWk/
 ├── cymatics/         # Cymatic frequency lab
 ├── cymatics-correspondence/ # Cymatics atlas, data generator, and generated data contract
 ├── shared/           # Common modules (constants, astro-wheel, swe-init, etc.)
+├── public/downloads/ # Static lead magnets copied into dist/downloads/
 ├── css/              # Shared base styles
 ├── data/             # cities.json
 ├── images/           # President portraits and assets

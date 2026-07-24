@@ -21,7 +21,7 @@ This document analyzes the product, pricing, technical integration, and go-to-ma
 - Birth data → Swiss Ephemeris → chart wheel + narrative + appendix
 - 5 archetypes × 12 signs = 60 snippet templates
 - English + Spanish
-- Verified test cases: Cheryl, Astrid, Steve, Julian, Conor
+- Verified test cases: anonymized synthetic reference charts
 
 ### Permaculture Design Generator (Astrology_Permaculture/)
 - Full Node.js web app with server (`server.js`, 97KB)
